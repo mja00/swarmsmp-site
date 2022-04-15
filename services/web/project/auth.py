@@ -103,7 +103,8 @@ def convert_discord_code_to_token(code):
     base_url = "https://discord.com/api/v6/oauth2/token"
     client_id = os.environ.get('DISCORD_CLIENT_ID')
     client_secret = os.environ.get('DISCORD_CLIENT_SECRET')
-    redirect_uri = url_for('auth.discord_callback', _external=True)
+    scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
+    redirect_uri = url_for('auth.discord_callback', _external=True, _scheme=scheme)
     data = {
         "client_id": client_id,
         "client_secret": client_secret,
@@ -381,7 +382,7 @@ def discord_callback():
         user = User.query.filter_by(id=current_user.id).first()
     except Exception as e:
         print(e)
-        print(token_info)
+        print(f"Error: {token_info['error']}\nError Description: {token_info['error_description']}")
         flash('Error getting discord info. The error has been logged and will be investigated.', "danger")
         return redirect(url_for('index'))
 
