@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import 'admin/admin_nav.html' as admin_nav %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+    <div class="container-fluid mt-2">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Admin Navigation</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ admin_nav.navbar() }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{%- block header %}{%- endblock %}</h5>
+                    </div>
+                    <div class="card-body">
+                        {%- block admin_content %}{%- endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

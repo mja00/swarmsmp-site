@@ -1,0 +1,49 @@
+{% extends "tickets/base.html" %}
+{% block header %}My Tickets{% endblock %}
+{% block ticket_content %}
+    <table id="ticket-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Department</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td><a href="{{ url_for('ticket.view', ticket_id=ticket.id) }}">{{ ticket.get_short_id() }}</a></td>
+                    <td>{{ ticket.department.name }}</td>
+                    <td>{{ ticket.subject }}</td>
+                    <td>
+                        {% if ticket.status == 'open' %}
+                            <span class="badge bg-success">Open</span>
+                        {% elif ticket.status == "answered" %}
+                            <span class="badge bg-info">Answered</span>
+                        {% elif ticket.status == "closed" %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% elif ticket.status == "replied" %}
+                            <span class="badge bg-warning">Client Replied</span>
+                        {% elif ticket.status == "escalated" %}
+                            <span class="badge bg-danger">Escalated</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ ticket.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ ticket.get_humanized_last_replied_at() }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        $(document).ready(function() {
+            $('#ticket-table').DataTable({
+                "ordering": false,
+            });
+        });
+    </script>
+{% endblock %}

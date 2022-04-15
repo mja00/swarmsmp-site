@@ -1,0 +1,9 @@
+{% macro navbar() -%}
+    <!-- list group -->
+    <ul class="list-group">
+        <a href="{{ url_for('ticket.mine') }}"
+           class="list-group-item list-group-item-action {% if request.endpoint == 'ticket.mine' %}active{% endif %}">My Tickets</a>
+        <a href="{{ url_for('ticket.create') }}"
+           class="list-group-item list-group-item-action {% if request.endpoint == 'ticket.create' %}active{% endif %}">New Ticket</a>
+    </ul>
+{%- endmacro %}

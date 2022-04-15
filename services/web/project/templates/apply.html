@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Application{% endblock %}
+{% block content %}
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h5>Whitelist Application</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('apply') }}" method="post">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label" for="characterName">Character Name</label>
+                                <input class="form-control" type="text" name="characterName" id="characterName" placeholder="M'Bonk" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="characterFaction">Faction</label>
+                                <select class="form-select" id="characterFaction" name="characterFaction" required>
+                                    <option value="">Select Faction</option>
+                                    {% for faction in factions %}
+                                        <option value="{{ faction.id }}">{{ faction.name }}</option>
+                                    {% endfor %} %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="characterClass">Class</label>
+                                <!-- TODO: Add classes to the DB and populate this dropdown. For now, use an input -->
+                                <input class="form-control" type="text" name="characterClass" id="characterClass" placeholder="Warrior" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="characterRace">Race</label>
+                                <!-- TODO: This will also use a dropdown eventually, use an input for now -->
+                                <input class="form-control" type="text" name="characterRace" id="characterRace" placeholder="Human" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="characterDescription">Description</label>
+                                <textarea class="form-control" name="characterDescription" id="characterDescription" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="characterBackstory">Backstory</label>
+                                <textarea class="form-control" name="characterBackstory" id="characterBackstory" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ruleAgreement" name="ruleAgreement" required>
+                                    <label for="ruleAgreement">I agree to the <a href="#">rules.</a></label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

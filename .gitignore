@@ -1,0 +1,7 @@
+/.env.prod
+/.env.prod.db
+/.idea/
+
+.env.dev
+
+.env.prod.auth

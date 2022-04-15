@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+{% block doc -%}
+    <html lang="en"{% block html_attribs %}{% endblock html_attribs %} >
+    {%- block html %}
+        <head>
+            {%- block metas %}
+                <!-- Required meta tags -->
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <meta name="title" content="Swarm SMP Portal">
+                <meta name="description"
+                      content="Swarm SMP Portal">
+                <meta name="robots" content="index, follow">
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta name="language" content="English">
+                <!-- Open Graph / Facebook -->
+                <meta property="og:type" content="website">
+                <meta property="og:url" content="https://ssmp.theairplan.com/">
+                <meta property="og:title" content="Swarm SMP Portal">
+                <meta property="og:description"
+                      content="Swarm SMP Portal">
+
+                <!-- Twitter -->
+                <meta property="twitter:card" content="summary_large_image">
+                <meta property="twitter:url" content="https://ssmp.theairplan.com/">
+                <meta property="twitter:title" content="Swarm SMP Portal">
+                <meta property="twitter:description"
+                      content="Swarm SMP Portal">
+
+            {%- endblock metas %}
+
+            {%- block head %}
+                <title>{% block title %}{{ title|default }}{% endblock title %} | SSMP Portal</title>
+                <!-- Favicons -->
+                <link rel="apple-touch-icon" sizes="180x180"
+                      href="{{ url_for('static', filename="apple-touch-icon.png") }}">
+                <link rel="icon" type="image/png" sizes="32x32"
+                      href="{{ url_for('static', filename="favicon-32x32.png") }}">
+                <link rel="icon" type="image/png" sizes="16x16"
+                      href="{{ url_for('static', filename="favicon-16x16.png") }}">
+                <link rel="manifest" href="{{ url_for('static', filename="site.webmanifest") }}">
+
+                {%- block styles %}
+                    <!-- Bootstrap -->
+                    <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css"
+                          id="bootstrap-style">
+                    <!-- Dark mode theme -->
+                    <!--<link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">-->
+                    <link rel="stylesheet"
+                          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+                          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+                          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+                    <link rel="stylesheet"
+                          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+                          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+                          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+                    <link rel="stylesheet" type="text/css"
+                          href="https://cdn.datatables.net/v/bs5/dt-1.11.5/date-1.1.2/rr-1.2.8/datatables.min.css"/>
+                    {%- block userstyles %}
+                    {%- endblock userstyles %}
+                {%- endblock styles %}
+            {%- endblock head %}
+        </head>
+        <body {% block body_attribs %}{% endblock body_attribs %} style="height: 100vh;">
+        {% block body -%}
+            {% block navbar %}
+                <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="{{ url_for('index') }}">SSMP Portal</a>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item {% if request.endpoint == 'index' %} active {% endif %}">
+                                    <a class="nav-link" href="{{ url_for('index') }}">Home<span
+                                            class="sr-only">(current)</span></a>
+                                </li>
+                                <li class="nav-item {% if request.endpoint == 'apply' %} active {% endif %}">
+                                    <a class="nav-link" href="{{ url_for('apply') }}">Apply<span
+                                            class="sr-only">(current)</span></a>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                                <!-- Dark mode toggle -->
+                                {% if current_user.is_authenticated %}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink"
+                                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-user"></i> {{ current_user.username }}
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+                                            aria-labelledby="navbarDarkDropdownMenuLink">
+                                            {% if current_user.minecraft_uuid %}
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                       href="{{ url_for('user.get_user', uuid=current_user.minecraft_uuid) }}">Profile</a>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('ticket.mine') }}">My
+                                                    Tickets</a>
+                                            </li>
+                                            <li>
+                                                <div class="dropdown-divider"></div>
+                                            </li>
+                                            {% if current_user.is_admin %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ url_for('admin.index') }}">Admin
+                                                        Dashboard</a>
+                                                    <div class="dropdown-divider"></div>
+                                                </li>
+                                            {% endif %}
+                                            {% if current_user.is_staff %}
+                                                <li>
+                                                    <a class="dropdown-item" href="#">Staff Dashboard</a>
+                                                    <div class="dropdown-divider"></div>
+                                                </li>
+                                            {% endif %}
+                                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                {% else %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="container mt-2 flash-container">
+                            {% for category, message in messages %}
+                                <div id="flash"
+                                     class="alert alert-{{ category }} alert-dismissible fade show text-center flash-message"
+                                     role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {%- endblock navbar %}
+            {% block content -%}
+            {%- endblock content %}
+            <!--
+            <footer class="bottom">
+                <div class="text-center">
+                    <p>Crafted by <a href="https://github.com/mja00" target="_blank">mja00</a> | <a
+                            href="https://twitter.com/officialmja00" target="_blank">Twitter</a></p>
+                </div>
+            </footer> -->
+
+
+            {% block scripts %}
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+                        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+                        crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+                        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+                        crossorigin="anonymous"></script>
+                <!-- DataTables -->
+                <script type="text/javascript"
+                        src="https://cdn.datatables.net/v/bs5/dt-1.11.5/date-1.1.2/rr-1.2.8/datatables.min.js"></script>
+                <script>
+                    const boostrapCDN = "https://bootswatch.com/5/flatly/bootstrap.min.css";
+                    const darkCDN = "https://bootswatch.com/5/darkly/bootstrap.min.css";
+                    const link = document.getElementById("bootstrap-style");
+                    const darkmodeButton = document.getElementById("dark-mode-toggle");
+
+                    // Toggle dark mode if the user has set it
+                    if (localStorage.getItem("darkMode") === "false") {
+                        turnOffDarkMode();
+                    }
+
+                    $(document).ready(function () {
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // Hide any alerts after 5 seconds
+                        $(".flash-message").delay(5000).slideUp(200, function () {
+                            $(this).alert('close');
+                        });
+                        $(".flash-container").delay(5000).slideUp(200, function () {
+                            // Delete the container
+                            $(this).remove();
+                        });
+                    });
+
+                    function turnOnDarkMode() {
+                        // Change the href to the dark CDN
+                        link.href = darkCDN;
+                        // Change the button icon to a light icon
+                        darkmodeButton.innerHTML = '<i class="fas fa-sun"></i>';
+                        // Set the user's preference to true
+                        localStorage.setItem("darkMode", true);
+                    }
+
+                    function turnOffDarkMode() {
+                        // Change the href to the bootstrap CDN
+                        link.href = boostrapCDN;
+                        // Change the button icon to a dark icon
+                        darkmodeButton.innerHTML = '<i class="fas fa-moon"></i>';
+                        // Set the user's preference to false
+                        localStorage.setItem("darkMode", false);
+                    }
+
+                    function toggleDarkMode() {
+                        // Get the stylesheet link element
+                        const link = document.getElementById("bootstrap-style");
+                        const darkmodeButton = document.getElementById("dark-mode-toggle");
+                        // Get the user's preference from the local storage
+                        const darkMode = localStorage.getItem("darkMode");
+                        // If the user has not set a preference yet
+                        if (darkMode === null) {
+                            // Set it to false
+                            localStorage.setItem("darkMode", false);
+                        }
+                        // Check if the href is equal to the bootstrap CDN
+                        if (link.href === boostrapCDN) {
+                            turnOnDarkMode();
+                        } else {
+                            turnOffDarkMode()
+                        }
+
+                    }
+                </script>
+            {%- endblock scripts %}
+            {% block userscripts -%}
+            {%- endblock userscripts %}
+        {%- endblock body %}
+        </body>
+    {%- endblock html %}
+    </html>
+{% endblock doc -%}

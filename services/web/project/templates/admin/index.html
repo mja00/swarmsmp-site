@@ -1,0 +1,92 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}Statistics{% endblock %}
+{% block admin_content %}
+    <h5 class="text-center">Faction Stats</h5>
+    {% for faction_row in factions|batch(3, "empty") %}
+        <div class="row">
+        {% for faction in faction_row %}
+            <div class="col">
+                {% if faction == "empty" %}
+                    <div class="card bg-secondary">
+                        <div class="card-header text-center">
+                            <h5>No faction</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <h6>Total</h6>
+                                    <p>0</p>
+                                </div>
+                                <div class="col">
+                                    <h6>Online</h6>
+                                    <p>0</p>
+                                </div>
+                                <div class="col">
+                                    <h6>Offline</h6>
+                                    <p>0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                <div class="card bg-secondary">
+                    <div class="card-header text-center">
+                        <h5>{{ faction.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col">
+                                <h6>Total</h6>
+                                <p>{{ faction.total() }}</p>
+                            </div>
+                            <div class="col">
+                                <h6>Online</h6>
+                                <p>{{ faction.online() }}</p>
+                            </div>
+                            <div class="col">
+                                <h6>Offline</h6>
+                                <p>{{ faction.offline() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+    {% endfor %}
+    <hr>
+    <h5 class="text-center">Application Statuses</h5>
+    <div class="row">
+        <div class="col">
+            <div class="card bg-secondary">
+                <div class="card-header text-center">
+                    <h5>Pending</h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ pending_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-success">
+                <div class="card-header text-center">
+                    <h5>Accepted</h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ accepted_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-danger">
+                <div class="card-header text-center">
+                    <h5>Rejected</h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ rejected_count }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

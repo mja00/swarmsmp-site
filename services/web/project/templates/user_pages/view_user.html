@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}Viewing {{ user.username }}{% endblock %}
+{% block content %}
+    <div class="container-fluid mt-2 mb-2">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{{ user.username }}'s Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col">
+                                <!-- Centered image -->
+                                <div class="text-center">
+                                    <img src="{{ user.get_avatar_link(size=150) }}"
+                                         class="" alt="{{ user.username }}" width="150" height="150"
+                                         {% if user.is_banned %}style="filter: grayscale(100%);"{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col text-center">
+                                {% if user.is_admin %}
+                                    <span class="badge bg-danger">Admin</span>
+                                {% endif %}
+                                {% if user.is_staff %}
+                                    <span class="badge bg-warning">Staff</span>
+                                {% endif %}
+                                {% if user.is_banned %}
+                                    <span class="badge bg-danger">Banned</span>
+                                {% endif %}
+                                {% if user.is_whitelisted %}
+                                    <span class="badge bg-success">Whitelisted</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col text-center">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Portal Username: {{ user.username }}</li>
+                                    <li id="minecraftUsername" class="list-group-item">Minecraft
+                                        Username: {{ user.minecraft_username }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if user.id == current_user.id %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5>Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if not user.has_character() %}
+                                <button class="btn btn-success">Create Character</button>
+                            {% endif %}
+                            <button onclick="refreshMinecraft()" class="btn btn-primary" data-toggle="tooltip"
+                                    data-placement="top" title="Updates your Minecraft username if it's changed.">
+                                Refresh Minecraft
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if current_user.is_admin %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5>Admin Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user.is_banned %}
+                            <button onclick="unbanUser()" class="btn btn-success">Unban User</button>
+                            {% else %}
+                                <button onclick="banUser()" class="btn btn-danger">Ban User</button>
+                            {% endif %}
+                            {% if user.is_whitelisted %}
+                                <button onclick="unwhitelistUser()" class="btn btn-danger">Unwhitelist</button>
+                            {% else %}
+                                <button onclick="whitelistUser()" class="btn btn-success">Whitelist</button>
+                            {% endif %}
+                            <a href="#" class="btn btn-info">View On Dashboard</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{{ user.username }}'s Character</h5>
+                        {% if user.id == current_user.id %}
+                            <small class="text-muted">This is public information</small>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if user.has_character() %}
+                            <form>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="name">Name</label>
+                                            <input type="text" class="form-control" id="name"
+                                                   value="{{ latest_character.name }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="faction">Faction</label>
+                                            <input type="text" class="form-control" id="faction"
+                                                   value="{{ latest_character.faction.name }}" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        {% else %}
+                            <p>This user has not created a character yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if user.id == current_user.id %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5>Private Character Information</h5>
+                            <small class="text-muted">Only SwarmSMP Admins and yourself can see this</small>
+                        </div>
+                        <div class="card-body">
+                            {% if user.has_character() %}
+                                <form>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="race">Race</label>
+                                                <input type="text" class="form-control" id="race"
+                                                       value="{{ latest_character.subrace }}" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="class">Class</label>
+                                                <input type="text" class="form-control" id="class"
+                                                       value="{{ latest_character.clazz }}" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="backstory">Backstory</label>
+                                                <textarea class="form-control" id="backstory" rows="3"
+                                                          disabled>{{ latest_character.backstory }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="description">Description</label>
+                                                <textarea class="form-control" id="description" rows="3"
+                                                          disabled>{{ latest_character.description }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% else %}
+                                <p>This user has not created a character yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5>Application Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if latest_application %}
+                                {% if latest_application.is_rejected %}
+                                    <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
+                                        in {{ time_till }}.</p>
+                                {% elif latest_application.is_accepted %}
+                                    <p>Your application has been <b class="text-success">accepted!</b></p>
+                                {% else %}
+                                    <p>Your application is currently pending. It was
+                                        submitted {{ latest_application.get_humanized_created_at() }}.</p>
+                                {% endif %}
+                            {% else %}
+                                <p>You have not yet submitted an application.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        function refreshMinecraft() {
+            $.ajax({
+                url: '{{ url_for('api.refresh_minecraft') }}',
+                type: 'POST',
+                success: function (data) {
+                    let new_username = data.username;
+                    $('#minecraftUsername').html('Minecraft Username: ' + new_username);
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function unwhitelistUser() {
+            $.ajax({
+                url: '{{ url_for('api.unwhitelist_user', user_id=user.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    // Reload page
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function whitelistUser() {
+            $.ajax({
+                url: '{{ url_for('api.whitelist_user', user_id=user.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    // Reload page
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function banUser() {
+            $.ajax({
+                url: '{{ url_for('api.ban_user', user_id=user.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    // Reload page
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function unbanUser() {
+            $.ajax({
+                url: '{{ url_for('api.unban_user', user_id=user.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    // Reload page
+                    window.location.reload();
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+    </script>
+{% endblock %}

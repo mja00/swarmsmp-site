@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Whitelisted Users{% endblock %}
+{% block content %}
+    <div class="container mt-2">
+        <div class="text-center">
+            <h1>Whitelisted Users</h1>
+        </div>
+        {% for user_row in users  | batch(5, False) %}
+            <div class="row mb-2">
+            {% for user in user_row %}
+                <div class="col">
+                    {% if user %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                    <img src="https://minotar.net/avatar/{{ user.minecraft_uuid_as_plain() }}/150"
+                                         class="" alt="{{ user.username }}" width="150" height="150">
+                                </div>
+                            <div class="text-center mt-2">
+                                    <h5>{{ user.minecraft_username }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="card">
+                        <div class="card-body">
+                            <div class="text-center">
+                                    <img src="https://minotar.net/avatar/MHF_Steve/150"
+                                         class="" alt="{{ user.username }}" width="150" height="150">
+                                </div>
+                            <div class="text-center mt-2">
+                                    <h5>Steve</h5>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

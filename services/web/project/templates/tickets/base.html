@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import 'tickets/ticket_nav.html' as ticket_nav %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+    <div class="container-fluid mt-2">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Ticket Navigation</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ ticket_nav.navbar() }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>{%- block header %}{%- endblock %}</h5>
+                    </div>
+                    <div class="card-body">
+                        {%- block ticket_content %}{%- endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

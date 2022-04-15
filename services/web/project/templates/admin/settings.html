@@ -1,0 +1,19 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}Settings | Don't touch without MJ's permission{% endblock %}
+{% block admin_content %}
+    <form id="settingsForm" action="#" method="post" class="mb-4">
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="applications_open" name="applications_open" {% if settings.applications_open %}checked{% endif %}>
+                    <label class="form-check-label" for="applications_open">Applications open</label>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col">
+            <button type="submit" class="btn btn-success" form="settingsForm">Save</button>
+        </div>
+    </div>
+{% endblock %}

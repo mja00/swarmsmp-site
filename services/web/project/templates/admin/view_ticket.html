@@ -1,0 +1,93 @@
+{% extends "admin/admin_base.html" %}
+{% import 'components/view_ticket.html' as tv %}
+{% block header %}{{ ticket.subject }}{% endblock %}
+{% block admin_content %}
+    {{ tv.view_ticket(ticket, current_user, departments) }}
+{% endblock %}
+{% block userscripts scoped %}
+    <script>
+        function closeTicket() {
+            if (confirm('Are you sure you want to close this ticket?')) {
+                $.ajax({
+                    url: '{{ url_for('api.close_ticket', ticket_id=ticket.id) }}',
+                    type: 'POST',
+                    success: function(data) {
+                        {% if current_user.is_elevated() %}
+                        window.location.href = '{{ url_for('admin.tickets') }}';
+                        {% else %}
+                        window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
+                        {% endif %}
+                    },
+                    error: function(data) {
+                        alert('Error closing ticket. ' + data.msg);
+                    }
+                })
+            }
+        }
+
+        function openTicket() {
+            $.ajax({
+                url: '{{ url_for('api.open_ticket', ticket_id=ticket.id) }}',
+                type: 'POST',
+                success: function(data) {
+                    {% if current_user.is_elevated() %}
+                    window.location.href = '{{ url_for('admin.tickets') }}';
+                    {% else %}
+                    window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
+                    {% endif %}
+                },
+                error: function(data) {
+                    alert('Error opening ticket. ' + data.status);
+                }
+            })
+        }
+
+        $(document).ready(function() {
+            let departmentDropdown = $('#department-dropdown');
+            let statusDropdown = $('#status-dropdown');
+            departmentDropdown.change(function() {
+                // Get selected value
+                var selected = $(this).val();
+                $.ajax({
+                    url: '{{ url_for('api.ticket_change_department', ticket_id=ticket.id) }}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({"department": selected}),
+                    success: function(data) {
+                        console.log("Department changed to " + selected);
+                        departmentDropdown.addClass('text-success');
+                        setTimeout(function() {
+                            departmentDropdown.removeClass('text-success');
+                        }, 1000);
+                    },
+                    error: function(data) {
+                        console.log(data);
+                        alert('Error changing department. ' + data.status);
+                    }
+                })
+            })
+
+            statusDropdown.change(function() {
+                // Get selected value
+                var selected = $(this).val();
+                $.ajax({
+                    url: '{{ url_for('api.ticket_change_status', ticket_id=ticket.id) }}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({"status": selected}),
+                    success: function(data) {
+                        console.log("Status changed to " + selected);
+                        statusDropdown.addClass('text-success');
+                        setTimeout(function() {
+                            statusDropdown.removeClass('text-success');
+                        }, 1000);
+                    },
+                    error: function(data) {
+                        console.log(data);
+                        alert('Error changing status. ' + data.status);
+                    }
+                })
+            })
+        });
+    </script>
+{% endblock %}

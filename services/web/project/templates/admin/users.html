@@ -1,0 +1,90 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}Users{% endblock %}
+{% block admin_content %}
+    <table id="users" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Minecraft UUID</th>
+                <th>Email</th>
+                <th>Banned</th>
+                <th>Whitelisted</th>
+                <th>Email Confirmed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        let defaultContentHTML = "<button id='edit-button' class='btn btn-primary btn-sm'><i class='fa fa-edit'></i></button>"
+        $(document).ready(function() {
+            let table = $('#users').DataTable({
+                "order": [[ 0, "desc" ]],
+                "ajax": '{{ url_for('admin.users_data') }}',
+                "serverSide": true,
+                "columns": [
+                    {data: "id", orderable: false, searchable: false, visible: false},
+                    {data: "username", orderable: false},
+                    {data: "minecraft_uuid", visible: false},
+                    {data: "email", orderable: false},
+                    {data: "is_banned", orderable: false, searchable: false, width: "10%"},
+                    {data: "is_whitelisted", orderable: false, searchable: false, width: "10%"},
+                    {data: "email_confirmed", orderable: false, searchable: false, width: "10%"},
+                    {
+                        defaultContent: defaultContentHTML,
+                        orderable: false,
+                        searchable: false,
+                        width: "10%"
+                    }
+                ]
+            });
+
+            table.on('draw', function() {
+                let rows = table.rows().data();
+                for (let i = 0; i < rows.length; i++) {
+                    let row = rows[i];
+
+                    // Changes banned status to a badge
+                    let is_banned = row.is_banned;
+                    if (is_banned) {
+                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge badge-danger">Yes</span></h5>';
+                    } else {
+                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge badge-success">No</span></h5>';
+                    }
+
+                    // Changes whitelisted status to a badge
+                    let is_whitelisted = row.is_whitelisted;
+                    if (is_whitelisted) {
+                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge badge-success">Yes</span></h5>';
+                    } else {
+                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge badge-danger">No</span></h5>';
+                    }
+
+                    // Changes email confirmed status to a badge
+                    let email_confirmed = row.email_confirmed;
+                    if (email_confirmed) {
+                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge badge-success">Yes</span></h5>';
+                    } else {
+                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge badge-danger">No</span></h5>';
+                    }
+
+                    // Make the username clickable to view the user's profile
+                    let uuid = row.minecraft_uuid;
+                    let url = '{{ url_for("user.get_user", uuid=-1) }}';
+                    url = url.replace('-1', uuid);
+                    table.cell(i, 1).node().innerHTML = '<a href="' + url + '">' + row.username + '</a>';
+                }
+            });
+
+            $("#users").on('click', '#edit-button', function() {
+                let data = table.row($(this).parents('tr')).data();
+                let id = data.id;
+                console.log(id);
+            });
+        } );
+    </script>
+{% endblock %}

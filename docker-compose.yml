@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./services/web
+    command: python manage.py run -h 0.0.0.0
+    volumes:
+      - ./services/web/:/usr/src/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env.dev
+  db:
+    container_name: db
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=ssmp
+      - POSTGRES_PASSWORD=ssmp
+      - POSTGRES_DB=ssmp_dev
+  auth-server:
+    build: ./services/auth-server
+    command: python project/auth-server.py
+    volumes:
+      - ./services/auth-server/:/usr/src/app/
+    ports:
+      - "25565:25565"
+    environment:
+      - WEB_SERVER_URL=http://web:5000
+      - AUTH_KEY=cf76bc492f377d7ed6d8
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin:

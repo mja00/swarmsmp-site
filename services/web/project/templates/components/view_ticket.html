@@ -1,0 +1,78 @@
+{% macro view_ticket(ticket, current_user, departments=None) -%}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="btn-group">
+                <a href="{% if request.endpoint == "admin.view_ticket" %}{{ url_for('admin.tickets') }}{% else %} {{ url_for('ticket.mine') }}{% endif %}" class="btn btn-secondary">
+                    <i class="fa fa-arrow-left"></i> Back to tickets</a>
+                {% if ticket.status != "closed" %}
+                    <button onclick="closeTicket()" class="btn btn-danger">Close Ticket</button>
+                {% else %}
+                    <button onclick="openTicket()" class="btn btn-success">Open Ticket</button>
+                {% endif %}
+            </div>
+        {% if request.endpoint == "admin.view_ticket" %}
+            <div class="float-end">
+                <form>
+                    <div class="row g-0">
+                        <div class="col">
+                            <select id="department-dropdown" name="department" class="form-select">
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}" {% if ticket.department_id == department.id %}selected{% endif %}>{{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select id="status-dropdown" name="status" class="form-select">
+                                <option value="open" {% if ticket.status == "open" %}selected{% endif %}>Open</option>
+                                <option value="closed" {% if ticket.status == "closed" %}selected{% endif %}>Closed</option>
+                                <option value="escalated" {% if ticket.status == "escalated" %}selected{% endif %}>Escalated</option>
+                                <option value="replied" {% if ticket.status == "replied" %}selected{% endif %}>Client Replied</option>
+                                <option value="answered" {% if ticket.status == "answered" %}selected{% endif %}>Answered</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+    {% for reply in ticket.replies %}
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header text-center">
+                        {{ reply.author.username }}
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="{{ reply.author.get_avatar_link(size=64) }}" class="img-fluid"
+                             alt="{{ reply.author.username }}">
+                    </div>
+                    <div class="card-footer text-center">{{ reply.get_humanized_created_at() }}</div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card {% if reply.author.is_admin %}border-success{% elif reply.author.is_staff %}border-info{% else %}border-primary{% endif %}">
+                    <div class="card-body">
+                        {{ reply.content }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+    {% endfor %}
+    <div class="row">
+        <div class="col">
+            <form action="{{ url_for('api.ticket_reply', ticket_id=ticket.id) }}" method="POST">
+                <div class="row g-2">
+                    <div class="col-12">
+                        <label for="reply_content">Reply</label>
+                        <textarea class="form-control" id="reply_content" name="reply_content" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Reply</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{%- endmacro %}

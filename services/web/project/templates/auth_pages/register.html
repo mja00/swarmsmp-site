@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <div class="container mt-2 mb-2">
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Register</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('auth.register') }}" method="post">
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-label" for="username">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username"
+                                           placeholder="Enter username" required>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label" for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           placeholder="Enter email" required>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="form-label" for="password">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                               placeholder="Enter password" required>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="form-label" for="password_confirm">Confirm Password</label>
+                                        <input type="password" class="form-control" id="password_confirm" name="confirm"
+                                               placeholder="Confirm password" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{ hcaptcha }}
+
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "tickets/base.html" %}
+{% import 'components/view_ticket.html' as tv %}
+{% block header %}{{ ticket.subject }}{% endblock %}
+{% block ticket_content %}
+    {{ tv.view_ticket(ticket, current_user) }}
+{% endblock %}
+{% block userscripts scoped %}
+    <script>
+        function closeTicket() {
+            if (confirm('Are you sure you want to close this ticket?')) {
+                $.ajax({
+                    url: '{{ url_for('api.close_ticket', ticket_id=ticket.id) }}',
+                    type: 'POST',
+                    success: function(data) {
+                        {% if current_user.is_elevated() %}
+                        window.location.href = '{{ url_for('admin.tickets') }}';
+                        {% else %}
+                        window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
+                        {% endif %}
+                    },
+                    error: function(data) {
+                        alert('Error closing ticket. ' + data.msg);
+                    }
+                })
+            }
+        }
+
+        function openTicket() {
+            $.ajax({
+                url: '{{ url_for('api.open_ticket', ticket_id=ticket.id) }}',
+                type: 'POST',
+                success: function(data) {
+                    {% if current_user.is_elevated() %}
+                    window.location.href = '{{ url_for('admin.tickets') }}';
+                    {% else %}
+                    window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
+                    {% endif %}
+                },
+                error: function(data) {
+                    alert('Error opening ticket. ' + data.msg);
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}Viewing Application for {{ application.user.username }}{% endblock %}
+{% block admin_content %}
+    <div class="row mb-4">
+        <div class="col">
+            <a href="{{ url_for('admin.applications') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i>
+                Return to Applications</a>
+            <div class="float-end">
+                <button onclick="acceptApplication()" class="btn btn-success">Approve</button>
+                <button onclick="rejectApplication()" class="btn btn-danger">Reject</button>
+            </div>
+        </div>
+    </div>
+    <form action="#" method="POST">
+        <div class="row g-2">
+            <div class="col-6">
+                <label class=form-label" for="characterName">Character Name</label>
+                <input type="text" class="form-control" id="characterName" name="characterName"
+                       placeholder="Character Name" value="{{ application.character_name }}" disabled>
+            </div>
+            <div class="col-6">
+                    <label for="characterFaction">Character Faction</label>
+                    <select class="form-control" id="characterFaction" name="characterFaction" disabled>
+                        <option value="">Select Faction</option>
+                        <option selected
+                                value="{{ application.character_faction_id }}">{{ application.faction.name }}</option>
+                    </select>
+            </div>
+            <div class="col-6">
+                    <label for="characterClass">Character Class</label>
+                    <input type="text" id="characterClass" name="characterClass" class="form-control"
+                           placeholder="Character Class" value="{{ application.character_class }}" disabled>
+            </div>
+            <div class="col-6">
+                    <label for="characterRace">Character Race</label>
+                    <input type="text" id="characterRace" name="characterRace" class="form-control"
+                           placeholder="Character Race" value="{{ application.character_race }}" disabled>
+            </div>
+            <div class="col-12">
+                    <label for="characterBackstory">Character Backstory</label>
+                    <textarea id="characterBackstory" name="characterBackstory" class="form-control" rows="8"
+                              placeholder="Character Backstory" disabled>{{ application.backstory }}</textarea>
+                    <small class="text-muted form-text">The backstory must be at least 500, but less than 750
+                        characters.</small>
+            </div>
+            <div class="col-12">
+                    <label for="characterDescription">Character Description</label>
+                    <textarea id="characterDescription" name="characterDescription" class="form-control" rows="8"
+                              placeholder="Character Description" disabled>{{ application.description }}</textarea>
+                    <small class="text-muted form-text">The description must be at least 500, but less than 750
+                        characters.</small>
+            </div>
+            <div class="col-12">
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" id="ruleAgreement" name="ruleAgreement" checked
+                           disabled>
+                    <label for="ruleAgreement">I agree to the <a href="#">rules.</a></label>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        function acceptApplication() {
+            $.ajax({
+                url: '{{ url_for('api.accept_application', application_id=application.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    window.location.href = '{{ url_for('admin.applications') }}';
+                },
+                error: function (data) {
+                    console.log(data);
+                    alert('An error occurred while accepting the application.');
+                }
+            })
+        }
+
+        function rejectApplication() {
+            $.ajax({
+                url: '{{ url_for('api.reject_application', application_id=application.id) }}',
+                type: 'POST',
+                success: function (data) {
+                    window.location.href = '{{ url_for('admin.applications') }}';
+                },
+                error: function (data) {
+                    console.log(data);
+                    alert('An error occurred while rejecting the application.');
+                }
+            })
+        }
+    </script>
+{% endblock %}

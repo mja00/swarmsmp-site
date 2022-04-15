@@ -1,0 +1,28 @@
+{% extends "tickets/base.html" %}
+{% block header %}Create Ticket{% endblock %}
+{% block ticket_content %}
+    <form action="#" method="post">
+        <div class="row g-2">
+            <div class="col-6">
+                    <label class="form-label" for="title">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" maxlength="255" required>
+            </div>
+            <div class="col-6">
+                    <label class="form-label" for="department">Department</label>
+                    <select class="form-select" id="department" name="department" required>
+                        <option value="">Select Department</option>
+                        {% for department in departments %}
+                            <option value="{{ department.id }}">{{ department.name }} - {{ department.description }}</option>
+                        {% endfor %}
+                    </select>
+            </div>
+            <div class="col-12">
+                    <label class="form-label" for="message">Message</label>
+                    <textarea class="form-control" id="message" name="message" rows="6" required></textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
