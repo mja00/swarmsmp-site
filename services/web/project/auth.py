@@ -92,7 +92,8 @@ def generate_confirmation_token(email):
 def get_discord_authorization_url():
     base_url = "https://discord.com/api/v10/oauth2/authorize"
     client_id = os.environ.get('DISCORD_CLIENT_ID')
-    redirect_uri = url_for('auth.discord_callback', _external=True)
+    scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
+    redirect_uri = url_for('auth.discord_callback', _external=True, _scheme=scheme)
     scope = "identify"
     return_url = f"{base_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
     return return_url
