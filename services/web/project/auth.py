@@ -373,10 +373,17 @@ def discord_callback():
         return redirect(url_for('index'))
 
     # Get the discord auth token
+
     token_info = convert_discord_code_to_token(code)
-    access_token = token_info['access_token']
-    user_info = get_discord_info_for_token(access_token)
-    user = User.query.filter_by(id=current_user.id).first()
+    try:
+        access_token = token_info['access_token']
+        user_info = get_discord_info_for_token(access_token)
+        user = User.query.filter_by(id=current_user.id).first()
+    except Exception as e:
+        print(e)
+        print(token_info)
+        flash('Error getting discord info. The error has been logged and will be investigated.', "danger")
+        return redirect(url_for('index'))
 
     # Update the user
     try:
