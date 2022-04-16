@@ -66,6 +66,9 @@ app.config["HCAPTCHA_SITE_KEY"] = os.getenv("HCAPTCHA_SITE_KEY", "")
 app.config["HCAPTCHA_SECRET_KEY"] = os.getenv("HCAPTCHA_SECRET_KEY", "")
 app.config["HCAPTCHA_ENABLED"] = os.getenv("HCAPTCHA_ENABLED", False)
 
+# Debug toolbar
+app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
+
 # Scheme settings
 if not os.getenv('FLASK_ENV') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"

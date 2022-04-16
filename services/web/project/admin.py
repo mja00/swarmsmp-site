@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
+from sqlalchemy.exc import SQLAlchemyError
+
 from .decorators import admin_required
 
 from .models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
@@ -133,8 +135,14 @@ def settings():
         flash('Settings updated', 'success')
         return redirect(url_for('admin.settings'))
     else:
-        settings_list = SystemSetting.query.first()
-        return render_template('admin/settings.html', title='Settings', settings=settings_list)
+        try:
+            settings_list = SystemSetting.query.first()
+            return render_template('admin/settings.html', title='Settings', settings=settings_list)
+        except SQLAlchemyError:
+            settings_obj = SystemSetting()
+            db.session.add(settings_obj)
+            db.session.commit()
+            return redirect(url_for('admin.settings'))
 
 
 @admin_bp.route('/applications')
