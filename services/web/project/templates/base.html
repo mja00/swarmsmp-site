@@ -42,7 +42,7 @@
 
                 {%- block styles %}
                     <!-- Bootstrap -->
-                    {% if not current_user.is_authenticated and not current_user.site_theme %}
+                    {% if not current_user.is_authenticated or current_user.site_theme is None %}
                         <link rel="stylesheet" href="https://bootswatch.com/5/{{ default_theme }}/bootstrap.min.css"
                               id="bootstrap-style">
                     {% else %}
