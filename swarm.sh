@@ -51,11 +51,11 @@ if [ "$first_arg" = "full_update" ]; then
   git pull
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
-  prune_images
   echo "Starting the docker containers"
   docker-compose -f docker-compose.prod.yml up -d
   echo "Running the migrations"
   docker-compose -f docker-compose.prod.yml exec web flask db upgrade
+  prune_images
   exit 0
 fi
 
@@ -66,9 +66,9 @@ if [ "$first_arg" = "upgrade" ]; then
   git pull
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
-  prune_images
   echo "Starting the docker containers"
   docker-compose -f docker-compose.prod.yml up -d
+  prune_images
   exit 0
 fi
 

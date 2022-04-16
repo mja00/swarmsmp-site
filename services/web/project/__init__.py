@@ -1,4 +1,5 @@
 import os
+import pickle
 import uuid
 from datetime import datetime as dt
 from datetime import timedelta
@@ -11,11 +12,11 @@ from flask_talisman import Talisman
 
 from .admin import admin_bp as admin_blueprint
 from .api import api as api_blueprint
-from .api import cache
+from .extensions import cache
 from .auth import auth_bp as auth_blueprint
 from .auth import hcaptcha
 from .decorators import fully_authenticated
-from .models import db, User, SystemSetting, Faction, Application
+from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open
 from .ticket import ticket_bp as ticket_blueprint
 from .user import user_bp as user_blueprint
 
@@ -108,8 +109,25 @@ def is_valid_uuid(uuid_to_test, version=4):
 def load_user(user_id):
     # Check if user_id is a UUID
     if is_valid_uuid(user_id):
-        return User.query.filter_by(session_id=str(user_id)).first()
+        # We wanna do some caching here to avoid hitting the database every time
+        unique_cache_key = "user_" + user_id
+        user_obj = pickle.loads(cache.get(unique_cache_key)) if cache.get(unique_cache_key) else None
+        if user_obj is None:
+            query = User.query.filter_by(session_id=str(user_id)).first()
+            user_obj = pickle.dumps(query)
+            cache.set(unique_cache_key, user_obj, timeout=3600)
+            return query
+        return user_obj
     return None
+
+
+@app.context_processor
+def inject_site_settings():
+    return_dict = {
+        "default_theme": get_site_theme(),
+        "applications_open": get_applications_open(),
+    }
+    return dict(return_dict)
 
 
 @app.route("/")

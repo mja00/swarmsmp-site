@@ -7,7 +7,7 @@ from flask_login import current_user
 
 from .decorators import minecraft_authenticated
 from .models import User, Application
-from .api import cache
+from .extensions import cache
 
 user_bp = Blueprint('user', __name__)
 

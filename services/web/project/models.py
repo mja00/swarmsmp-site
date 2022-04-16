@@ -10,6 +10,8 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 
+from .extensions import cache
+
 db = SQLAlchemy()
 
 
@@ -17,7 +19,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(UUID(as_uuid=True), unique=True, nullable=False)
+    session_id = db.Column(UUID(as_uuid=True), unique=True, nullable=False, default=uuid.uuid4)
     username = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
@@ -49,7 +51,7 @@ class User(UserMixin, db.Model):
         self.minecraft_uuid = minecraft_uuid
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %s %s>' % (self.username, self.id)
 
     def get_password_reset_token(self, expires_in=600):
         return jwt.encode({
@@ -80,33 +82,74 @@ class User(UserMixin, db.Model):
     def minecraft_uuid_as_plain(self):
         return self.minecraft_uuid.replace('-', '')
 
+    @cache.memoize(timeout=3600)
     def has_character(self):
         characters = Character.query.filter_by(user_id=self.id, is_permad=False).all()
         return len(characters) > 0
 
-    def get_avatar_link(self, size=150, type='helm'):
+    def get_avatar_link(self, size=150, skin_type='helm'):
         if self.minecraft_uuid is not None:
-            if type == 'helm':
-                return f"https://minotar.net/helm/{self.minecraft_uuid_as_plain()}/{size}"
-            elif type == 'bust':
-                return f"https://minotar.net/bust/{self.minecraft_uuid_as_plain()}/{size}"
-            elif type == 'body':
-                return f"https://minotar.net/body/{self.minecraft_uuid_as_plain()}/{size}"
-            elif type == 'cube':
-                return f"https://minotar.net/cube/{self.minecraft_uuid_as_plain()}/{size}"
-            else:
-                return f"https://minotar.net/avatar/{self.minecraft_uuid_as_plain()}/{size}"
+            return f"https://minotar.net/{skin_type}/{self.minecraft_uuid_as_plain()}/{size}"
         else:
             return "https://minotar.net/helm/MHF_Steve/150"
 
     def is_elevated(self):
         return self.is_admin or self.is_staff
 
+    @cache.memoize(timeout=3600)
     def get_most_recent_character(self):
-        return Character.query.filter_by(user_id=self.id, is_permad=False).order_by(Character.id.desc()).first()
+        return db.session.query(Character).filter_by(user_id=self.id, is_permad=False).order_by(Character.created_at.desc()).options(db.joinedload('faction')).first()
 
     def get_id(self):
         return str(self.session_id)
+
+    def delete_cache_for_user(self):
+        cache.delete(f"user_{self.session_id}")
+
+    def commit_and_invalidate_cache(self):
+        db.session.commit()
+        self.delete_cache_for_user()
+
+    def refresh_session_id(self):
+        self.session_id = str(uuid.uuid4())
+        self.commit_and_invalidate_cache()
+
+    # Setters
+    def set_password(self, password):
+        self.password = password
+        self.commit_and_invalidate_cache()
+
+    def set_is_whitelisted(self, value):
+        self.is_whitelisted = value
+        self.commit_and_invalidate_cache()
+
+    def set_is_banned(self, value):
+        self.is_banned = value
+        self.commit_and_invalidate_cache()
+
+    def set_minecraft_username(self, username):
+        self.minecraft_username = username
+        self.commit_and_invalidate_cache()
+
+    def set_minecraft_uuid(self, uuid):
+        self.minecraft_uuid = uuid
+        self.commit_and_invalidate_cache()
+
+    def set_discord_uuid(self, uuid):
+        self.discord_uuid = uuid
+        self.commit_and_invalidate_cache()
+
+    def set_email(self, email):
+        self.email = email
+        self.commit_and_invalidate_cache()
+
+    def set_email_confirmed(self, value):
+        self.email_confirmed = value
+        self.commit_and_invalidate_cache()
+
+    def set_session_id(self, session_id):
+        self.session_id = session_id
+        self.commit_and_invalidate_cache()
 
 
 class Application(db.Model):
@@ -343,11 +386,29 @@ class TicketReply(db.Model):
         return humanize.naturaltime(datetime.datetime.now() - self.updated_at)
 
 
+@cache.cached(timeout=3600, key_prefix='site_theme')
+def get_site_theme():
+    return SystemSetting.query.first().site_theme
+
+
+@cache.cached(timeout=3600, key_prefix='applications_open')
+def get_applications_open():
+    return SystemSetting.query.first().applications_open
+
+
+def set_applications_status(status: bool):
+    setting = SystemSetting.query.first()
+    setting.applications_open = status
+    db.session.commit()
+    cache.delete('applications_open')
+
+
 class SystemSetting(db.Model):
     __tablename__ = 'system_settings'
 
     id = db.Column(db.Integer, primary_key=True)
     applications_open = db.Column(db.Boolean, nullable=False, default=False)
+    site_theme = db.Column(db.String(255), nullable=False, default='darkly')
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())

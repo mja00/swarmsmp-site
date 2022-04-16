@@ -2,23 +2,22 @@ from datetime import datetime as dt
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
-from flask_caching import Cache
 
 from .decorators import staff_required, admin_required, auth_key_required
 from .helpers import get_username_from_uuid, MojangAPIError
 from .helpers import send_template_to_email
+from .extensions import cache
 from .models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character
 
 api = Blueprint('api', __name__)
-cache = Cache()
 
 
 def application_accepted(application: Application):
     # Get the user
     user = application.user
     # Set their is_whitelisted to True
-    user.is_whitelisted = True
+    user.set_is_whitelisted(True)
     # Create a new character for them, based on the application
     character = Character(
         user_id=user.id,
@@ -136,8 +135,7 @@ def refresh_minecraft():
         return jsonify({"msg": "Error getting username"}), 400
 
     # Update the username
-    user.minecraft_username = new_username
-    db.session.commit()
+    user.set_minecraft_username(new_username)
     return jsonify({"msg": "Username updated", "username": new_username}), 200
 
 
@@ -414,8 +412,7 @@ def unwhitelist_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_whitelisted = False
-    db.session.commit()
+    user.set_is_whitelisted(False)
     return jsonify({"msg": "User unwhitelisted"}), 200
 
 
@@ -426,8 +423,7 @@ def whitelist_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_whitelisted = True
-    db.session.commit()
+    user.set_is_whitelisted(True)
     return jsonify({"msg": "User whitelisted"}), 200
 
 
@@ -458,8 +454,7 @@ def ban_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_banned = True
-    db.session.commit()
+    user.set_is_banned(True)
     return jsonify({"msg": "User banned"}), 200
 
 
@@ -470,6 +465,5 @@ def unban_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_banned = False
-    db.session.commit()
+    user.set_is_banned(False)
     return jsonify({"msg": "User unbanned"}), 200
