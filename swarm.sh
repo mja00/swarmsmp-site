@@ -12,6 +12,7 @@ fi
 if [ "$first_arg" = "build" ] || [ "$first_arg" = "deploy" ]; then
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
+  prune_images
   exit 0
 fi
 
@@ -50,6 +51,7 @@ if [ "$first_arg" = "full_update" ]; then
   git pull
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
+  prune_images
   echo "Starting the docker containers"
   docker-compose -f docker-compose.prod.yml up -d
   echo "Running the migrations"
@@ -64,7 +66,13 @@ if [ "$first_arg" = "upgrade" ]; then
   git pull
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
+  prune_images
   echo "Starting the docker containers"
   docker-compose -f docker-compose.prod.yml up -d
   exit 0
 fi
+
+function prune_images() {
+  echo "Pruning the docker images"
+  docker image prune -f
+}
