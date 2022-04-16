@@ -124,7 +124,7 @@ def departments():
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == "POST":
-        applications_open = True if request.form.get('applications_open') == 'on' else False
+        applications_open = request.form.get('applications_open') == 'on'
 
         # update settings
         settings_list = SystemSetting.query.first()

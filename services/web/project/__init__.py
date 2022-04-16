@@ -19,7 +19,7 @@ from .ticket import ticket_bp as ticket_blueprint
 from .user import user_bp as user_blueprint
 
 app = Flask(__name__)
-app.debug = True if os.environ.get('FLASK_ENV') == 'development' else False
+app.debug = os.environ.get('FLASK_ENV') == 'development'
 csp = {
     'default-src': '\'self\'',
     'img-src': '*',
@@ -121,7 +121,7 @@ def apply():
             character_race = form_data.get("characterRace")
             character_backstory = form_data.get("characterBackstory")
             character_description = form_data.get("characterDescription")
-            rule_agreement = True if form_data.get("ruleAgreement") == "on" else False
+            rule_agreement = form_data.get("ruleAgreement") == "on"
 
             # Check if the user has already applied
             app_check = Application.query.filter_by(user_id=current_user.id).all()

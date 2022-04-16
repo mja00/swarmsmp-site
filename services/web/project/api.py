@@ -308,8 +308,8 @@ def delete_department(department_id):
 def get_form_values(form):
     name = request.form.get('name', None)
     description = request.form.get('description', None)
-    is_hidden = True if request.form.get('is_hidden', None) == '1' else False
-    is_disabled = True if request.form.get('is_disabled', None) == '1' else False
+    is_hidden = request.form.get('is_hidden', None) == '1'
+    is_disabled = request.form.get('is_disabled', None) == '1'
     return name, description, is_hidden, is_disabled
 
 
