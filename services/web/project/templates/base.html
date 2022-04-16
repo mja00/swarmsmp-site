@@ -42,8 +42,13 @@
 
                 {%- block styles %}
                     <!-- Bootstrap -->
-                    <link rel="stylesheet" href="https://bootswatch.com/5/{{ default_theme }}/bootstrap.min.css"
-                          id="bootstrap-style">
+                    {% if not current_user.is_authenticated and not current_user.site_theme %}
+                        <link rel="stylesheet" href="https://bootswatch.com/5/{{ default_theme }}/bootstrap.min.css"
+                              id="bootstrap-style">
+                    {% else %}
+                        <link rel="stylesheet" href="https://bootswatch.com/5/{{ current_user.site_theme }}/bootstrap.min.css"
+                              id="bootstrap-style">
+                    {% endif %}
                     <!-- Dark mode theme -->
                     <!--<link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">-->
                     <link rel="stylesheet"

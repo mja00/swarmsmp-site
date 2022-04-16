@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .decorators import admin_required
 from .models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
+from .models import set_applications_status, set_site_theme
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -20,21 +21,21 @@ def before_request():
 def index():
     factions = Faction.query.order_by(Faction.id.desc()).all()
     pending = Application.query.filter(db.and_(
-        Application.is_accepted == False,
-        Application.is_rejected == False
+        Application.is_accepted.is_(False),
+        Application.is_rejected.is_(False)
     )).count()
-    accepted = Application.query.filter(Application.is_accepted == True).count()
-    rejected = Application.query.filter(Application.is_rejected == True).count()
+    accepted = Application.query.filter(Application.is_accepted.is_(True)).count()
+    rejected = Application.query.filter(Application.is_rejected.is_(True)).count()
     new_users = User.query.filter(db.and_(
-        User.discord_uuid == None,
-        User.minecraft_uuid == None
+        User.discord_uuid.is_(None),
+        User.minecraft_uuid.is_(None)
     )).count()
     fully_authed = User.query.filter(db.and_(
-        User.discord_uuid != None,
-        User.minecraft_uuid != None,
-        User.is_whitelisted == False
+        User.discord_uuid.is_not(None),
+        User.minecraft_uuid.is_not(None),
+        User.is_whitelisted.is_(False)
     )).count()
-    whitelisted = User.query.filter(User.is_whitelisted == True).count()
+    whitelisted = User.query.filter(User.is_whitelisted.is_(True)).count()
     return render_template(
         'admin/index.html',
         title='Dashboard',
@@ -125,11 +126,11 @@ def departments():
 def settings():
     if request.method == "POST":
         applications_open = request.form.get('applications_open') == 'on'
+        site_theme = request.form.get('siteTheme')
 
         # update settings
-        settings_list = SystemSetting.query.first()
-        settings_list.applications_open = applications_open
-        db.session.commit()
+        set_applications_status(applications_open)
+        set_site_theme(site_theme)
 
         flash('Settings updated', 'success')
         return redirect(url_for('admin.settings'))
@@ -147,21 +148,21 @@ def settings():
 @admin_bp.route('/applications')
 def applications():
     applications_list = Application.query.filter(db.and_(
-        Application.is_accepted == False,
-        Application.is_rejected == False
+        Application.is_accepted.is_(False),
+        Application.is_rejected.is_(False)
     )).order_by(Application.id.asc()).all()
     return render_template('admin/applications.html', applications=applications_list, title='Applications')
 
 
 @admin_bp.route('/accepted-applications')
 def accepted_applications():
-    applications_list = Application.query.filter(Application.is_accepted == True).order_by(Application.id.asc()).all()
+    applications_list = Application.query.filter(Application.is_accepted.is_(True)).order_by(Application.id.asc()).all()
     return render_template('admin/applications.html', applications=applications_list, title='Accepted Applications')
 
 
 @admin_bp.route('/rejected-applications')
 def rejected_applications():
-    applications_list = Application.query.filter(Application.is_rejected == True).order_by(Application.id.asc()).all()
+    applications_list = Application.query.filter(Application.is_rejected.is_(True)).order_by(Application.id.asc()).all()
     return render_template('admin/applications.html', applications=applications_list, title='Rejected Applications')
 
 

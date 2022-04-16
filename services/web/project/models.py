@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     tickets = db.relationship('Ticket', backref='owner', lazy=True)
     ticketreplies = db.relationship('TicketReply', backref='author', lazy=True)
     application = db.relationship('Application', backref='user', lazy=True)
+    site_theme = db.Column(db.String(255), nullable=True)
 
     # Boolean states
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
@@ -386,12 +387,15 @@ class TicketReply(db.Model):
         return humanize.naturaltime(datetime.datetime.now() - self.updated_at)
 
 
-@cache.cached(timeout=3600, key_prefix='site_theme')
+# Cache the follow information infinitely
+# These are the site's settings. There should only be 1 row in the table.
+# This is a singleton model.
+@cache.cached(timeout=0, key_prefix='site_theme')
 def get_site_theme():
     return SystemSetting.query.first().site_theme
 
 
-@cache.cached(timeout=3600, key_prefix='applications_open')
+@cache.cached(timeout=0, key_prefix='applications_open')
 def get_applications_open():
     return SystemSetting.query.first().applications_open
 
@@ -401,6 +405,13 @@ def set_applications_status(status: bool):
     setting.applications_open = status
     db.session.commit()
     cache.delete('applications_open')
+
+
+def set_site_theme(theme: str):
+    setting = SystemSetting.query.first()
+    setting.site_theme = theme
+    db.session.commit()
+    cache.delete('site_theme')
 
 
 class SystemSetting(db.Model):

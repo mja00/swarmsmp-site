@@ -1,4 +1,5 @@
 {% extends "admin/admin_base.html" %}
+{% import 'components/theme_dropdown.html' as td %}
 {% block header %}Settings | Don't touch without MJ's permission{% endblock %}
 {% block admin_content %}
     <form id="settingsForm" action="#" method="post" class="mb-4">
@@ -9,6 +10,9 @@
                     <label class="form-check-label" for="applications_open">Applications open</label>
                 </div>
             </div>
+            <div class="col">
+                {{ td.theme_dropdown() }}
+            </div>
         </div>
     </form>
     <div class="row">
@@ -16,4 +20,13 @@
             <button type="submit" class="btn btn-success" form="settingsForm">Save</button>
         </div>
     </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        function selectTheme(theme) {
+            $('#siteTheme').val(theme);
+        }
+
+        selectTheme('{{ default_theme }}');
+    </script>
 {% endblock %}
