@@ -5,9 +5,9 @@ import humanize
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user
 
-from .decorators import minecraft_authenticated
-from .models import User, Application
-from .extensions import cache
+from ..decorators import minecraft_authenticated
+from ..models import User, Application
+from ..extensions import cache
 
 user_bp = Blueprint('user', __name__)
 

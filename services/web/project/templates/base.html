@@ -174,16 +174,6 @@
                 <script type="text/javascript"
                         src="https://cdn.datatables.net/v/bs5/dt-1.11.5/date-1.1.2/rr-1.2.8/datatables.min.js"></script>
                 <script>
-                    const boostrapCDN = "https://bootswatch.com/5/flatly/bootstrap.min.css";
-                    const darkCDN = "https://bootswatch.com/5/darkly/bootstrap.min.css";
-                    const link = document.getElementById("bootstrap-style");
-                    const darkmodeButton = document.getElementById("dark-mode-toggle");
-
-                    // Toggle dark mode if the user has set it
-                    if (localStorage.getItem("darkMode") === "false") {
-                        turnOffDarkMode();
-                    }
-
                     $(document).ready(function () {
                         $('[data-bs-toggle="tooltip"]').tooltip();
 
@@ -196,44 +186,6 @@
                             $(this).remove();
                         });
                     });
-
-                    function turnOnDarkMode() {
-                        // Change the href to the dark CDN
-                        link.href = darkCDN;
-                        // Change the button icon to a light icon
-                        darkmodeButton.innerHTML = '<i class="fas fa-sun"></i>';
-                        // Set the user's preference to true
-                        localStorage.setItem("darkMode", true);
-                    }
-
-                    function turnOffDarkMode() {
-                        // Change the href to the bootstrap CDN
-                        link.href = boostrapCDN;
-                        // Change the button icon to a dark icon
-                        darkmodeButton.innerHTML = '<i class="fas fa-moon"></i>';
-                        // Set the user's preference to false
-                        localStorage.setItem("darkMode", false);
-                    }
-
-                    function toggleDarkMode() {
-                        // Get the stylesheet link element
-                        const link = document.getElementById("bootstrap-style");
-                        const darkmodeButton = document.getElementById("dark-mode-toggle");
-                        // Get the user's preference from the local storage
-                        const darkMode = localStorage.getItem("darkMode");
-                        // If the user has not set a preference yet
-                        if (darkMode === null) {
-                            // Set it to false
-                            localStorage.setItem("darkMode", false);
-                        }
-                        // Check if the href is equal to the bootstrap CDN
-                        if (link.href === boostrapCDN) {
-                            turnOnDarkMode();
-                        } else {
-                            turnOffDarkMode()
-                        }
-
-                    }
                 </script>
             {%- endblock scripts %}
             {% block userscripts -%}

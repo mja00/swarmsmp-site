@@ -2,9 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required
 from sqlalchemy.exc import SQLAlchemyError
 
-from .decorators import admin_required
-from .models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
-from .models import set_applications_status, set_site_theme
+from ..decorators import admin_required
+from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
+from ..models import set_applications_status, set_site_theme
 
 admin_bp = Blueprint('admin', __name__)
 

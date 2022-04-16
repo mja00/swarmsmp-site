@@ -12,9 +12,9 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .decorators import minecraft_authenticated
-from .models import User, db, EmailConfirmation, MinecraftAuthentication
-from .extensions import cache
+from ..decorators import minecraft_authenticated
+from ..models import User, db, EmailConfirmation, MinecraftAuthentication
+from ..extensions import cache
 
 auth_bp = Blueprint('auth', __name__)
 

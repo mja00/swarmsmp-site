@@ -10,15 +10,15 @@ from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from flask_talisman import Talisman
 
-from .admin import admin_bp as admin_blueprint
-from .api import api as api_blueprint
+from .blueprints.admin import admin_bp as admin_blueprint
+from .blueprints.api import api as api_blueprint
 from .extensions import cache
-from .auth import auth_bp as auth_blueprint
-from .auth import hcaptcha
+from .blueprints.auth import auth_bp as auth_blueprint
+from .blueprints.auth import hcaptcha
 from .decorators import fully_authenticated
 from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open
-from .ticket import ticket_bp as ticket_blueprint
-from .user import user_bp as user_blueprint
+from .blueprints.ticket import ticket_bp as ticket_blueprint
+from .blueprints.user import user_bp as user_blueprint
 
 app = Flask(__name__)
 app.debug = os.environ.get('FLASK_ENV') == 'development'

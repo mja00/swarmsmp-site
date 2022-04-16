@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
-from .decorators import whitelist_required
-from .models import db, Ticket, TicketReply, TicketDepartment
+from ..decorators import whitelist_required
+from ..models import db, Ticket, TicketReply, TicketDepartment
 
 ticket_bp = Blueprint('ticket', __name__)
 

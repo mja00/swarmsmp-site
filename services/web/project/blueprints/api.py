@@ -3,11 +3,11 @@ from datetime import datetime as dt
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 
-from .decorators import staff_required, admin_required, auth_key_required
-from .helpers import get_username_from_uuid, MojangAPIError
-from .helpers import send_template_to_email
-from .extensions import cache
-from .models import MinecraftAuthentication, db, DiscordAuthentication, User, \
+from ..decorators import staff_required, admin_required, auth_key_required
+from ..helpers import get_username_from_uuid, MojangAPIError
+from ..helpers import send_template_to_email
+from ..extensions import cache
+from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character
 
 api = Blueprint('api', __name__)
