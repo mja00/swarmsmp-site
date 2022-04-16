@@ -2,6 +2,7 @@ from datetime import datetime as dt
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
+from flask_caching import Cache
 
 from .decorators import staff_required, admin_required, auth_key_required
 from .helpers import get_username_from_uuid, MojangAPIError
@@ -10,6 +11,7 @@ from .models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character
 
 api = Blueprint('api', __name__)
+cache = Cache()
 
 
 def application_accepted(application: Application):
@@ -430,6 +432,7 @@ def whitelist_user(user_id):
 
 
 @api.route('/minecraft/<string:uuid>/allow_connection', methods=['GET'])
+@cache.cached(timeout=60)
 @auth_key_required
 def allow_connection(uuid):
     user = User.query.filter_by(minecraft_uuid=uuid).first()

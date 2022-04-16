@@ -25,6 +25,10 @@ services:
       - "25565:25565"
     env_file:
       - ./.env.prod.auth
+  redis:
+    image: redis
+    ports:
+      - "127.0.0.1:6379:6379"
 
 volumes:
   postgres_data_prod:

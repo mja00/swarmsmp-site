@@ -11,6 +11,7 @@ from flask_talisman import Talisman
 
 from .admin import admin_bp as admin_blueprint
 from .api import api as api_blueprint
+from .api import cache
 from .auth import auth_bp as auth_blueprint
 from .auth import hcaptcha
 from .decorators import fully_authenticated
@@ -69,6 +70,14 @@ app.config["HCAPTCHA_ENABLED"] = os.getenv("HCAPTCHA_ENABLED", False)
 # Debug toolbar
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
+# Cache
+app.config["CACHE_TYPE"] = os.getenv("CACHE_TYPE", "SimpleCache")
+app.config["CACHE_REDIS_HOST"] = os.getenv("CACHE_REDIS_HOST", "localhost")
+app.config["CACHE_REDIS_PORT"] = int(os.getenv("CACHE_REDIS_PORT", "6379"))
+app.config["CACHE_REDIS_DB"] = int(os.getenv("CACHE_REDIS_DB", "0"))
+app.config["CACHE_REDIS_URL"] = os.getenv("CACHE_REDIS_URL", "redis://localhost:6379/0")
+app.config["CACHE_DEFAULT_TIMEOUT"] = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300"))
+
 # Scheme settings
 if not os.getenv('FLASK_ENV') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"
@@ -77,6 +86,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 hcaptcha.init_app(app)
 toolbar = DebugToolbarExtension(app)
+cache.init_app(app)
 
 # Blueprints
 app.register_blueprint(auth_blueprint, url_prefix="/auth")

@@ -7,6 +7,7 @@ from flask_login import current_user
 
 from .decorators import minecraft_authenticated
 from .models import User, Application
+from .api import cache
 
 user_bp = Blueprint('user', __name__)
 
@@ -35,6 +36,7 @@ def get_user(uuid):
 
 
 @user_bp.route('/whitelisted')
+@cache.cached(timeout=600)
 def whitelisted_users():
     users = User.query.filter_by(is_whitelisted=True).all()
     return render_template('user_pages/whitelisted_users.html', users=users)
