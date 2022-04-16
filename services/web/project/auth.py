@@ -9,7 +9,6 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_hcaptcha import hCaptcha
 from flask_login import login_required, current_user, login_user, logout_user
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .decorators import minecraft_authenticated
@@ -31,6 +30,7 @@ def send_registration_email(user, confirmation_token):
         db.session.add(confirmation)
         db.session.commit()
     except Exception as e:
+        db.session.rollback()
         return False
 
     # Check if we're currently in development mode
@@ -215,7 +215,7 @@ def register():
             else:
                 flash('Failed to send confirmation email.', "danger")
                 return redirect(url_for('auth.register'))
-        except SQLAlchemyError as e:
+        except Exception as e:
             flash('Something went wrong', "danger")
             return redirect(url_for('auth.register'))
     else:
@@ -253,7 +253,8 @@ def minecraft_authentication():
             db.session.commit()
             flash('Successfully authenticated', "success")
             return redirect(url_for('auth.discord_authentication'))
-        except SQLAlchemyError:
+        except Exception as e:
+            db.session.rollback()
             flash('Something went wrong', "danger")
             return redirect(url_for('auth.minecraft_authentication'))
     else:
@@ -356,6 +357,7 @@ def reset_password(token):
                 return redirect(url_for('auth.login'))
             except Exception as e:
                 print(e)
+                db.session.rollback()
                 flash('Error updating password', "danger")
                 return redirect(url_for('auth.reset_password', token=token))
         else:
@@ -392,5 +394,6 @@ def discord_callback():
         return redirect(url_for('index'))
     except Exception as e:
         print(e)
+        db.session.rollback()
         flash('Error linking Discord account', "danger")
         return redirect(url_for('index'))

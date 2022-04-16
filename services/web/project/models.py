@@ -354,8 +354,9 @@ class SystemSetting(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self):
-        self.applications_open = False
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
 
     def __repr__(self):
         return '<SystemSetting %r>' % self.id
