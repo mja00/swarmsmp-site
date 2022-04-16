@@ -10,6 +10,7 @@ import uuid
 
 from .models import db, User, SystemSetting, Faction, Application
 from .decorators import fully_authenticated
+from .helpers import session_scope
 
 from .auth import auth_bp as auth_blueprint
 from .auth import hcaptcha
@@ -65,6 +66,9 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secret")
 app.config["HCAPTCHA_SITE_KEY"] = os.getenv("HCAPTCHA_SITE_KEY", "")
 app.config["HCAPTCHA_SECRET_KEY"] = os.getenv("HCAPTCHA_SECRET_KEY", "")
 app.config["HCAPTCHA_ENABLED"] = os.getenv("HCAPTCHA_ENABLED", False)
+
+# Flask-DebugToolbar settings
+app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 # Scheme settings
 if not os.getenv('FLASK_ENV') == 'development':
@@ -154,20 +158,20 @@ def apply():
                 print("Skipping checks in development")
 
             # Create the application
-            application = Application(
-                user=current_user,
-                character_name=character_name,
-                character_faction=character_faction,
-                character_class=character_class,
-                character_race=character_race,
-                backstory=character_backstory,
-                description=character_description
-            )
-            # Save
-            db.session.add(application)
-            db.session.commit()
-            flash("Your application has been submitted!", "success")
-            return redirect(url_for("user.profile"))
+            with session_scope() as session:
+                application = Application(
+                    user=current_user,
+                    character_name=character_name,
+                    character_faction=character_faction,
+                    character_class=character_class,
+                    character_race=character_race,
+                    backstory=character_backstory,
+                    description=character_description
+                )
+                session.add(application)
+                flash("Your application has been submitted!", "success")
+                return redirect(url_for("user.profile"))
+
         else:
             if current_user.is_whitelisted:
                 flash("You're already whitelisted!", "success")

@@ -1,7 +1,8 @@
 import requests
 import os
 import json
-from .models import User
+from contextlib import contextmanager
+from .models import User, db
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 
@@ -76,3 +77,18 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
         else:
             print(response.text)
             return False
+
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = db.session
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        print(e)
+        session.rollback()
+        raise
+    finally:
+        session.close()

@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
+from sqlalchemy.exc import SQLAlchemyError
+
 from .decorators import staff_required, admin_required, auth_key_required
 from .models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character
-from .helpers import send_template_to_email
+from .helpers import send_template_to_email, session_scope
 
 from .helpers import get_username_from_uuid, MojangAPIError
 from datetime import datetime as dt
@@ -18,26 +20,30 @@ def application_accepted(application: Application):
     # Set their is_whitelisted to True
     user.is_whitelisted = True
     # Create a new character for them, based on the application
-    character = Character(
-        user_id=user.id,
-        name=application.character_name,
-        faction=application.faction,
-        subrace=application.character_race,
-        clazz=application.character_class,
-        backstory=application.backstory,
-        description=application.description,
-        starting_power={},
-        is_permad=False
-    )
-    db.session.add(character)
-    db.session.commit()
-    print("Accepted application for user {}".format(user.username))
-    # Email the user
-    return send_template_to_email(
-        email=user.email,
-        template="application_accepted",
-        subject="Congratulations! Your application has been accepted!"
-    )
+    try:
+        with session_scope() as session:
+            character = Character(
+                user_id=user.id,
+                name=application.character_name,
+                faction=application.faction,
+                subrace=application.character_race,
+                clazz=application.character_class,
+                backstory=application.backstory,
+                description=application.description,
+                starting_power={},
+                is_permad=False
+            )
+            session.add(character)
+            print("Accepted application for user {}".format(user.username))
+            # Email the user
+            return send_template_to_email(
+                email=user.email,
+                template="application_accepted",
+                subject="Congratulations! Your application has been accepted!"
+            )
+    except SQLAlchemyError as e:
+        print("Error accepting application for user {}: {}".format(user.username, e))
+        return False
 
 
 @api.route('/auth/minecraft', methods=['POST'])
@@ -74,18 +80,20 @@ def auth_minecraft():
         # Check if is_used is true
         if search.is_used:
             # Delete the auth code from the database
-            db.session.delete(MinecraftAuthentication.query.filter_by(auth_code=auth_code).one())
-            db.session.commit()
-            return jsonify({"msg": "Auth code already used"}), 400
+            with session_scope() as session:
+                session.delete(search)
+                session.commit()
+                return jsonify({"msg": "Auth code already used"}), 400
         else:
             # Return the auth code
             return jsonify({"msg": "Auth code already used"}), 400
     else:
         # We can add the auth code to the database
-        auth = MinecraftAuthentication(uuid=uuid, username=username, auth_code=auth_code)
-        db.session.add(auth)
-        db.session.commit()
-        return jsonify({"msg": "Auth code added"}), 200
+        with session_scope() as session:
+            auth = MinecraftAuthentication(uuid=uuid, username=username, auth_code=auth_code)
+            session.add(auth)
+            session.commit()
+            return jsonify({"msg": "Auth code added"}), 200
 
 
 @api.route('/auth/discord', methods=['POST'])
@@ -134,9 +142,10 @@ def refresh_minecraft():
         return jsonify({"msg": "Error getting username"}), 400
 
     # Update the username
-    user.minecraft_username = new_username
-    db.session.commit()
-    return jsonify({"msg": "Username updated", "username": new_username}), 200
+    with session_scope() as session:
+        user.minecraft_username = new_username
+        session.commit()
+        return jsonify({"msg": "Username updated", "username": new_username}), 200
 
 
 @api.route('/ticket/<string:ticket_id>/close', methods=['POST'])
@@ -150,9 +159,10 @@ def close_ticket(ticket_id):
         if ticket.owner_id != current_user.id:
             return jsonify({"msg": "You do not have permission to close this ticket"}), 400
 
-    ticket.status = "closed"
-    db.session.commit()
-    return jsonify({"msg": "Ticket closed"}), 200
+    with session_scope() as session:
+        ticket.status = "closed"
+        session.commit()
+        return jsonify({"msg": "Ticket closed"}), 200
 
 
 @api.route('/ticket/<string:ticket_id>/open', methods=['POST'])
@@ -166,9 +176,10 @@ def open_ticket(ticket_id):
         if ticket.owner_id != current_user.id:
             return jsonify({"msg": "You do not have permission to open this ticket"}), 400
 
-    ticket.status = "open"
-    db.session.commit()
-    return jsonify({"msg": "Ticket opened"}), 200
+    with session_scope() as session:
+        ticket.status = "open"
+        session.commit()
+        return jsonify({"msg": "Ticket opened"}), 200
 
 
 @api.route('/ticket/<string:ticket_id>/change_department', methods=['POST'])
@@ -186,9 +197,10 @@ def ticket_change_department(ticket_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    ticket.department_id = department.id
-    db.session.commit()
-    return jsonify({"msg": "Department changed"}), 200
+    with session_scope() as session:
+        ticket.department_id = department.id
+        session.commit()
+        return jsonify({"msg": "Department changed"}), 200
 
 
 @api.route('/ticket/<string:ticket_id>/change_status', methods=['POST'])
@@ -202,9 +214,10 @@ def ticket_change_status(ticket_id):
     if not status:
         return jsonify({"msg": "Missing status"}), 400
 
-    ticket.status = status
-    db.session.commit()
-    return jsonify({"msg": "Status changed"}), 200
+    with session_scope() as session:
+        ticket.status = status
+        session.commit()
+        return jsonify({"msg": "Status changed"}), 200
 
 
 @api.route('/ticket/<string:ticket_id>/reply', methods=['POST'])
@@ -252,9 +265,10 @@ def hide_department(department_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    department.is_hidden = True
-    db.session.commit()
-    return jsonify({"msg": "Department hidden"}), 200
+    with session_scope() as session:
+        department.is_hidden = True
+        session.commit()
+        return jsonify({"msg": "Department hidden"}), 200
 
 
 @api.route('/department/<int:department_id>/unhide', methods=['POST'])
@@ -264,9 +278,10 @@ def unhide_department(department_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    department.is_hidden = False
-    db.session.commit()
-    return jsonify({"msg": "Department unhidden"}), 200
+    with session_scope() as session:
+        department.is_hidden = False
+        session.commit()
+        return jsonify({"msg": "Department unhidden"}), 200
 
 
 @api.route('/department/<int:department_id>/disable', methods=['POST'])
@@ -276,9 +291,10 @@ def disable_department(department_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    department.is_disabled = True
-    db.session.commit()
-    return jsonify({"msg": "Department disabled"}), 200
+    with session_scope() as session:
+        department.is_disabled = True
+        session.commit()
+        return jsonify({"msg": "Department disabled"}), 200
 
 
 @api.route('/department/<int:department_id>/enable', methods=['POST'])
@@ -288,9 +304,10 @@ def enable_department(department_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    department.is_disabled = False
-    db.session.commit()
-    return jsonify({"msg": "Department enabled"}), 200
+    with session_scope() as session:
+        department.is_disabled = False
+        session.commit()
+        return jsonify({"msg": "Department enabled"}), 200
 
 
 @api.route('/department/<int:department_id>/delete', methods=['POST'])
@@ -300,16 +317,17 @@ def delete_department(department_id):
     if not department:
         return jsonify({"msg": "Department not found"}), 400
 
-    db.session.delete(department)
-    db.session.commit()
-    return jsonify({"msg": "Department deleted"}), 200
+    with session_scope() as session:
+        session.delete(department)
+        session.commit()
+        return jsonify({"msg": "Department deleted"}), 200
 
 
 def get_form_values(form):
-    name = request.form.get('name', None)
-    description = request.form.get('description', None)
-    is_hidden = True if request.form.get('is_hidden', None) == '1' else False
-    is_disabled = True if request.form.get('is_disabled', None) == '1' else False
+    name = form.get('name', None)
+    description = form.get('description', None)
+    is_hidden = True if form.get('is_hidden', None) == '1' else False
+    is_disabled = True if form.get('is_disabled', None) == '1' else False
     return name, description, is_hidden, is_disabled
 
 
@@ -330,14 +348,15 @@ def edit_department(department_id):
         return redirect(url_for('admin.departments'))
 
     try:
-        department.name = name
-        department.description = description
-        department.is_hidden = is_hidden
-        department.is_disabled = is_disabled
-        db.session.commit()
-        flash('Department edited', 'success')
-        return redirect(url_for('admin.departments'))
-    except Exception as e:
+        with session_scope() as session:
+            department.name = name
+            department.description = description
+            department.is_hidden = is_hidden
+            department.is_disabled = is_disabled
+            session.commit()
+            flash('Department edited', 'success')
+            return redirect(url_for('admin.departments'))
+    except SQLAlchemyError:
         flash('Error editing department', 'danger')
         return redirect(url_for('admin.departments'))
 
@@ -355,12 +374,13 @@ def new_department():
         return redirect(url_for('admin.departments'))
 
     try:
-        department = TicketDepartment(name=name, description=description, is_hidden=is_hidden, is_disabled=is_disabled)
-        db.session.add(department)
-        db.session.commit()
-        flash('Department added', 'success')
-        return redirect(url_for('admin.departments'))
-    except Exception as e:
+        with session_scope() as session:
+            department = TicketDepartment(name=name, description=description, is_hidden=is_hidden, is_disabled=is_disabled)
+            session.add(department)
+            session.commit()
+            flash('Department added', 'success')
+            return redirect(url_for('admin.departments'))
+    except SQLAlchemyError as e:
         flash('Error adding department: {}'.format(e), 'danger')
         return redirect(url_for('admin.departments'))
 
@@ -382,14 +402,18 @@ def accept_application(application_id):
     if not application:
         return jsonify({"msg": "Application not found"}), 400
 
-    application.is_accepted = True
-    application.is_rejected = False
-    success = application_accepted(application)
-    if not success:
-        return jsonify({"msg": "Error accepting application"}), 400
-    else:
-        db.session.commit()
-        return jsonify({"msg": "Application accepted"}), 200
+    try:
+        with session_scope() as session:
+            application.is_accepted = True
+            application.is_rejected = False
+            success = application_accepted(application)
+            if not success:
+                return jsonify({"msg": "Error accepting application"}), 400
+            else:
+                session.commit()
+                return jsonify({"msg": "Application accepted"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error accepting application: {}".format(e)}), 400
 
 
 @api.route('/application/<int:application_id>/reject', methods=['POST'])
@@ -399,10 +423,14 @@ def reject_application(application_id):
     if not application:
         return jsonify({"msg": "Application not found"}), 400
 
-    application.is_rejected = True
-    application.is_accepted = False
-    db.session.commit()
-    return jsonify({"msg": "Application rejected"}), 200
+    try:
+        with session_scope() as session:
+            application.is_rejected = True
+            application.is_accepted = False
+            db.session.commit()
+            return jsonify({"msg": "Application rejected"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error rejecting application: {}".format(e)}), 400
 
 
 @api.route('/user/<int:user_id>/unwhitelist', methods=['POST'])
@@ -412,9 +440,13 @@ def unwhitelist_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_whitelisted = False
-    db.session.commit()
-    return jsonify({"msg": "User unwhitelisted"}), 200
+    try:
+        with session_scope() as session:
+            user.is_whitelisted = False
+            session.commit()
+            return jsonify({"msg": "User unwhitelisted"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error unwhitelisting user: {}".format(e)}), 400
 
 
 @api.route('/user/<int:user_id>/whitelist', methods=['POST'])
@@ -424,9 +456,13 @@ def whitelist_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_whitelisted = True
-    db.session.commit()
-    return jsonify({"msg": "User whitelisted"}), 200
+    try:
+        with session_scope() as session:
+            user.is_whitelisted = True
+            session.commit()
+            return jsonify({"msg": "User whitelisted"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error whitelisting user: {}".format(e)}), 400
 
 
 @api.route('/minecraft/<string:uuid>/allow_connection', methods=['GET'])
@@ -455,9 +491,13 @@ def ban_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_banned = True
-    db.session.commit()
-    return jsonify({"msg": "User banned"}), 200
+    try:
+        with session_scope() as session:
+            user.is_banned = True
+            session.commit()
+            return jsonify({"msg": "User banned"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error banning user: {}".format(e)}), 400
 
 
 @api.route('/user/<int:user_id>/unban', methods=['POST'])
@@ -467,6 +507,10 @@ def unban_user(user_id):
     if not user:
         return jsonify({"msg": "User not found"}), 400
 
-    user.is_banned = False
-    db.session.commit()
-    return jsonify({"msg": "User unbanned"}), 200
+    try:
+        with session_scope() as session:
+            user.is_banned = False
+            session.commit()
+            return jsonify({"msg": "User unbanned"}), 200
+    except SQLAlchemyError as e:
+        return jsonify({"msg": "Error unbanned user: {}".format(e)}), 400
