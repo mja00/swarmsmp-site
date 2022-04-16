@@ -3,8 +3,9 @@ from flask_login import login_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
-from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
+from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog
 from ..models import set_applications_status, set_site_theme
+from ..extensions import cache
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -18,6 +19,7 @@ def before_request():
 
 
 @admin_bp.route('/')
+@cache.cached(timeout=60)
 def index():
     factions = Faction.query.order_by(Faction.id.desc()).all()
     pending = Application.query.filter(db.and_(
@@ -51,8 +53,7 @@ def index():
 
 @admin_bp.route('/users')
 def users():
-    users = User.query.all()
-    return render_template('admin/users.html', users=users, title='Users')
+    return render_template('admin/users.html', title='Users')
 
 
 @admin_bp.route('/users/data')
@@ -174,3 +175,41 @@ def view_application(application_id):
         return redirect(url_for('admin.applications'))
 
     return render_template('admin/view_application.html', application=application, title='View Application')
+
+
+@admin_bp.route('/audit-logs')
+def audit_logs():
+    return render_template('admin/audit_logs.html', title='Audit Logs')
+
+
+@admin_bp.route('/audit-logs/data')
+def audit_logs_data():
+    # DataTables data stuff
+    query = AuditLog.query
+
+    # search filter
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            AuditLog.user.has(User.username.like(f'%{search}%')),
+            AuditLog.target_type.like(f'%{search}%'),
+            AuditLog.action.like(f'%{search}%'),
+        ))
+
+    total_filtered = query.count()
+
+    # order by date
+    query = query.order_by(AuditLog.created_at.desc())
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+
+    # resp
+    return jsonify({
+        'data': [row.to_dict() for row in query.all()],
+        'recordsFiltered': total_filtered,
+        'recordsTotal': AuditLog.query.count(),
+        'draw': request.args.get('draw', type=int)
+    })

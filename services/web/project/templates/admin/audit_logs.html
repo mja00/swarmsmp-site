@@ -1,0 +1,26 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}Audit Logs{% endblock %}
+{% block admin_content %}
+    <table id="auditLogs" class="table table-striped">
+        <tbody>
+        </tbody>
+    </table>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        $(document).ready(function() {
+            $('#auditLogs').DataTable({
+                "order": [[ 0, "desc" ]],
+                "serverSide": true,
+                "ajax": "{{ url_for('admin.audit_logs_data') }}",
+                "columns": [
+                    { "data": "id", orderable: false, searchable: false, visible: false },
+                    { "data": "user.username", orderable: false, title: "User" },
+                    { "data": "action", orderable: false, title: "Action" },
+                    { "data": "target_id", orderable: false, title: "Target"},
+                    { "data": "created_at_human", orderable: false, width: "25%", title: "Date" }
+                ]
+            });
+        });
+    </script>
+{% endblock %}

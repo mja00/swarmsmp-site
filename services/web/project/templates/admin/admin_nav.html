@@ -5,12 +5,19 @@
            class="list-group-item list-group-item-action {% if request.endpoint == 'admin.index' %}active{% endif %}">Dashboard</a>
         <a href="{{ url_for('admin.users') }}"
            class="list-group-item list-group-item-action {% if request.endpoint == 'admin.users' %}active{% endif %}">Users</a>
+        <a href="{{ url_for('admin.audit_logs') }}"
+           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}">Audit
+            Logs</a>
+        <li class="list-group-item"></li>
         <a href="{{ url_for('admin.applications') }}"
-           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.applications' %}active{% endif %}">Pending Applications</a>
+           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.applications' %}active{% endif %}">Pending
+            Applications</a>
         <a href="{{ url_for('admin.accepted_applications') }}"
-           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.accepted_applications' %}active{% endif %}">Accepted Applications</a>
+           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.accepted_applications' %}active{% endif %}">Accepted
+            Applications</a>
         <a href="{{ url_for('admin.rejected_applications') }}"
-           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.rejected_applications' %}active{% endif %}">Rejected Applications</a>
+           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.rejected_applications' %}active{% endif %}">Rejected
+            Applications</a>
         <li class="list-group-item"></li>
         <a href="{{ url_for('admin.tickets') }}"
            class="list-group-item list-group-item-action {% if request.endpoint == 'admin.tickets' %}active{% endif %}">

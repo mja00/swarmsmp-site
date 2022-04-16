@@ -474,7 +474,7 @@ class AuditLog(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, user_id, action, target_id, target_type):
+    def __init__(self, user_id, action, target_id=0, target_type='N/A'):
         self.user_id = user_id
         self.action = action
         self.target_id = target_id
@@ -487,9 +487,14 @@ class AuditLog(db.Model):
         return {
             'id': str(self.id),
             'user_id': self.user_id,
+            'user': self.user.to_dict(),
             'action': self.action,
             'target_id': self.target_id,
             'target_type': self.target_type,
             'created_at': self.created_at,
+            'created_at_human': self.get_humanized_created_at(),
             'updated_at': self.updated_at
         }
+
+    def get_humanized_created_at(self):
+        return humanize.naturaltime(datetime.datetime.now() - self.created_at)

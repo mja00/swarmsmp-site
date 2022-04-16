@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..decorators import minecraft_authenticated
 from ..models import User, db, EmailConfirmation, MinecraftAuthentication
 from ..extensions import cache
+from ..logger import log_login
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -142,6 +143,7 @@ def login():
             if check_password_hash(user.password, password):
                 login_user(user, remember=remember)
                 flash('Logged in', "success")
+                log_login(user)
                 if not user.minecraft_uuid:
                     return redirect(url_for('auth.minecraft_authentication'))
                 if not user.discord_uuid:
