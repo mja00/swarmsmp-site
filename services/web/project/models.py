@@ -1,15 +1,14 @@
+import datetime
 import os
-
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID
-from flask_login import UserMixin
-import jwt
+import uuid
 from datetime import datetime as dt
 from datetime import timedelta
-import uuid
+
 import humanize
-import datetime
-from flask import escape
+import jwt
+from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import UUID
 
 db = SQLAlchemy()
 

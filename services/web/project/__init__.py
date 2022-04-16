@@ -1,22 +1,22 @@
-from flask import Flask, jsonify, render_template, request, flash, redirect, url_for
 import os
-from flask_migrate import Migrate
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask_talisman import Talisman
-from flask_debugtoolbar import DebugToolbarExtension
+import uuid
 from datetime import datetime as dt
 from datetime import timedelta
-import uuid
 
-from .models import db, User, SystemSetting, Faction, Application
-from .decorators import fully_authenticated
+from flask import Flask, render_template, request, flash, redirect, url_for
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_login import LoginManager, current_user
+from flask_migrate import Migrate
+from flask_talisman import Talisman
 
+from .admin import admin_bp as admin_blueprint
+from .api import api as api_blueprint
 from .auth import auth_bp as auth_blueprint
 from .auth import hcaptcha
-from .api import api as api_blueprint
-from .user import user_bp as user_blueprint
-from .admin import admin_bp as admin_blueprint
+from .decorators import fully_authenticated
+from .models import db, User, SystemSetting, Faction, Application
 from .ticket import ticket_bp as ticket_blueprint
+from .user import user_bp as user_blueprint
 
 app = Flask(__name__)
 app.debug = True if os.environ.get('FLASK_ENV') == 'development' else False

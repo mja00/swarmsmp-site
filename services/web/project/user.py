@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, render_template, request, redirect, url_for
-from flask_login import current_user, login_required
-from .models import db, User, Application
-import humanize
-from datetime import timedelta
 from datetime import datetime
+from datetime import timedelta
+
+import humanize
+from flask import Blueprint, render_template, redirect, url_for
+from flask_login import current_user
 
 from .decorators import minecraft_authenticated
+from .models import User, Application
 
 user_bp = Blueprint('user', __name__)
 

@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from .decorators import admin_required
-
 from .models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application
 
 admin_bp = Blueprint('admin', __name__)

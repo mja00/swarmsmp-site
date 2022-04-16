@@ -1,8 +1,8 @@
+import os
 from functools import wraps
+
 from flask import request, redirect, url_for, flash, jsonify
 from flask_login import current_user
-import os
-from .models import User, MinecraftAuthentication
 
 
 def admin_required(f):

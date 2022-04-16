@@ -5,14 +5,16 @@ from datetime import datetime as dt
 
 import jwt
 import requests
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_hcaptcha import hCaptcha
 from flask_login import login_required, current_user, login_user, logout_user
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .decorators import minecraft_authenticated
-from .models import User, db, EmailConfirmation, MinecraftAuthentication, DiscordAuthentication
+from .helpers import session_scope
+from .models import User, db, EmailConfirmation, MinecraftAuthentication
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -26,11 +28,11 @@ def send_registration_email(user, confirmation_token):
 
     # Create a new confirmation object
     try:
-        confirmation = EmailConfirmation(user=user, token=confirmation_token, email=email)
-        db.session.add(confirmation)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
+        with session_scope() as session:
+            confirmation = EmailConfirmation(user=user, token=confirmation_token, email=email)
+            session.add(confirmation)
+            session.commit()
+    except SQLAlchemyError as e:
         return False
 
     # Check if we're currently in development mode
@@ -202,20 +204,21 @@ def register():
         user = User(username=username, password=password, email=email)
 
         try:
-            db.session.add(user)
-            db.session.commit()
+            with session_scope() as session:
+                session.add(user)
+                session.commit()
 
-            # Generate a confirmation token
-            confirmation_token = generate_confirmation_token(email)
-            # Send the confirmation email
-            success = send_registration_email(user, confirmation_token)
-            if success:
-                flash('Successfully registered.', "success")
-                return redirect(url_for('auth.login'))
-            else:
-                flash('Failed to send confirmation email.', "danger")
-                return redirect(url_for('auth.register'))
-        except Exception as e:
+                # Generate a confirmation token
+                confirmation_token = generate_confirmation_token(email)
+                # Send the confirmation email
+                success = send_registration_email(user, confirmation_token)
+                if success:
+                    flash('Successfully registered.', "success")
+                    return redirect(url_for('auth.login'))
+                else:
+                    flash('Failed to send confirmation email.', "danger")
+                    return redirect(url_for('auth.register'))
+        except SQLAlchemyError as e:
             flash('Something went wrong', "danger")
             return redirect(url_for('auth.register'))
     else:
@@ -244,17 +247,18 @@ def minecraft_authentication():
 
         # Our auth code is valid, so we can now update the user's minecraft uuid
         # Get the user
-        user = User.query.filter_by(id=current_user.id).first()
-        user.minecraft_uuid = auth_code_object.uuid
-        user.minecraft_username = auth_code_object.username
-        # Delete the auth code object
-        db.session.delete(auth_code_object)
         try:
-            db.session.commit()
-            flash('Successfully authenticated', "success")
-            return redirect(url_for('auth.discord_authentication'))
-        except Exception as e:
-            db.session.rollback()
+            with session_scope() as session:
+                user = User.query.filter_by(id=current_user.id).first()
+                user.minecraft_uuid = auth_code_object.uuid
+                user.minecraft_username = auth_code_object.username
+                # Delete the auth code object
+                session.delete(auth_code_object)
+
+                session.commit()
+                flash('Successfully authenticated', "success")
+                return redirect(url_for('auth.discord_authentication'))
+        except SQLAlchemyError:
             flash('Something went wrong', "danger")
             return redirect(url_for('auth.minecraft_authentication'))
     else:
@@ -357,7 +361,6 @@ def reset_password(token):
                 return redirect(url_for('auth.login'))
             except Exception as e:
                 print(e)
-                db.session.rollback()
                 flash('Error updating password', "danger")
                 return redirect(url_for('auth.reset_password', token=token))
         else:
@@ -394,6 +397,5 @@ def discord_callback():
         return redirect(url_for('index'))
     except Exception as e:
         print(e)
-        db.session.rollback()
         flash('Error linking Discord account', "danger")
         return redirect(url_for('index'))
