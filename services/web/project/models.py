@@ -458,3 +458,38 @@ class Faction(db.Model):
 
     def offline(self):
         return 0
+
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref='audit_logs', lazy=True)
+    action = db.Column(db.String(255), nullable=False)
+    target_id = db.Column(db.Integer, nullable=False)
+    target_type = db.Column(db.String(255), nullable=False)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, user_id, action, target_id, target_type):
+        self.user_id = user_id
+        self.action = action
+        self.target_id = target_id
+        self.target_type = target_type
+
+    def __repr__(self):
+        return '<AuditLog %r>' % self.id
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'user_id': self.user_id,
+            'action': self.action,
+            'target_id': self.target_id,
+            'target_type': self.target_type,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
