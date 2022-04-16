@@ -4,55 +4,55 @@
     <h5 class="text-center">Faction Stats</h5>
     {% for faction_row in factions|batch(3, "empty") %}
         <div class="row">
-        {% for faction in faction_row %}
-            <div class="col">
-                {% if faction == "empty" %}
-                    <div class="card bg-secondary">
-                        <div class="card-header text-center">
-                            <h5>No faction</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col">
-                                    <h6>Total</h6>
-                                    <p>0</p>
-                                </div>
-                                <div class="col">
-                                    <h6>Online</h6>
-                                    <p>0</p>
-                                </div>
-                                <div class="col">
-                                    <h6>Offline</h6>
-                                    <p>0</p>
-                                </div>
+            {% for faction in faction_row %}
+                <div class="col">
+                    {% if faction == "empty" %}
+                        <div class="card bg-secondary">
+                            <div class="card-header text-center">
+                                <h5>No faction</h5>
                             </div>
-                        </div>
-                    </div>
-                {% else %}
-                <div class="card bg-secondary">
-                    <div class="card-header text-center">
-                        <h5>{{ faction.name }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col">
-                                <h6>Total</h6>
-                                <p>{{ faction.total() }}</p>
-                            </div>
-                            <div class="col">
-                                <h6>Online</h6>
-                                <p>{{ faction.online() }}</p>
-                            </div>
-                            <div class="col">
-                                <h6>Offline</h6>
-                                <p>{{ faction.offline() }}</p>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <h6>Total</h6>
+                                        <p>0</p>
+                                    </div>
+                                    <div class="col">
+                                        <h6>Online</h6>
+                                        <p>0</p>
+                                    </div>
+                                    <div class="col">
+                                        <h6>Offline</h6>
+                                        <p>0</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    {% else %}
+                        <div class="card bg-secondary">
+                            <div class="card-header text-center">
+                                <h5>{{ faction.name }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <h6>Total</h6>
+                                        <p>{{ faction.total() }}</p>
+                                    </div>
+                                    <div class="col">
+                                        <h6>Online</h6>
+                                        <p>{{ faction.online() }}</p>
+                                    </div>
+                                    <div class="col">
+                                        <h6>Offline</h6>
+                                        <p>{{ faction.offline() }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-        {% endfor %}
+            {% endfor %}
         </div>
     {% endfor %}
     <hr>
@@ -85,6 +85,43 @@
                 </div>
                 <div class="card-body">
                     <h4 class="text-center">{{ rejected_count }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h5 class="text-center">Users</h5>
+    <div class="row">
+        <div class="col">
+            <div class="card bg-secondary">
+                <div class="card-header">
+                    <h5 class="text-center">Brand New <i class="fa-solid fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Hasn't authenticated both Minecraft and Discord yet"></i></h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ new_users_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-secondary">
+                <div class="card-header">
+                    <h5 class="text-center">Fully Authed <i class="fa-solid fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Has authenticated both Minecraft and Discord"></i></h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ fully_authed_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-secondary">
+                <div class="card-header">
+                    <h5 class="text-center">Whitelisted <i class="fa-solid fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Is whitelisted on SwarmSMP"></i></h5>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">{{ whitelisted_count }}</h4>
                 </div>
             </div>
         </div>

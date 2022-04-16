@@ -24,13 +24,26 @@ def index():
     )).count()
     accepted = Application.query.filter(Application.is_accepted == True).count()
     rejected = Application.query.filter(Application.is_rejected == True).count()
+    new_users = User.query.filter(db.and_(
+        User.discord_uuid == None,
+        User.minecraft_uuid == None
+    )).count()
+    fully_authed = User.query.filter(db.and_(
+        User.discord_uuid != None,
+        User.minecraft_uuid != None,
+        User.is_whitelisted == False
+    )).count()
+    whitelisted = User.query.filter(User.is_whitelisted == True).count()
     return render_template(
         'admin/index.html',
         title='Dashboard',
         factions=factions,
         pending_count=pending,
         accepted_count=accepted,
-        rejected_count=rejected
+        rejected_count=rejected,
+        new_users_count=new_users,
+        fully_authed_count=fully_authed,
+        whitelisted_count=whitelisted
     )
 
 

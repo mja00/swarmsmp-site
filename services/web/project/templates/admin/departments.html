@@ -16,21 +16,21 @@
                     <td>{{ department.description }}</td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button onclick="editDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Edit Department"  class="btn btn-warning"><i class="fas fa-pen-to-square"></i></button>
+                            <button onclick="editDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Department"  class="btn btn-warning"><i class="fas fa-pen-to-square"></i></button>
                             <button type="button" class="btn btn-secondary me-0 ms-0 ps-0 pe-0" disabled></button>
                             {% if department.is_hidden %}
-                                <button onclick="showDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Show Department" class="btn btn-danger"><i class="fas fa-eye-slash"></i></button>
+                                <button onclick="showDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Show Department" class="btn btn-danger"><i class="fas fa-eye-slash"></i></button>
                             {% else %}
-                                <button onclick="hideDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Hide Department" class="btn btn-success"><i class="fas fa-eye"></i></button>
+                                <button onclick="hideDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Hide Department" class="btn btn-success"><i class="fas fa-eye"></i></button>
                             {% endif %}
                             <button type="button" class="btn btn-secondary me-0 ms-0 ps-0 pe-0" disabled></button>
                             {% if department.is_disabled %}
-                                <button onclick="enableDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Enable Department" class="btn btn-danger"><i class="fa-solid fa-user-slash"></i></button>
+                                <button onclick="enableDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable Department" class="btn btn-danger"><i class="fa-solid fa-user-slash"></i></button>
                             {% else %}
-                                <button onclick="disableDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Disable Department" class="btn btn-success"><i class="fas fa-user"></i></button>
+                                <button onclick="disableDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Disable Department" class="btn btn-success"><i class="fas fa-user"></i></button>
                             {% endif %}
                             <button type="button" class="btn btn-secondary me-0 ms-0 ps-0 pe-0" disabled></button>
-                            <button onclick="deleteDepartment({{ department.id }})" data-toggle="tooltip" data-placement="top" title="Delete Department"  class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                            <button onclick="deleteDepartment({{ department.id }})" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Department"  class="btn btn-danger"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
