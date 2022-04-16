@@ -12,7 +12,7 @@
                     url: '{{ url_for('api.close_ticket', ticket_id=ticket.id) }}',
                     type: 'POST',
                     success: function(data) {
-                        {% if current_user.is_elevated() %}
+                        {% if request.endpoint == 'admin.tickets' %}
                         window.location.href = '{{ url_for('admin.tickets') }}';
                         {% else %}
                         window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
@@ -30,7 +30,7 @@
                 url: '{{ url_for('api.open_ticket', ticket_id=ticket.id) }}',
                 type: 'POST',
                 success: function(data) {
-                    {% if current_user.is_elevated() %}
+                    {% if request.endpoint == 'admin.tickets' %}
                     window.location.href = '{{ url_for('admin.tickets') }}';
                     {% else %}
                     window.location.href = '{{ url_for('ticket.view', ticket_id=ticket.id) }}';
