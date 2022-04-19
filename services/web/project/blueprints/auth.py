@@ -130,10 +130,7 @@ def login():
         # Get the form contents
         username = request.form.get('username')
         password = request.form.get('password')
-        if request.form.get('remember'):
-            remember = True
-        else:
-            remember = False
+        remember = bool(request.form.get('remember'))
 
         # Look for the user
         user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
