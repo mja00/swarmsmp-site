@@ -1,6 +1,5 @@
 import hashlib
 import os
-import uuid
 from datetime import datetime as dt
 
 import jwt
@@ -13,9 +12,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..decorators import minecraft_authenticated
-from ..models import User, db, EmailConfirmation, MinecraftAuthentication
 from ..extensions import cache
 from ..logger import log_login
+from ..models import User, db, EmailConfirmation, MinecraftAuthentication
 
 auth_bp = Blueprint('auth', __name__)
 
