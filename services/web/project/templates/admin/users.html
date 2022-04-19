@@ -51,25 +51,25 @@
                     // Changes banned status to a badge
                     let is_banned = row.is_banned;
                     if (is_banned) {
-                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge badge-danger">Yes</span></h5>';
+                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge bg-danger">Yes</span></h5>';
                     } else {
-                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge badge-success">No</span></h5>';
+                        table.cell(i, 4).node().innerHTML = '<h5><span class="badge bg-success">No</span></h5>';
                     }
 
                     // Changes whitelisted status to a badge
                     let is_whitelisted = row.is_whitelisted;
                     if (is_whitelisted) {
-                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge badge-success">Yes</span></h5>';
+                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge bg-success">Yes</span></h5>';
                     } else {
-                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge badge-danger">No</span></h5>';
+                        table.cell(i, 5).node().innerHTML = '<h5><span class="badge bg-danger">No</span></h5>';
                     }
 
                     // Changes email confirmed status to a badge
                     let email_confirmed = row.email_confirmed;
                     if (email_confirmed) {
-                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge badge-success">Yes</span></h5>';
+                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge bg-success">Yes</span></h5>';
                     } else {
-                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge badge-danger">No</span></h5>';
+                        table.cell(i, 6).node().innerHTML = '<h5><span class="badge bg-danger">No</span></h5>';
                     }
 
                     // Make the username clickable to view the user's profile
