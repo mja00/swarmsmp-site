@@ -132,12 +132,12 @@ class User(UserMixin, db.Model):
         self.minecraft_username = username
         self.commit_and_invalidate_cache()
 
-    def set_minecraft_uuid(self, uuid):
-        self.minecraft_uuid = uuid
+    def set_minecraft_uuid(self, given_uuid):
+        self.minecraft_uuid = given_uuid
         self.commit_and_invalidate_cache()
 
-    def set_discord_uuid(self, uuid):
-        self.discord_uuid = uuid
+    def set_discord_uuid(self, given_uuid):
+        self.discord_uuid = given_uuid
         self.commit_and_invalidate_cache()
 
     def set_email(self, email):
@@ -241,9 +241,9 @@ class MinecraftAuthentication(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, auth_code, uuid, username):
+    def __init__(self, auth_code, given_uuid, username):
         self.auth_code = auth_code
-        self.uuid = uuid
+        self.uuid = given_uuid
         self.username = username
 
     def __repr__(self):

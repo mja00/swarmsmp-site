@@ -89,21 +89,21 @@ def users_data():
 
 @admin_bp.route('/tickets')
 def tickets():
-    tickets = Ticket.query.filter(Ticket.status != 'closed') \
+    tickets_list = Ticket.query.filter(Ticket.status != 'closed') \
         .filter(Ticket.status != 'answered').order_by(Ticket.updated_at.asc()).all()
-    return render_template('admin/tickets.html', tickets=tickets, title='Tickets')
+    return render_template('admin/tickets.html', tickets=tickets_list, title='Tickets')
 
 
 @admin_bp.route('/closed-tickets')
 def closed_tickets():
-    tickets = Ticket.query.filter(Ticket.status == 'closed').order_by(Ticket.updated_at.asc()).all()
-    return render_template('admin/tickets.html', tickets=tickets, title='Closed Tickets')
+    tickets_list = Ticket.query.filter(Ticket.status == 'closed').order_by(Ticket.updated_at.asc()).all()
+    return render_template('admin/tickets.html', tickets=tickets_list, title='Closed Tickets')
 
 
 @admin_bp.route('/answered-tickets')
 def answered_tickets():
-    tickets = Ticket.query.filter(Ticket.status == 'answered').order_by(Ticket.updated_at.asc()).all()
-    return render_template('admin/tickets.html', tickets=tickets, title='Answered Tickets')
+    tickets_list = Ticket.query.filter(Ticket.status == 'answered').order_by(Ticket.updated_at.asc()).all()
+    return render_template('admin/tickets.html', tickets=tickets_list, title='Answered Tickets')
 
 
 @admin_bp.route('/tickets/view/<string:ticket_id>', methods=['GET'])

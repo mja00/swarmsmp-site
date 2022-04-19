@@ -155,14 +155,14 @@ def apply():
             app_check = Application.query.filter_by(user_id=current_user.id).all()
             if app_check:
                 # Loop through all the applications and look for any that are still pending
-                for app in app_check:
-                    if not app.is_accepted and not app.is_rejected:
+                for l_app in app_check:
+                    if not l_app.is_accepted and not l_app.is_rejected:
                         # Means they're still pending
                         flash("You already have an application pending.", "danger")
                         return redirect(url_for("user.profile"))
                     else:
                         # Check if the application is older than 7 days
-                        if dt.utcnow() - app.updated_at < timedelta(days=7):
+                        if dt.utcnow() - l_app.updated_at < timedelta(days=7):
                             # Means it's still within 7 days
                             flash("You can only apply once every 7 days.", "danger")
                             return redirect(url_for("user.profile"))
