@@ -64,8 +64,8 @@ def run_migrations_online():
     # this callback is used to prevent an auto-migration from being generated
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
-    # skipcq: PYL-W0621
-    def process_revision_directives(context, revision, directives):
+    # skipcq: PYL-W0621, PYL-W0613
+    def process_revision_directives(_context, _revision, directives):
         if getattr(config.cmd_opts, 'autogenerate', False):
             script = directives[0]
             if script.upgrade_ops.is_empty():

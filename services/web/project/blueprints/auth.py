@@ -31,7 +31,7 @@ def send_registration_email(user, confirmation_token):
         confirmation = EmailConfirmation(user=user, token=confirmation_token, email=email)
         db.session.add(confirmation)
         db.session.commit()
-    except SQLAlchemyError as e:
+    except SQLAlchemyError:
         return False
 
     # Check if we're currently in development mode
@@ -217,7 +217,7 @@ def register():
             else:
                 flash('Failed to send confirmation email.', "danger")
                 return redirect(url_for('auth.register'))
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             flash('Something went wrong', "danger")
             return redirect(url_for('auth.register'))
     else:

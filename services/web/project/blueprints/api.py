@@ -84,7 +84,7 @@ def auth_minecraft():
             return jsonify({"msg": "Auth code already used"}), 400
     else:
         # We can add the auth code to the database
-        auth = MinecraftAuthentication(uuid=uuid, username=username, auth_code=auth_code)
+        auth = MinecraftAuthentication(given_uuid=uuid, username=username, auth_code=auth_code)
         db.session.add(auth)
         db.session.commit()
         return jsonify({"msg": "Auth code added"}), 200
@@ -307,10 +307,10 @@ def delete_department(department_id):
 
 
 def get_form_values(form):
-    name = request.form.get('name', None)
-    description = request.form.get('description', None)
-    is_hidden = request.form.get('is_hidden', None) == '1'
-    is_disabled = request.form.get('is_disabled', None) == '1'
+    name = form.get('name', None)
+    description = form.get('description', None)
+    is_hidden = form.get('is_hidden', None) == '1'
+    is_disabled = form.get('is_disabled', None) == '1'
     return name, description, is_hidden, is_disabled
 
 
