@@ -65,7 +65,7 @@ class AuthProtocol(ServerProtocol):
             self.close(f"\u00A7bSuccessfully Authenticated!\nPlease enter the auth code: \u00A7a\u00A7l{generated_code} \u00A7r\u00A7bon the website.")
         else:
             print(f"{display_name} ({uuid}) ({ip_address}) has joined the server. Failed to generate auth code.")
-            self.close(f"\u00A7bFailed to Authenticate!\nPlease try again later.")
+            self.close("\u00A7bFailed to Authenticate!\nPlease try again later.")
 
 
 class AuthFactory(ServerFactory):

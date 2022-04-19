@@ -147,9 +147,11 @@ def close_ticket(ticket_id):
     if not ticket:
         return jsonify({"msg": "Ticket not found"}), 400
 
-    if not current_user.is_elevated():
-        if ticket.owner_id != current_user.id:
-            return jsonify({"msg": "You do not have permission to close this ticket"}), 400
+    if (
+        not current_user.is_elevated()
+        and ticket.owner_id != current_user.id
+    ):
+        return jsonify({"msg": "You do not have permission to close this ticket"}), 400
 
     ticket.status = "closed"
     db.session.commit()
@@ -163,9 +165,11 @@ def open_ticket(ticket_id):
     if not ticket:
         return jsonify({"msg": "Ticket not found"}), 400
 
-    if not current_user.is_elevated():
-        if ticket.owner_id != current_user.id:
-            return jsonify({"msg": "You do not have permission to open this ticket"}), 400
+    if (
+            not current_user.is_elevated()
+            and ticket.owner_id != current_user.id
+    ):
+        return jsonify({"msg": "You do not have permission to close this ticket"}), 400
 
     ticket.status = "open"
     db.session.commit()
@@ -216,10 +220,11 @@ def ticket_reply(ticket_id):
         flash('Invalid ticket', 'danger')
         return redirect(url_for('ticket.mine'))
 
-    if not current_user.is_elevated():
-        if ticket.owner_id != current_user.id:
-            flash('You do not have permission to view this ticket', 'danger')
-            return redirect(url_for('ticket.mine'))
+    if (
+            not current_user.is_elevated()
+            and ticket.owner_id != current_user.id
+    ):
+        return jsonify({"msg": "You do not have permission to close this ticket"}), 400
 
     reply_content = request.form.get('reply_content', None)
     if not reply_content:
