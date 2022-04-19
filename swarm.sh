@@ -1,6 +1,11 @@
 # We want to get the first argument
 first_arg=$1
 
+function prune_images () {
+  echo "Pruning the docker images"
+  docker image prune -f
+}
+
 # If the first arg is update, we want to git pull the repo
 if [ "$first_arg" = "update" ]; then
   echo "Updating the repo"
@@ -71,8 +76,3 @@ if [ "$first_arg" = "upgrade" ]; then
   prune_images
   exit 0
 fi
-
-function prune_images() {
-  echo "Pruning the docker images"
-  docker image prune -f
-}
