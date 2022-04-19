@@ -454,10 +454,12 @@ class Faction(db.Model):
         return len(self.characters)
 
     def online(self):
-        return 0
+        # TODO: Make this pull from the DB
+        return len(self.characters)
 
     def offline(self):
-        return 0
+        # TODO: Make this pull from the DB
+        return len(self.characters)
 
 
 class AuditLog(db.Model):

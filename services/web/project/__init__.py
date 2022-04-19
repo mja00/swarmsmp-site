@@ -111,6 +111,8 @@ def load_user(user_id):
     if is_valid_uuid(user_id):
         # We wanna do some caching here to avoid hitting the database every time
         unique_cache_key = "user_" + user_id
+        # This is pickling from our redis cache, this is safe to do since we're the ones handling it
+        # skipcq: BAN-B301
         user_obj = pickle.loads(cache.get(unique_cache_key)) if cache.get(unique_cache_key) else None
         if user_obj is None:
             query = User.query.filter_by(session_id=str(user_id)).first()
