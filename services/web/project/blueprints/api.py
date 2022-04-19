@@ -2,6 +2,7 @@ from datetime import datetime as dt
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
+from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import staff_required, admin_required, auth_key_required
 from ..helpers import get_username_from_uuid, MojangAPIError
@@ -337,7 +338,7 @@ def edit_department(department_id):
         db.session.commit()
         flash('Department edited', 'success')
         return redirect(url_for('admin.departments'))
-    except Exception as e:
+    except SQLAlchemyError:
         flash('Error editing department', 'danger')
         return redirect(url_for('admin.departments'))
 
@@ -360,7 +361,7 @@ def new_department():
         db.session.commit()
         flash('Department added', 'success')
         return redirect(url_for('admin.departments'))
-    except Exception as e:
+    except SQLAlchemyError as e:
         flash('Error adding department: {}'.format(e), 'danger')
         return redirect(url_for('admin.departments'))
 

@@ -77,7 +77,7 @@ def send_password_reset_email(email, user):
 def verify_reset_token(token):
     try:
         username = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=["HS256"])['reset_password']
-    except Exception as e:
+    except jwt.exceptions.DecodeError as e:
         print(e)
         return
     return User.query.filter_by(username=username).first()
@@ -357,7 +357,7 @@ def reset_password(token):
                 user.refresh_session_id()
                 flash('Password updated', "success")
                 return redirect(url_for('auth.login'))
-            except Exception as e:
+            except SQLAlchemyError as e:
                 print(e)
                 flash('Error updating password', "danger")
                 return redirect(url_for('auth.reset_password', token=token))
@@ -381,7 +381,7 @@ def discord_callback():
         access_token = token_info['access_token']
         user_info = get_discord_info_for_token(access_token)
         user = User.query.filter_by(id=current_user.id).first()
-    except Exception as e:
+    except KeyError as e:
         print(e)
         print(f"Error: {token_info['error']}\nError Description: {token_info['error_description']}")
         flash('Error getting discord info. The error has been logged and will be investigated.', "danger")
@@ -392,7 +392,7 @@ def discord_callback():
         user.set_discord_uuid(user_info['id'])
         flash('Discord account linked', "success")
         return redirect(url_for('index'))
-    except Exception as e:
+    except SQLAlchemyError as e:
         print(e)
         flash('Error linking Discord account', "danger")
         return redirect(url_for('index'))
