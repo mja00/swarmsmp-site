@@ -10,6 +10,7 @@ ticket_bp = Blueprint('ticket', __name__)
 @ticket_bp.before_request
 @login_required
 @whitelist_required
+# skipcq: PTC-W0049
 def before_request():
     """
     This function is executed before each request.

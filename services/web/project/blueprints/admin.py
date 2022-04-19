@@ -13,6 +13,7 @@ admin_bp = Blueprint('admin', __name__)
 @admin_bp.before_request
 @login_required
 @admin_required
+# skipcq: PTC-W0049
 def before_request():
     """
     This function is executed before each request.

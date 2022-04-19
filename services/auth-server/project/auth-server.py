@@ -1,8 +1,9 @@
-from twisted.internet import reactor
-from quarry.net.server import ServerFactory, ServerProtocol
-import random
-import requests
 import os
+import random
+
+import requests
+from quarry.net.server import ServerFactory, ServerProtocol
+from twisted.internet import reactor
 
 base_web_url = os.getenv("WEB_SERVER_URL", "http://localhost:8080")
 new_user_url = f"{base_web_url}/api/auth/minecraft"
@@ -61,8 +62,10 @@ class AuthProtocol(ServerProtocol):
 
         generated_code = send_auth_code(display_name, uuid, ip_address)
         if generated_code:
-            print(f"{display_name} ({uuid}) ({ip_address}) has joined the server. Generated auth code: {generated_code}")
-            self.close(f"\u00A7bSuccessfully Authenticated!\nPlease enter the auth code: \u00A7a\u00A7l{generated_code} \u00A7r\u00A7bon the website.")
+            print(
+                f"{display_name} ({uuid}) ({ip_address}) has joined the server. Generated auth code: {generated_code}")
+            self.close(
+                f"\u00A7bSuccessfully Authenticated!\nPlease enter the auth code: \u00A7a\u00A7l{generated_code} \u00A7r\u00A7bon the website.")
         else:
             print(f"{display_name} ({uuid}) ({ip_address}) has joined the server. Failed to generate auth code.")
             self.close("\u00A7bFailed to Authenticate!\nPlease try again later.")
@@ -73,11 +76,13 @@ class AuthFactory(ServerFactory):
     motd = "SwarmSMP Auth Server"
     max_players = 1
 
+
 def main():
     factory = AuthFactory()
 
     print("Listening on port 25565")
 
+    # skipcq: BAN-B104
     factory.listen("0.0.0.0", 25565)
     reactor.run()
 
