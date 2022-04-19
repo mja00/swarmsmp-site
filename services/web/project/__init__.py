@@ -66,7 +66,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secret")
 # hCaptcha settings
 app.config["HCAPTCHA_SITE_KEY"] = os.getenv("HCAPTCHA_SITE_KEY", "")
 app.config["HCAPTCHA_SECRET_KEY"] = os.getenv("HCAPTCHA_SECRET_KEY", "")
-app.config["HCAPTCHA_ENABLED"] = os.getenv("HCAPTCHA_ENABLED", False)
+app.config["HCAPTCHA_ENABLED"] = bool(os.getenv("HCAPTCHA_ENABLED", "False"))
 
 # Debug toolbar
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False

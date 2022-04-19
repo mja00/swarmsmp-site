@@ -14,7 +14,11 @@ admin_bp = Blueprint('admin', __name__)
 @login_required
 @admin_required
 def before_request():
-    """ Protect all routes in this blueprint """
+    """
+    This function is executed before each request.
+    pass
+    :return: Nothing
+    """
     pass
 
 

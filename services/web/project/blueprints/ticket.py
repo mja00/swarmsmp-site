@@ -11,7 +11,11 @@ ticket_bp = Blueprint('ticket', __name__)
 @login_required
 @whitelist_required
 def before_request():
-    """ Protect all routes in this blueprint """
+    """
+    This function is executed before each request.
+    pass
+    :return: Nothing
+    """
     pass
 
 
@@ -33,9 +37,7 @@ def view(ticket_id):
         return redirect(url_for('ticket.mine'))
 
     if current_user.is_admin:
-        # We'll redirect to the admin view
-        # TODO: Redirect
-        pass
+        return redirect(url_for('ticket.view_ticket', ticket_id=ticket_id))
 
     return render_template('tickets/view_ticket.html', ticket=ticket, title=f'Ticket #{ticket.get_short_id()}')
 
