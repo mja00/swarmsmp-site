@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from .models import User
+from .models import User, get_panel_settings, get_server_settings
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 
@@ -78,4 +78,31 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
         else:
             print(response.text)
             return False
+
+
+def is_server_online(server_uuid: str) -> bool:
+    panel_settings = get_panel_settings()
+    headers = {
+        "Authorization": f"Bearer {panel_settings['panel_api_key']}",
+    }
+
+    # We need to do a get request to the panel to get the server status
+    url = f"{panel_settings['panel_api_url']}servers/{server_uuid}/resources"
+    r = requests.get(url, headers=headers)
+    if r.status_code == 200:
+        # Get the JSON response
+        try:
+            response = r.json()
+        except json.decoder.JSONDecodeError:
+            return False
+        # Get the status
+        status = response['status']
+        # If the status is 1 it's online, if not, it's offline
+        if status == 1:
+            return True
+        else:
+            return False
+    else:
+        return False
+
 

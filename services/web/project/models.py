@@ -27,9 +27,16 @@ class User(UserMixin, db.Model):
     minecraft_username = db.Column(db.String(255), nullable=True)
     minecraft_uuid = db.Column(db.String(255), nullable=True)
     characters = db.relationship('Character', backref='user', lazy=True)
+    application = db.relationship('Application', backref='user', lazy=True)
+    ban_reason = db.Column(db.Text(), nullable=True)
+    staff_notes = db.Column(db.Text(), nullable=True)
+    staff_title = db.Column(db.String(255), nullable=True)
+
+    # Tickets
     tickets = db.relationship('Ticket', backref='owner', lazy=True)
     ticketreplies = db.relationship('TicketReply', backref='author', lazy=True)
-    application = db.relationship('Application', backref='user', lazy=True)
+
+    # User Settings
     site_theme = db.Column(db.String(255), nullable=True)
 
     # Boolean states
@@ -400,6 +407,34 @@ def get_applications_open():
     return SystemSetting.query.first().applications_open
 
 
+@cache.cached(timeout=0, key_prefix='panel_settings')
+def get_panel_settings():
+    settings = SystemSetting.query.first()
+    return {
+        'panel_api_key': settings.panel_api_key,
+        'panel_api_url': settings.panel_api_url,
+    }
+
+
+@cache.cached(timeout=0, key_prefix='server_settings')
+def get_server_settings():
+    settings = SystemSetting.query.first()
+    return {
+        'live_server_uuid': {
+            "name": "Live Server",
+            "uuid": settings.live_server_uuid,
+        },
+        'staging_server_uuid': {
+            "name": "Staging Server",
+            "uuid": settings.staging_server_uuid,
+        },
+        'fallback_server_uuid': {
+            "name": "Fallback Server",
+            "uuid": settings.fallback_server_uuid,
+        }
+    }
+
+
 def set_applications_status(status: bool):
     setting = SystemSetting.query.first()
     setting.applications_open = status
@@ -414,12 +449,39 @@ def set_site_theme(theme: str):
     cache.delete('site_theme')
 
 
+def set_panel_settings(panel_api_key: str, panel_api_url: str):
+    setting = SystemSetting.query.first()
+    setting.panel_api_key = panel_api_key
+    setting.panel_api_url = panel_api_url
+    db.session.commit()
+    cache.delete('panel_settings')
+
+
+def set_server_settings(live_server_uuid: str, staging_server_uuid: str, fallback_server_uuid: str):
+    setting = SystemSetting.query.first()
+    setting.live_server_uuid = live_server_uuid
+    setting.staging_server_uuid = staging_server_uuid
+    setting.fallback_server_uuid = fallback_server_uuid
+    db.session.commit()
+    cache.delete('server_settings')
+
+
 class SystemSetting(db.Model):
     __tablename__ = 'system_settings'
 
     id = db.Column(db.Integer, primary_key=True)
     applications_open = db.Column(db.Boolean, nullable=False, default=False)
     site_theme = db.Column(db.String(255), nullable=False, default='darkly')
+
+    # Panel related settings
+    panel_api_key = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    panel_api_url = db.Column(db.String(255), nullable=False, default='http://localhost:5000/api/v1')
+    live_server_uuid = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    staging_server_uuid = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    fallback_server_uuid = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+
+    # Server settings
+    maintenance_mode = db.Column(db.Boolean, nullable=False, default=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())

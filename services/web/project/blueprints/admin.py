@@ -4,8 +4,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog
-from ..models import set_applications_status, set_site_theme
+from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, get_server_settings
 from ..extensions import cache
+from ..helpers import is_server_online
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -24,7 +25,7 @@ def before_request():
 
 
 @admin_bp.route('/')
-@cache.cached(timeout=60)
+@cache.cached(timeout=1)
 def index():
     factions = Faction.query.order_by(Faction.id.desc()).all()
     pending = Application.query.filter(db.and_(
@@ -43,6 +44,7 @@ def index():
         User.is_whitelisted.is_(False)
     )).count()
     whitelisted = User.query.filter(User.is_whitelisted.is_(True)).count()
+    servers = get_server_settings()
     return render_template(
         'admin/index.html',
         title='Dashboard',
@@ -52,7 +54,9 @@ def index():
         rejected_count=rejected,
         new_users_count=new_users,
         fully_authed_count=fully_authed,
-        whitelisted_count=whitelisted
+        whitelisted_count=whitelisted,
+        servers=servers,
+        is_server_online=is_server_online
     )
 
 
@@ -133,10 +137,17 @@ def settings():
     if request.method == "POST":
         applications_open = request.form.get('applications_open') == 'on'
         site_theme = request.form.get('siteTheme')
+        panel_api_key = request.form.get('api_key')
+        panel_api_url = request.form.get('api_url')
+        live_server_uuid = request.form.get('live_server_uuid')
+        staging_server_uuid = request.form.get('staging_server_uuid')
+        fallback_server_uuid = request.form.get('fallback_server_uuid')
 
         # update settings
         set_applications_status(applications_open)
         set_site_theme(site_theme)
+        set_panel_settings(panel_api_key, panel_api_url)
+        set_server_settings(live_server_uuid, staging_server_uuid, fallback_server_uuid)
 
         flash('Settings updated', 'success')
         return redirect(url_for('admin.settings'))

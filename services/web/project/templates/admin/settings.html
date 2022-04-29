@@ -3,15 +3,38 @@
 {% block header %}Settings | Don't touch without MJ's permission{% endblock %}
 {% block admin_content %}
     <form id="settingsForm" action="#" method="post" class="mb-4">
-        <div class="row">
-            <div class="col">
+        <div class="row g-2">
+            <h5>Site Settings</h5>
+            <div class="col-6">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" id="applications_open" name="applications_open" {% if settings.applications_open %}checked{% endif %}>
                     <label class="form-check-label" for="applications_open">Applications open</label>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-6">
                 {{ td.theme_dropdown() }}
+            </div>
+            <hr>
+            <h5>Server Settings</h5>
+            <div class="col-6">
+                <label class="form-label" for="api_key">Panel API Key</label>
+                <input type="text" class="form-control" id="api_key" name="api_key" value="{{ settings.panel_api_key }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="api_url">Panel API URL</label>
+                <input type="text" class="form-control" id="api_url" name="api_url" value="{{ settings.panel_api_url }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="live_server_uuid">Live Server UUID</label>
+                <input type="text" class="form-control" id="live_server_uuid" name="live_server_uuid" value="{{ settings.live_server_uuid }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="staging_server_uuid">Staging Server UUID</label>
+                <input type="text" class="form-control" id="staging_server_uuid" name="staging_server_uuid" value="{{ settings.staging_server_uuid }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="fallback_server_uuid">Fallback Server UUID</label>
+                <input type="text" class="form-control" id="fallback_server_uuid" name="fallback_server_uuid" value="{{ settings.fallback_server_uuid }}">
             </div>
         </div>
     </form>

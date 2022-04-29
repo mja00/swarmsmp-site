@@ -22,7 +22,11 @@
                         <div class="row mb-4">
                             <div class="col text-center">
                                 {% if user.is_admin %}
-                                    <span class="badge bg-danger">Admin</span>
+                                    {% if user.staff_title %}
+                                        <span class="badge bg-danger">{{ user.staff_title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Dev</span>
+                                    {% endif %}
                                 {% endif %}
                                 {% if user.is_staff %}
                                     <span class="badge bg-warning">Staff</span>
@@ -65,7 +69,7 @@
                 {% if current_user.is_admin %}
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h5>Admin Actions</h5>
+                            <h5>Dev Actions</h5>
                         </div>
                         <div class="card-body">
                             {% if user.is_banned %}
