@@ -562,3 +562,23 @@ class AuditLog(db.Model):
 
     def get_humanized_created_at(self):
         return humanize.naturaltime(datetime.datetime.now() - self.created_at)
+
+
+class CommandQueue(db.Model):
+    __tablename__ = 'command_queue'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref='command_queue', lazy=True)
+    command = db.Column(db.Text(), nullable=False)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, user_id, command):
+        self.user_id = user_id
+        self.command = command
+
+    def __repr__(self):
+        return '<CommandQueue %r>' % self.id
