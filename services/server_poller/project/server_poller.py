@@ -12,6 +12,11 @@ PORTAL_API_KEY = os.getenv('AUTH_KEY', 'secret')
 WEB_SERVER_URL = os.getenv("WEB_SERVER_URL", "http://localhost:8080")
 UUIDS = [LIVE_SERVER_UUID, STAGING_SERVER_UUID, FALLBACK_SERVER_UUID]
 
+headers = {
+        'Authorization': f"{PORTAL_API_KEY}",
+        'Content-Type': 'application/json'
+    }
+
 
 def get_status_for_server(server_uuid):
     url = f'{PANEL_API_URL}servers/{server_uuid}/resources'
@@ -56,10 +61,6 @@ def get_status_for_servers():
 
 def post_data_to_portal(data):
     url = f'{WEB_SERVER_URL}/api/update_server_status'
-    headers = {
-        'Authorization': PORTAL_API_KEY,
-        'Content-Type': 'application/json'
-    }
     response = requests.post(url, headers=headers, json=data)
     if response.status_code != 200:
         try:

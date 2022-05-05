@@ -22,8 +22,4 @@ COPY . /usr/src/app/
 # chmod +x the entrypoint and dos2unix it
 RUN chmod +x /usr/src/app/entrypoint.sh && dos2unix /usr/src/app/entrypoint.sh
 
-# Do some omega jank due to quarry weirdness
-RUN cp /usr/local/lib/python3.10/site-packages/quarry/data/packets/0757_1.18.csv /usr/local/lib/python3.10/site-packages/quarry/data/packets/0758_1.18.2.csv
-RUN cp /usr/local/lib/python3.10/site-packages/quarry/data/data_packs/0757_1.18.nbt /usr/local/lib/python3.10/site-packages/quarry/data/data_packs/0758_1.18.2.nbt
-
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
