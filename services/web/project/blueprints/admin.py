@@ -3,7 +3,7 @@ from flask_login import login_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
-from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog
+from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus
 from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, get_server_settings
 from ..extensions import cache
 from ..helpers import is_server_online
@@ -45,6 +45,8 @@ def index():
     )).count()
     whitelisted = User.query.filter(User.is_whitelisted.is_(True)).count()
     servers = get_server_settings()
+    server_status = ServerStatus.query.order_by(ServerStatus.created_at.desc()).first()
+    status_json = server_status.status_json if server_status else None
     return render_template(
         'admin/index.html',
         title='Dashboard',
@@ -56,7 +58,8 @@ def index():
         fully_authed_count=fully_authed,
         whitelisted_count=whitelisted,
         servers=servers,
-        is_server_online=is_server_online
+        status_json=status_json,
+        len=len
     )
 
 

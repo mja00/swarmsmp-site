@@ -12,7 +12,8 @@ from ..helpers import get_username_from_uuid, MojangAPIError
 from ..helpers import send_template_to_email, send_command_to_server
 from ..extensions import cache
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
-    Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue
+    Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
+    ServerStatus
 
 api = Blueprint('api', __name__)
 
@@ -451,7 +452,6 @@ def allow_connection(uuid):
         if user.has_character():
             @copy_current_request_context
             def check_command_queue(user_id):
-                print("Checking command queue")
                 # Wait 30 seconds to ensure the user has properly connected
                 time.sleep(30)
                 # We need app context to do a query here
@@ -463,8 +463,6 @@ def allow_connection(uuid):
                         # Remove command
                         db.session.delete(command)
                         db.session.commit()
-                    else:
-                        print("Failed to send command to server")
             Thread(target=check_command_queue, args=(user.id, )).start()
             return jsonify({"allow": True}), 200
         else:
@@ -508,3 +506,14 @@ def add_command(user_id):
 
     user.add_command(command)
     return jsonify({"msg": "Command added"}), 200
+
+
+@api.route('/update_server_status', methods=['POST'])
+@auth_key_required
+def update_server_status():
+    # Get the JSON body from the request
+    data = request.get_json()
+    status_obj = ServerStatus(data)
+    db.session.add(status_obj)
+    db.session.commit()
+    return jsonify({"msg": "Server status updated", "data": data}), 200

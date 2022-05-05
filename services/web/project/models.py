@@ -588,3 +588,20 @@ class CommandQueue(db.Model):
 
     def __repr__(self):
         return '<CommandQueue %r>' % self.id
+
+
+class ServerStatus(db.Model):
+    __tablename__ = 'server_status'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    status_json = db.Column(db.JSON, nullable=False)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, status_json):
+        self.status_json = status_json
+
+    def __repr__(self):
+        return '<ServerStatus %r>' % self.id

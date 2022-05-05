@@ -129,6 +129,21 @@
     <hr>
     <h5 class="text-center">Server Status</h5>
     <div class="row">
-        <p>There will be server statuses here eventually. I gotta write something that checks the servers every minute.</p>
+        {% for server in servers %}
+            {% set online = status_json[servers[server]['uuid']]['online'] %}
+            {% set server_dict = servers[server] %}
+            {% set player_count = len(status_json[server_dict['uuid']]['player_list']) %}
+            <div class="col">
+                <div class="card {% if online %}bg-success{% else %}bg-danger{% endif %}">
+                    <div class="card-header">
+                        <h5 class="text-center">{{ server_dict['name'] }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h4>{% if online %}Online{% else %}Offline{% endif %}</h4>
+                        <h5>Player Count: {{ player_count }}</h5>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

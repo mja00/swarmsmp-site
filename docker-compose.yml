@@ -31,6 +31,13 @@ services:
     environment:
       - WEB_SERVER_URL=http://web:5000
       - AUTH_KEY=cf76bc492f377d7ed6d8
+  server-poller:
+    build: ./services/server_poller
+    command: python project/server_poller.py
+    volumes:
+      - ./services/server_poller/:/usr/src/app/
+    env_file:
+      - ./.env.dev
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4

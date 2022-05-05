@@ -28,6 +28,13 @@ services:
       - "131.153.57.130:25565:25565"
     env_file:
       - ./.env.prod.auth
+  server-poller:
+    build: ./services/server_poller
+    command: python project/server_poller.py
+    volumes:
+      - ./services/server_poller/:/usr/src/app/
+    env_file:
+      - ./.env.prod
   redis:
     image: redis
     restart: always
