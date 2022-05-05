@@ -453,7 +453,7 @@ def allow_connection(uuid):
             def check_command_queue(user_id):
                 print("Checking command queue")
                 # Wait 30 seconds to ensure the user has properly connected
-                time.sleep(3)
+                time.sleep(30)
                 # We need app context to do a query here
                 commands = CommandQueue.query.filter_by(user_id=user_id).all()
 

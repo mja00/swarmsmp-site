@@ -1,7 +1,7 @@
 # We want to get the first argument
 first_arg=$1
 
-function prune_images () {
+function prune_images {
   echo "Pruning the docker images"
   docker image prune -f
 }
