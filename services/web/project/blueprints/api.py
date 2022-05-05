@@ -458,7 +458,7 @@ def allow_connection(uuid):
                 commands = CommandQueue.query.filter_by(user_id=user_id).all()
 
                 for command in commands:
-                    success = send_command_to_server("0babf0ac", command.command)
+                    success = send_command_to_server("staging_server_uuid", command.command)
                     if success:
                         # Remove command
                         db.session.delete(command)

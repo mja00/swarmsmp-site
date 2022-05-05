@@ -106,9 +106,11 @@ def is_server_online(server_uuid: str) -> bool:
         return False
 
 
-def send_command_to_server(server_uuid: str, command: str) -> bool:
-    print(f"Sending command {command} to server {server_uuid}")
+def send_command_to_server(server_name: str, command: str) -> bool:
+    print(f"Sending command {command} to server {server_name}")
     panel_settings = get_panel_settings()
+    server_settings = get_server_settings()
+    server_uuid = server_settings[server_name]['uuid']
     headers = {
         "Authorization": f"Bearer {panel_settings['panel_api_key']}",
         "Content-Type": "application/json",
