@@ -59,6 +59,7 @@ class AuthProtocol(ServerProtocol):
         display_name = self.display_name
         uuid = self.uuid
         ip_address = self.remote_addr.host
+        print(f"{display_name} has joined with UUID {uuid} and IP {ip_address}")
 
         generated_code = send_auth_code(display_name, uuid, ip_address)
         if generated_code:
