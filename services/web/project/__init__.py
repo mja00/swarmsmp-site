@@ -48,8 +48,6 @@ csp = {
         'fonts.googleapis.com'
     ]
 }
-if not os.getenv('FLASK_ENV') == 'development':
-    Talisman(app, content_security_policy=csp)
 
 # Login manager
 login_manager = LoginManager()
