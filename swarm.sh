@@ -1,10 +1,6 @@
 # We want to get the first argument
 first_arg=$1
 
-function prune_images {
-  echo "Pruning the docker images"
-  docker image prune -f
-}
 
 # If the first arg is update, we want to git pull the repo
 if [ "$first_arg" = "update" ]; then
@@ -17,7 +13,6 @@ fi
 if [ "$first_arg" = "build" ] || [ "$first_arg" = "deploy" ]; then
   echo "Building the docker image"
   docker-compose -f docker-compose.prod.yml build
-  prune_images
   exit 0
 fi
 
@@ -60,7 +55,6 @@ if [ "$first_arg" = "full_update" ]; then
   docker-compose -f docker-compose.prod.yml up -d
   echo "Running the migrations"
   docker-compose -f docker-compose.prod.yml exec web flask db upgrade
-  prune_images
   exit 0
 fi
 
@@ -73,6 +67,5 @@ if [ "$first_arg" = "upgrade" ]; then
   docker-compose -f docker-compose.prod.yml build
   echo "Starting the docker containers"
   docker-compose -f docker-compose.prod.yml up -d
-  prune_images
   exit 0
 fi
