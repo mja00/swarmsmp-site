@@ -1,0 +1,185 @@
+{% extends "admin/admin_base.html" %}
+{% block header %}{{ title }}{% endblock %}
+{% block admin_content %}
+    <form action="#" id="userForm">
+        <h5>User Information</h5>
+        <div class="row g-2">
+            <div class="col-6">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}"
+                       disabled>
+            </div>
+            <div class="col-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="text" id="email" name="email" class="form-control" value="{{ user.email }}" disabled>
+            </div>
+            <div class="col-6">
+                <label for="discord_uuid" class="form-label">Discord UUID</label>
+                <input type="text" id="discord_uuid" name="discord_uuid" class="form-control"
+                       value="{{ user.discord_uuid }}" disabled>
+            </div>
+            <div class="col-6">
+                <label for="minecraft_username" class="form-label">Minecraft Username</label>
+                <input type="text" id="minecraft_username" name="minecraft_username" class="form-control"
+                       value="{{ user.minecraft_username }}" disabled>
+            </div>
+            <div class="col-6">
+                <label for="minecraft_uuid" class="form-label">Minecraft UUID</label>
+                <input type="text" id="minecraft_uuid" name="minecraft_uuid" class="form-control"
+                       value="{{ user.minecraft_uuid }}" disabled>
+            </div>
+            <div class="col-6">
+                <label for="staff_title" class="form-label">Staff Title</label>
+                <input type="text" id="staff_title" name="staff_title" class="form-control"
+                       value="{{ user.staff_title }}" disabled>
+            </div>
+        </div>
+        <hr>
+        <h5>Staff Information</h5>
+        <div class="row g-2">
+            <div class="col-12">
+                <label for="ban_reason" class="form-label">Ban Reason</label>
+                <textarea rows="3" id="ban_reason" name="ban_reason" class="form-control"
+                          disabled>{{ user.ban_reason }}</textarea>
+            </div>
+            <div class="col-12">
+                <label for="staff_notes" class="form-label">Staff Notes</label>
+                <textarea rows="3" id="staff_notes" name="staff_notes" class="form-control"
+                          disabled>{{ user.staff_notes }}</textarea>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12" id="saveButton">
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block extra_cards %}
+    <div class="card mt-2">
+        <div class="card-header">
+            <h5>Characters</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Faction</th>
+                    <th>Race</th>
+                    <th>Class</th>
+                    <th>Dead</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for character in user.characters %}
+                    <tr>
+                        <td>{{ character.name }}</td>
+                        <td>{{ character.faction.name }}</td>
+                        <td>{{ character.subrace }}</td>
+                        <td>{{ character.clazz }}</td>
+                        <td>{{ character.is_permad }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Add command modal -->
+    <div class="modal fade" id="addCommand" tabindex="-1" aria-labelledby="addCommandLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCommandLabel">Add new command</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="#" id="addCommandForm">
+                        <div class="row">
+                            <div class="col">
+                                <label for="command" class="form-label">Command</label>
+                                <textarea rows="3" id="command" name="command" class="form-control"></textarea>
+                                <div class="form-text">This is a command that'll be ran when the player joins the server.</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" form="addCommandForm">Add command</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-2">
+        <div class="card-header">
+            <div class="row g-0">
+                <div class="col-6">
+                    <h5>Command Queue</h5>
+                </div>
+                <div class="col-6">
+                    <button class="float-end btn btn-success btn-sm" id="add-command" data-bs-toggle="modal"
+                            data-bs-target="#addCommand">Add Command
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Command</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for command in user.commands %}
+                    <tr>
+                        <td>{{ command.id }}</td>
+                        <td>{{ command.command }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        $(document).ready(function () {
+            let userForm = $('#userForm');
+            userForm.submit(function (e) {
+                e.preventDefault();
+            });
+
+            // Remove all the disabled inputs
+            {% if editing %}
+                $('#userForm input, #userForm textarea').prop('disabled', false);
+                // Append save button to the saveButton div
+                $('#saveButton').append('<button type="submit" class="btn btn-primary">Save</button>');
+            {% endif %}
+
+            // Add a new command
+            let addCommandForm = $('#addCommandForm');
+            addCommandForm.submit(function (e) {
+                e.preventDefault();
+                let command = $('#command').val();
+                let url = '{{ url_for('api.add_command', user_id=user.id) }}';
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        command: command
+                    },
+                    success: function (data) {
+                        $('#command').val('');
+                        $('#addCommand').modal('hide');
+                        location.reload();
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

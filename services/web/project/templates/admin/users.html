@@ -21,6 +21,7 @@
 {% block userscripts %}
     <script>
         let defaultContentHTML = "<button id='edit-button' class='btn btn-primary btn-sm'><i class='fa fa-edit'></i></button>"
+
         $(document).ready(function() {
             let table = $('#users').DataTable({
                 "order": [[ 0, "desc" ]],
@@ -83,7 +84,7 @@
             $("#users").on('click', '#edit-button', function() {
                 let data = table.row($(this).parents('tr')).data();
                 let id = data.id;
-                console.log(id);
+                document.location.href = '{{ url_for("admin.user", user_id=-1) }}'.replace('-1', id);
             });
         } );
     </script>

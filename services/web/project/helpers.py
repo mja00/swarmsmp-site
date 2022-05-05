@@ -106,3 +106,20 @@ def is_server_online(server_uuid: str) -> bool:
         return False
 
 
+def send_command_to_server(server_uuid: str, command: str) -> bool:
+    print(f"Sending command {command} to server {server_uuid}")
+    panel_settings = get_panel_settings()
+    headers = {
+        "Authorization": f"Bearer {panel_settings['panel_api_key']}",
+        "Content-Type": "application/json",
+    }
+
+    # We need to do a post request to the panel to send a command
+    url = f"{panel_settings['panel_api_url']}servers/{server_uuid}/command"
+    r = requests.post(url, headers=headers, json={'command': command})
+    if r.status_code == 204:
+        return True
+    else:
+        return False
+
+

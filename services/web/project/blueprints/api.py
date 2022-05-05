@@ -1,15 +1,18 @@
 from datetime import datetime as dt
 
-from flask import Blueprint, jsonify, request, flash, redirect, url_for
+from flask import Blueprint, jsonify, request, flash, redirect, url_for, copy_current_request_context
 from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import scoped_session, sessionmaker
+from threading import Thread
+import time
 
 from ..decorators import staff_required, admin_required, auth_key_required
 from ..helpers import get_username_from_uuid, MojangAPIError
-from ..helpers import send_template_to_email
+from ..helpers import send_template_to_email, send_command_to_server
 from ..extensions import cache
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
-    Ticket, TicketReply, TicketDepartment, Application, Character
+    Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue
 
 api = Blueprint('api', __name__)
 
@@ -446,6 +449,23 @@ def allow_connection(uuid):
 
     if user.is_whitelisted:
         if user.has_character():
+            @copy_current_request_context
+            def check_command_queue(user_id):
+                print("Checking command queue")
+                # Wait 30 seconds to ensure the user has properly connected
+                time.sleep(3)
+                # We need app context to do a query here
+                commands = CommandQueue.query.filter_by(user_id=user_id).all()
+
+                for command in commands:
+                    success = send_command_to_server("0babf0ac", command.command)
+                    if success:
+                        # Remove command
+                        db.session.delete(command)
+                        db.session.commit()
+                    else:
+                        print("Failed to send command to server")
+            Thread(target=check_command_queue, args=(user.id, )).start()
             return jsonify({"allow": True}), 200
         else:
             return jsonify({"allow": False, "msg": "You need to make a character on your profile."}), 200
@@ -473,3 +493,18 @@ def unban_user(user_id):
 
     user.set_is_banned(False)
     return jsonify({"msg": "User unbanned"}), 200
+
+
+@api.route('/user/<int:user_id>/command', methods=['POST'])
+@admin_required
+def add_command(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 400
+
+    command = request.form.get('command')
+    if not command:
+        return jsonify({"msg": "Command not found"}), 400
+
+    user.add_command(command)
+    return jsonify({"msg": "Command added"}), 200

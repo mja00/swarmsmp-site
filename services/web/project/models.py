@@ -159,6 +159,12 @@ class User(UserMixin, db.Model):
         self.session_id = session_id
         self.commit_and_invalidate_cache()
 
+    def add_command(self, command):
+        command_obj = CommandQueue(self.id, command)
+        db.session.add(command_obj)
+        db.session.commit()
+        self.delete_cache_for_user()
+
 
 class Application(db.Model):
     __tablename__ = 'applications'
@@ -569,7 +575,7 @@ class CommandQueue(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User', backref='command_queue', lazy=True)
+    user = db.relationship('User', backref='commands', lazy='subquery')
     command = db.Column(db.Text(), nullable=False)
 
     # Timestamps

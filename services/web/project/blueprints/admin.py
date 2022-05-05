@@ -60,6 +60,12 @@ def index():
     )
 
 
+@admin_bp.route('/user/<int:user_id>')
+def user(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    return render_template('admin/user.html', user=user_obj, title='View User', editing=False)
+
+
 @admin_bp.route('/users')
 def users():
     return render_template('admin/users.html', title='Users')
