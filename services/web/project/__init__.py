@@ -8,11 +8,11 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from flask_talisman import Talisman
+from flask_socketio import emit
 
 from .blueprints.admin import admin_bp as admin_blueprint
 from .blueprints.api import api as api_blueprint
-from .extensions import cache
+from .extensions import cache, socketio
 from .blueprints.auth import auth_bp as auth_blueprint
 from .blueprints.auth import hcaptcha
 from .decorators import fully_authenticated
@@ -86,6 +86,10 @@ migrate = Migrate(app, db)
 hcaptcha.init_app(app)
 toolbar = DebugToolbarExtension(app)
 cache.init_app(app)
+socketio.init_app(app)
+
+# Import our socketio file
+from .blueprints import socket
 
 # Blueprints
 app.register_blueprint(auth_blueprint, url_prefix="/auth")
@@ -208,3 +212,7 @@ def apply():
     else:
         flash("Applications are currently closed.", "danger")
         return redirect(url_for("index"))
+
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000)

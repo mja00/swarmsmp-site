@@ -2,6 +2,7 @@ from datetime import datetime as dt
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, copy_current_request_context
 from flask_login import login_required, current_user
+from flask_socketio import emit
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import scoped_session, sessionmaker
 from threading import Thread
@@ -14,6 +15,7 @@ from ..extensions import cache
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus
+from .socket import broadcast_server_status
 
 api = Blueprint('api', __name__)
 
@@ -513,6 +515,7 @@ def add_command(user_id):
 def update_server_status():
     # Get the JSON body from the request
     data = request.get_json()
+    broadcast_server_status(data)
     status_obj = ServerStatus(data)
     db.session.add(status_obj)
     db.session.commit()

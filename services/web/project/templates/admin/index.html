@@ -134,16 +134,61 @@
             {% set server_dict = servers[server] %}
             {% set player_count = len(status_json[server_dict['uuid']]['player_list']) %}
             <div class="col">
-                <div class="card {% if online %}bg-success{% else %}bg-danger{% endif %}">
+                <div id='{{ server_dict['uuid'] }}' class="card {% if online %}bg-success{% else %}bg-danger{% endif %}">
                     <div class="card-header">
                         <h5 class="text-center">{{ server_dict['name'] }}</h5>
                     </div>
                     <div class="card-body text-center">
-                        <h4>{% if online %}Online{% else %}Offline{% endif %}</h4>
-                        <h5>Player Count: {{ player_count }}</h5>
+                        <h4 id="{{ server_dict['uuid'] }}-status">{% if online %}Online{% else %}Offline{% endif %}</h4>
+                        <h5 id="{{ server_dict['uuid'] }}-count">Player Count: {{ player_count }}</h5>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        $(document).ready(function () {
+            // Connect to the current url as a socketio
+            let socket = io();
+            socket.on('after connect', function (data) {
+                console.log('after connect', data);
+                // Send an event to the "server listen" channel
+                socket.emit('server listen', {});
+            })
+
+            socket.on('server status', function(data) {
+                console.log('server status', data);
+                let status_json = data.data;
+                // Check if status_json is just "Connected" and if so, don't do anything
+                if (status_json === 'Connected') {
+                    return;
+                }
+                // The status is a dictionary of servers, with the server uuid as the key
+                // and another dictionary as the value.
+
+                // Loop through each server
+                for (let [server, value] of Object.entries(status_json)) {
+                    // Get the card for the server
+                    let card = $('#' + server);
+                    let online = value['online'];
+                    let player_list = value['player_list'];
+                    let player_count = player_list.length;
+                    // If the server is online, change the card to green
+                    if (online) {
+                        card.removeClass('bg-danger');
+                        card.addClass('bg-success');
+                        card.find('#' + server + '-status').html('Online');
+                    } else {
+                        card.removeClass('bg-success');
+                        card.addClass('bg-danger');
+                        card.find('#' + server + '-status').html('Offline');
+                    }
+                    // Update the player count
+                    card.find('#' + server + '-count').html('Player Count: ' + player_count);
+                }
+            })
+        });
+    </script>
 {% endblock %}

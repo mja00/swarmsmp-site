@@ -13,3 +13,5 @@ flask-talisman==0.8.1
 flask-debugtoolbar
 flask-caching
 redis
+flask-socketio
+eventlet
