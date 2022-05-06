@@ -46,7 +46,8 @@
                         <link rel="stylesheet" href="https://bootswatch.com/5/{{ default_theme }}/bootstrap.min.css"
                               id="bootstrap-style">
                     {% else %}
-                        <link rel="stylesheet" href="https://bootswatch.com/5/{{ current_user.site_theme }}/bootstrap.min.css"
+                        <link rel="stylesheet"
+                              href="https://bootswatch.com/5/{{ current_user.site_theme }}/bootstrap.min.css"
                               id="bootstrap-style">
                     {% endif %}
                     <!-- Dark mode theme -->
@@ -154,6 +155,17 @@
             {%- endblock navbar %}
             {% block content -%}
             {%- endblock content %}
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="cloneToast" style="z-index: 9998;">
+                    <div class="toast-header">
+                        <strong class="me-auto">Bootstrap</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        Hello, world! This is a toast message.
+                    </div>
+                </div>
+            </div>
             <!--
             <footer class="bottom">
                 <div class="text-center">
@@ -190,6 +202,50 @@
                         $(".flash-container").delay(5000).slideUp(200, function () {
                             // Delete the container
                             $(this).remove();
+                        });
+
+
+                    });
+                </script>
+                <!-- Socket IO -->
+                <script>
+                    // SocketIO notification system
+                    let socket = io();
+                    socket.on('after connect', function (data) {
+                        {% if current_user.is_authenticated %}
+                            socket.emit('notifications join', {}, (response) => {
+                                console.log("Listening for new notifications");
+                            });
+
+                            socket.on('new notification', function (data) {
+                                // Create a new toast
+                                let clonedToast = $('#cloneToast').clone();
+                                // Remove the ID
+                                clonedToast.removeAttr('id');
+                                // Set all the info
+                                clonedToast.find('.me-auto').text(data.title);
+                                clonedToast.find('.toast-body').text(data.message);
+                                clonedToast.attr("data-bs-autohide", "false");
+                                // Add a bg class
+                                clonedToast.addClass(`bg-${data.type}`);
+                                // Add it to the toast container
+                                $('#toastContainer').append(clonedToast);
+                                // Show the toast
+                                let toast = new bootstrap.Toast(clonedToast);
+                                toast.show();
+                                // Play our notif.mp3 sound
+                                let audio = new Audio('{{ url_for('static', filename='notif.mp3') }}');
+                                // Catch a NotAllowed error
+                                audio.play().catch(function (error) {
+                                    if (error.name === 'NotAllowedError') {
+                                        console.log('Not allowed to play audio.');
+                                    }
+                                });
+                            });
+                        {% endif %}
+                        socket.on('disconnect', function () {
+                            console.log("Disconnected from socket");
+                            socket.off('new notification');
                         });
                     });
                 </script>

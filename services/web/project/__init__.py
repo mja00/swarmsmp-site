@@ -25,7 +25,10 @@ sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", ""),
     integrations=[FlaskIntegration()],
     traces_sample_rate=1.0,
+    environment=os.getenv("FLASK_ENV", ""),
 )
+
+development_env = os.getenv("FLASK_ENV", "development") == "development"
 
 
 app = Flask(__name__)
@@ -145,6 +148,19 @@ def inject_site_settings():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+if development_env:
+    @app.route('/sentry_debug')
+    def sentry_debug():
+        divide_by_zero = 1 / 0
+        return "You should never see this"
+
+
+    @app.route('/notification_test/<string:user_id>')
+    def notification_test(user_id):
+        socket.broadcast_notification_to_user(user_id, "I hope you stub your toe you fucking loser", notif_title='lol u suck ass', notif_type='success')
+        return "Notification sent"
 
 
 @app.route("/apply", methods=["GET", "POST"])
