@@ -159,6 +159,7 @@
                 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="cloneToast" style="z-index: 9998;">
                     <div class="toast-header">
                         <strong class="me-auto">Bootstrap</strong>
+                        <small>just now</small>
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                     <div class="toast-body">
@@ -182,6 +183,16 @@
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
                         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
                         crossorigin="anonymous"></script>
+
+
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.6.7/jquery.timeago.min.js"
+                        integrity="sha512-RlGrSmkje9EE/FXpJKWf0fvOlg4UULy/blvNsviBX9LFwMj/uewXVoanRbxTIRDXy/0A3fBQppTmJ/qOboJzmA=="
+                        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                <script type="text/javascript">
+                   jQuery(document).ready(function() {
+                     $("time.timeago").timeago();
+                   });
+                </script>
                 <!-- DataTables -->
                 <script type="text/javascript"
                         src="https://cdn.datatables.net/v/bs5/dt-1.11.5/date-1.1.2/rr-1.2.8/datatables.min.js"></script>
@@ -228,19 +239,17 @@
                                 clonedToast.attr("data-bs-autohide", "false");
                                 // Add a bg class
                                 clonedToast.addClass(`bg-${data.type}`);
+                                // Replace the text in the small element with a timeago element
+                                let now = new Date();
+                                clonedToast.find('small').html(
+                                    `<time class="timeago" datetime="${now.toISOString()}">${now.toISOString()}</time>`
+                                );
                                 // Add it to the toast container
                                 $('#toastContainer').append(clonedToast);
+                                $("time.timeago").timeago();
                                 // Show the toast
                                 let toast = new bootstrap.Toast(clonedToast);
                                 toast.show();
-                                // Play our notif.mp3 sound
-                                let audio = new Audio('{{ url_for('static', filename='notif.mp3') }}');
-                                // Catch a NotAllowed error
-                                audio.play().catch(function (error) {
-                                    if (error.name === 'NotAllowedError') {
-                                        console.log('Not allowed to play audio.');
-                                    }
-                                });
                             });
                         {% endif %}
                         socket.on('disconnect', function () {
