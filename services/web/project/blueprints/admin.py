@@ -69,6 +69,49 @@ def user(user_id):
     return render_template('admin/user.html', user=user_obj, title='View User', editing=False)
 
 
+@admin_bp.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
+def edit_user(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        # Get form data
+        form_data = request.form
+        username = form_data.get('username', None)
+        email = form_data.get('email', None)
+        discord_uuid = form_data.get('discord_uuid', None)
+        minecraft_username = form_data.get('minecraft_username', None)
+        minecraft_uuid = form_data.get('minecraft_uuid', None)
+        staff_title = form_data.get('staff_title', None)
+        ban_reason = form_data.get('ban_reason', None)
+        staff_notes = form_data.get('staff_notes', None)
+
+        # Set all the data that is not None
+        if username:
+            user_obj.username = username
+        if email:
+            user_obj.email = email
+        if discord_uuid:
+            user_obj.discord_uuid = discord_uuid
+        if minecraft_username:
+            user_obj.minecraft_username = minecraft_username
+        if minecraft_uuid:
+            user_obj.minecraft_uuid = minecraft_uuid
+        if staff_title:
+            user_obj.staff_title = staff_title
+        if ban_reason:
+            user_obj.ban_reason = ban_reason
+        if staff_notes:
+            user_obj.staff_notes = staff_notes
+
+        # Save the changes
+        db.session.commit()
+        # Invalidate the cache
+        user_obj.delete_cache_for_user()
+        flash('User updated successfully!', 'success')
+        return redirect(url_for('admin.user', user_id=user_id))
+    else:
+        return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
+
+
 @admin_bp.route('/users')
 def users():
     return render_template('admin/users.html', title='Users')

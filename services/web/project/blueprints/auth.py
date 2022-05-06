@@ -244,6 +244,13 @@ def minecraft_authentication():
             flash('Invalid auth code', "danger")
             return redirect(url_for('auth.minecraft_authentication'))
 
+        # Check to see if the UUID is already in the database
+        user_uuid = auth_code_object.uuid
+        test_user = User.query.filter_by(minecraft_uuid=user_uuid).first()
+        if test_user:
+            flash('This Minecraft account has already been linked.', "danger")
+            return redirect(url_for('auth.minecraft_authentication'))
+
         # Our auth code is valid, so we can now update the user's minecraft uuid
         # Get the user
         try:

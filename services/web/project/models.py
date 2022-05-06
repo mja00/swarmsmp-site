@@ -165,6 +165,10 @@ class User(UserMixin, db.Model):
         db.session.commit()
         self.delete_cache_for_user()
 
+    def set_username(self, username):
+        self.username = username
+        self.commit_and_invalidate_cache()
+
 
 class Application(db.Model):
     __tablename__ = 'applications'

@@ -82,7 +82,7 @@
                             {% else %}
                                 <button onclick="whitelistUser()" class="btn btn-success">Whitelist</button>
                             {% endif %}
-                            <a href="#" class="btn btn-info">View On Dashboard</a>
+                            <a href="{{ url_for("admin.user", user_id=user.id) }}" class="btn btn-info">View On Dashboard</a>
                         </div>
                     </div>
                 {% endif %}
