@@ -89,13 +89,13 @@
             </div>
             <div class="col-lg-8">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#charInfo">
                         <h5>{{ user.username }}'s Character</h5>
                         {% if user.id == current_user.id %}
                             <small class="text-muted">This is public information</small>
                         {% endif %}
                     </div>
-                    <div class="card-body">
+                    <div class="card-body collapse show" id="charInfo">
                         {% if user.has_character() %}
                             <form>
                                 <div class="row">
@@ -120,13 +120,13 @@
                         {% endif %}
                     </div>
                 </div>
-                {% if user.id == current_user.id %}
+                {% if user.id == current_user.id or current_user.is_elevated() %}
                     <div class="card mt-4">
-                        <div class="card-header">
+                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#privCharBody">
                             <h5>Private Character Information</h5>
-                            <small class="text-muted">Only SwarmSMP Admins and yourself can see this</small>
+                            <small class="text-muted">Only SwarmSMP Staff and yourself can see this. Click this header to unhide it.</small>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body collapse" id="privCharBody">
                             {% if user.has_character() %}
                                 <form>
                                     <div class="row">
@@ -170,10 +170,10 @@
                         </div>
                     </div>
                     <div class="card mt-4">
-                        <div class="card-header">
+                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#applicationInfoBody">
                             <h5>Application Information</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body collapse show" id="applicationInfoBody">
                             {% if latest_application %}
                                 {% if latest_application.is_rejected %}
                                     <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
@@ -187,6 +187,24 @@
                             {% else %}
                                 <p>You have not yet submitted an application.</p>
                             {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                {% if current_user.is_elevated() %}
+                    <div class="card mt-4">
+                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#staffInfoBody">
+                            <h5>Staff Information</h5>
+                        </div>
+                        <div class="card-body collapse show" id="staffInfoBody">
+                            <form>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="staff-notes" class="form-label">Staff Notes</label>
+                                        <textarea class="form-control" id="staff-notes" rows="5"
+                                                  readonly>{{ user.staff_notes if user.staff_notes}}</textarea>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 {% endif %}
