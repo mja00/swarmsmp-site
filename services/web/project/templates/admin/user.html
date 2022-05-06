@@ -25,22 +25,22 @@
             <div class="col-6">
                 <label for="discord_uuid" class="form-label">Discord UUID</label>
                 <input type="text" id="discord_uuid" name="discord_uuid" class="form-control"
-                       value="{{ user.discord_uuid }}" disabled>
+                       value="{{ user.discord_uuid if user.discord_uuid }}" disabled>
             </div>
             <div class="col-6">
                 <label for="minecraft_username" class="form-label">Minecraft Username</label>
                 <input type="text" id="minecraft_username" name="minecraft_username" class="form-control"
-                       value="{{ user.minecraft_username }}" disabled>
+                       value="{{ user.minecraft_username if user.minecraft_username}}" disabled>
             </div>
             <div class="col-6">
                 <label for="minecraft_uuid" class="form-label">Minecraft UUID</label>
                 <input type="text" id="minecraft_uuid" name="minecraft_uuid" class="form-control"
-                       value="{{ user.minecraft_uuid }}" disabled>
+                       value="{{ user.minecraft_uuid if user.minecraft_uuid}}" disabled>
             </div>
             <div class="col-6">
                 <label for="staff_title" class="form-label">Staff Title</label>
                 <input type="text" id="staff_title" name="staff_title" class="form-control"
-                       value="{{ user.staff_title }}" disabled>
+                       value="{{ user.staff_title if user.staff_title}}" disabled>
             </div>
         </div>
         <hr>
@@ -49,18 +49,19 @@
             <div class="col-12">
                 <label for="ban_reason" class="form-label">Ban Reason</label>
                 <textarea rows="3" id="ban_reason" name="ban_reason" class="form-control"
-                          disabled>{{ user.ban_reason }}</textarea>
+                          disabled>{{ user.ban_reason if user.ban_reason}}</textarea>
             </div>
             <div class="col-12">
                 <label for="staff_notes" class="form-label">Staff Notes</label>
                 <textarea rows="3" id="staff_notes" name="staff_notes" class="form-control"
-                          disabled>{{ user.staff_notes }}</textarea>
+                          disabled>{{ user.staff_notes if user.ban_reason}}</textarea>
             </div>
         </div>
         <div class="row mt-2">
             {% if editing %}
                 <div class="col-12" id="saveButton">
                     <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{{ url_for('admin.user', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
                 </div>
             {% else %}
                 <div class="col-12">

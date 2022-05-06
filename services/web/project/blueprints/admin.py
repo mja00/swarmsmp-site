@@ -90,19 +90,13 @@ def edit_user(user_id):
             user_obj.username = username
         if email:
             user_obj.email = email
-        if discord_uuid:
-            user_obj.discord_uuid = discord_uuid
-        if minecraft_username:
-            user_obj.minecraft_username = minecraft_username
-        if minecraft_uuid:
-            user_obj.minecraft_uuid = minecraft_uuid
-        if staff_title:
-            user_obj.staff_title = staff_title
-        if ban_reason:
-            user_obj.ban_reason = ban_reason
-        if staff_notes:
-            user_obj.staff_notes = staff_notes
-
+        # These are able to be null
+        user_obj.minecraft_uuid = minecraft_uuid if minecraft_uuid is not "" else None
+        user_obj.minecraft_username = minecraft_username if minecraft_username is not "" else None
+        user_obj.discord_uuid = discord_uuid if discord_uuid is not "" else None
+        user_obj.staff_title = staff_title if staff_title is not "" else None
+        user_obj.ban_reason = ban_reason if ban_reason is not "" else None
+        user_obj.staff_notes = staff_notes if staff_notes is not "" else None
         # Save the changes
         db.session.commit()
         # Invalidate the cache
