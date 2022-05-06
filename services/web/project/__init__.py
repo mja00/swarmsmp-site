@@ -1,6 +1,7 @@
 import os
 import pickle
 import uuid
+import sentry_sdk
 from datetime import datetime as dt
 from datetime import timedelta
 
@@ -8,7 +9,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from flask_socketio import emit
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .blueprints.admin import admin_bp as admin_blueprint
 from .blueprints.api import api as api_blueprint
@@ -19,6 +20,13 @@ from .decorators import fully_authenticated
 from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN", ""),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,
+)
+
 
 app = Flask(__name__)
 app.debug = os.environ.get('FLASK_ENV') == 'development'
@@ -137,6 +145,12 @@ def inject_site_settings():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route('/debug_sentry')
+def trigger_error():
+    division_by_zero = 1 / 0
+    return division_by_zero
 
 
 @app.route("/apply", methods=["GET", "POST"])

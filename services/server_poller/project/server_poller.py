@@ -75,5 +75,8 @@ def post_data_to_portal(data):
 while True:
     output = get_status_for_servers()
     print(output)
-    post_data_to_portal(output)
+    try:
+        post_data_to_portal(output)
+    except requests.exceptions.ConnectionError:
+        print("Error posting data to portal")
     time.sleep(60)
