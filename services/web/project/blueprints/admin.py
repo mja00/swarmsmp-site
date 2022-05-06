@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus
 from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, get_server_settings
 from ..extensions import cache
+from ..logger import log_dev_status, log_staff_status
 from ..helpers import is_server_online
 
 admin_bp = Blueprint('admin', __name__)
@@ -110,6 +111,26 @@ def edit_user(user_id):
         return redirect(url_for('admin.user', user_id=user_id))
     else:
         return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
+
+
+@admin_bp.route('/user/<int:user_id>/toggle_dev', methods=['POST'])
+def toggle_dev(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    user_obj.is_admin = not user_obj.is_admin
+    log_dev_status(current_user, user_obj.is_admin, user_obj)
+    db.session.commit()
+    user_obj.delete_cache_for_user()
+    return jsonify({'success': True, 'is_dev': user_obj.is_admin})
+
+
+@admin_bp.route('/user/<int:user_id>/toggle_staff', methods=['POST'])
+def toggle_staff(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    user_obj.is_staff = not user_obj.is_staff
+    log_staff_status(current_user, user_obj.is_staff, user_obj)
+    db.session.commit()
+    user_obj.delete_cache_for_user()
+    return jsonify({'success': True, 'is_staff': user_obj.is_staff})
 
 
 @admin_bp.route('/users')

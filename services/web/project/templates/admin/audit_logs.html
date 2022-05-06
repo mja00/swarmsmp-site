@@ -9,7 +9,7 @@
 {% block userscripts %}
     <script>
         $(document).ready(function() {
-            $('#auditLogs').DataTable({
+            let table = $('#auditLogs').DataTable({
                 "order": [[ 0, "desc" ]],
                 "serverSide": true,
                 "ajax": "{{ url_for('admin.audit_logs_data') }}",
@@ -18,8 +18,25 @@
                     { "data": "user.username", orderable: false, title: "User" },
                     { "data": "action", orderable: false, title: "Action" },
                     { "data": "target_id", orderable: false, title: "Target"},
+                    { "data": "target_type", orderable: false, title: "Target Type", visible: false},
                     { "data": "created_at_human", orderable: false, width: "25%", title: "Date" }
                 ]
+            });
+
+            table.on('draw', function() {
+                let rows = table.rows().data();
+                for (let i = 0; i < rows.length; i++) {
+                    let row = rows[i];
+                    let target_type = row.target_type;
+                    let target_id = row.target_id;
+                    if (target_type === "USER") {
+                        let url = "{{ url_for('admin.user', user_id=-1) }}".replace("-1", target_id);
+                        table.cell(i, 3).node().innerHTML = '<a href="' + url + '">' + target_id + '</a>';
+                    }
+                    if (target_id === 0) {
+                        table.cell(i, 3).node().innerHTML = "None";
+                    }
+                }
             });
         });
     </script>

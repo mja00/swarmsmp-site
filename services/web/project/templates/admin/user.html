@@ -72,6 +72,17 @@
     </form>
 {% endblock %}
 {% block extra_cards %}
+    {% if editing %}
+        <div class="card mt-2">
+            <div class="card-header">
+                <h5>Dev Actions</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-danger" onclick="toggleDev()" id="devButton">{% if user.is_admin %}Revoke Developer{% else %}Make Developer{% endif %}</button>
+                <button class="btn btn-danger" onclick="toggleStaff()" id="staffButton">{% if user.is_staff %}Revoke Staff{% else %}Make Staff{% endif %}</button>
+            </div>
+        </div>
+    {% endif %}
     <div class="card mt-2">
         <div class="card-header">
             <h5>Characters</h5>
@@ -164,6 +175,46 @@
 {% endblock %}
 {% block userscripts %}
     <script>
+        function toggleDev() {
+            let url = '{{ url_for('admin.toggle_dev', user_id=user.id) }}';
+            // POST the URL
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (data) {
+                    if (data.success) {
+                        if (data.is_dev) {
+                            $('#devButton').html("Revoke Developer");
+                        } else {
+                            $('#devButton').html("Make Developer");
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            });
+        }
+
+        function toggleStaff() {
+            let url = '{{ url_for('admin.toggle_staff', user_id=user.id) }}';
+            // POST the URL
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (data) {
+                    if (data.success) {
+                        if (data.is_staff) {
+                            $('#staffButton').html("Revoke Staff");
+                        } else {
+                            $('#staffButton').html("Make Staff");
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            });
+        }
+
         $(document).ready(function () {
             let userForm = $('#userForm');
 
