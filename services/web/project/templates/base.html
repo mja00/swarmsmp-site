@@ -250,6 +250,7 @@
                                 // Show the toast
                                 let toast = new bootstrap.Toast(clonedToast);
                                 toast.show();
+                                sendDesktopNotification(data.title, data.message);
                             });
                         {% endif %}
                         socket.on('disconnect', function () {
@@ -257,6 +258,25 @@
                             socket.off('new notification');
                         });
                     });
+
+                    function sendDesktopNotification(title, body) {
+                        if (Notification.permission === "granted") {
+                            let notification = new Notification(title, {
+                                body: body,
+                                icon: '{{ url_for('static', filename='android-chrome-192x192.png') }}'
+                            });
+
+                            setTimeout(notification.close.bind(notification), 5000);
+                        }
+                        else if (Notification.permission !== 'denied') {
+                            Notification.requestPermission().then(permission => {
+                                if (permission === "granted") {
+                                    let notification = new Notification(title, {body: body});
+                                    setTimeout(notification.close.bind(notification), 5000);
+                                }
+                            });
+                        }
+                    }
                 </script>
             {%- endblock scripts %}
             {% block userscripts -%}

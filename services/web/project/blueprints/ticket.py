@@ -37,8 +37,8 @@ def view(ticket_id):
         flash('You do not have permission to view this ticket', 'danger')
         return redirect(url_for('ticket.mine'))
 
-    if current_user.is_admin:
-        return redirect(url_for('ticket.view_ticket', ticket_id=ticket_id))
+    if current_user.is_admin and ticket.owner.id != current_user.id:
+        return redirect(url_for('admin.view_ticket', ticket_id=ticket_id))
 
     return render_template('tickets/view_ticket.html', ticket=ticket, title=f'Ticket #{ticket.get_short_id()}')
 

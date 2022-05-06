@@ -26,6 +26,7 @@ sentry_sdk.init(
     integrations=[FlaskIntegration()],
     traces_sample_rate=1.0,
     environment=os.getenv("FLASK_ENV", ""),
+    send_default_pii=True
 )
 
 development_env = os.getenv("FLASK_ENV", "development") == "development"

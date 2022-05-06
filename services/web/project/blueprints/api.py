@@ -15,7 +15,7 @@ from ..extensions import cache
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus
-from .socket import broadcast_server_status
+from .socket import broadcast_server_status, broadcast_notification_to_user
 
 api = Blueprint('api', __name__)
 
@@ -244,6 +244,7 @@ def ticket_reply(ticket_id):
     if (current_user.is_elevated() and ticket.owner_id != current_user.id) and ticket.status != 'answered':
         ticket.status = 'answered'
         ticket.last_replied_at = dt.utcnow()
+        broadcast_notification_to_user(ticket.owner.id, 'A new reply has been posted to your ticket', 'info', 'New Ticket Reply')
     else:
         ticket.status = 'replied'
         ticket.last_replied_at = dt.utcnow()
