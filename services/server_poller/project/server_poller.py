@@ -41,7 +41,11 @@ def get_query_for_server(status_json):
 
 
 def get_player_list(status_json):
-    return get_query_for_server(status_json)['players']
+    try:
+        return get_query_for_server(status_json)['players']
+    except KeyError:
+        print("Failed to get player list")
+        return []
 
 
 def get_status_for_servers():
