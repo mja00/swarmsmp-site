@@ -1,6 +1,6 @@
 {% extends "admin/admin_base.html" %}
 {% import 'components/view_ticket.html' as tv %}
-{% block header %}{{ ticket.subject }}{% endblock %}
+{% block header %}<h5>{{ ticket.subject }}</h5>{% endblock %}
 {% block admin_content %}
     {{ tv.view_ticket(ticket, current_user, departments) }}
 {% endblock %}

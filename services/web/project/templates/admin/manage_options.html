@@ -1,0 +1,104 @@
+{% extends "admin/admin_base.html" %}
+{% import 'components/theme_dropdown.html' as td %}
+{% block header %}
+    <div class="row g-0">
+        <div class="col-6">
+            <h5>Manage Factions</h5>
+        </div>
+        <div class="col-6">
+            <button class="float-end btn btn-success btn-sm" id="add-faction" data-bs-toggle="modal"
+                    data-bs-target="#addFaction">Add Faction
+            </button>
+        </div>
+    </div>
+{% endblock %}
+{% block admin_content %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Character Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for faction in factions %}
+                <tr>
+                    <td>{{ faction.id }}</td>
+                    <td>{{ faction.name }}</td>
+                    <td>{{ faction.total() }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+{% block extra_cards %}
+    <div class="card mt-2">
+        <div class="card-header">
+            <div class="row g-0">
+                <div class="col-6">
+                    <h5>Manage Classes</h5>
+                </div>
+                <div class="col-6">
+                    <button class="float-end btn btn-success btn-sm" id="add-class" data-bs-toggle="modal"
+                            data-bs-target="#addClass">Add Class
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Character Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for class in classes %}
+                        <tr>
+                            <td>{{ class.id }}</td>
+                            <td>{{ class.name }}</td>
+                            <td>{{ class.total() }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card mt-2">
+        <div class="card-header">
+            <div class="row g-0">
+                <div class="col-6">
+                    <h5>Manage Races</h5>
+                </div>
+                <div class="col-6">
+                    <button class="float-end btn btn-success btn-sm" id="add-race" data-bs-toggle="modal"
+                            data-bs-target="#addRace">Add Race
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Character Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for race in races %}
+                        <tr>
+                            <td>{{ race.id }}</td>
+                            <td>{{ race.name }}</td>
+                            <td>{{ race.total() }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

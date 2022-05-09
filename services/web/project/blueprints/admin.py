@@ -3,11 +3,12 @@ from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
-from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus
-from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, get_server_settings
 from ..extensions import cache
 from ..logger import log_dev_status, log_staff_status
-from ..helpers import is_server_online
+from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
+    Class, Race
+from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
+    get_server_settings
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -197,6 +198,16 @@ def view_ticket(ticket_id):
 def departments():
     departments_list = TicketDepartment.query.order_by(TicketDepartment.id.asc()).all()
     return render_template('admin/departments.html', departments=departments_list, title='Departments')
+
+
+@admin_bp.route('/manage/options', methods=['GET'])
+def manage_options():
+    # Get all the factions
+    factions = Faction.query.all()
+    classes = Class.query.all()
+    races = Race.query.all()
+    return render_template("admin/manage_options.html", title="Manage Options", factions=factions, classes=classes,
+                           races=races)
 
 
 @admin_bp.route('/settings', methods=['GET', 'POST'])

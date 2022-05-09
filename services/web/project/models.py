@@ -551,6 +551,9 @@ class Class(db.Model):
     def __repr__(self):
         return '<Class %r>' % self.id
 
+    def total(self):
+        return len(self.characters)
+
 
 class Race(db.Model):
     __tablename__ = 'races'
@@ -570,6 +573,9 @@ class Race(db.Model):
 
     def __repr__(self):
         return '<Race %r>' % self.id
+
+    def total(self):
+        return len(self.characters)
 
 
 class AuditLog(db.Model):
