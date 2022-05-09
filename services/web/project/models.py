@@ -106,6 +106,10 @@ class User(UserMixin, db.Model):
     def get_most_recent_character(self):
         return db.session.query(Character).filter_by(user_id=self.id, is_permad=False).order_by(Character.created_at.desc()).options(db.joinedload('faction')).first()
 
+    def delete_character_caches(self):
+        cache.delete_memoized(self.has_character)
+        cache.delete_memoized(self.get_most_recent_character)
+
     def get_id(self):
         return str(self.session_id)
 

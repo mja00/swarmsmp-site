@@ -19,6 +19,7 @@ def get_user(uuid):
     application = Application.query.filter_by(user_id=user.id).order_by(Application.id.desc()).first()
     if application:
         now = datetime.utcnow()
+        # TODO: Make the timedelta configurable
         time_till_next_application = humanize.naturaltime(now - (application.created_at + timedelta(days=7)))
     else:
         time_till_next_application = None

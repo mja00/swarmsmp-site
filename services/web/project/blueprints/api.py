@@ -41,6 +41,8 @@ def application_accepted(application: Application):
     db.session.add(character)
     db.session.commit()
     print("Accepted application for user {}".format(user.username))
+    # Delete the caches for the user's character functions
+    user.delete_character_caches()
     # Email the user
     return send_template_to_email(
         email=user.email,

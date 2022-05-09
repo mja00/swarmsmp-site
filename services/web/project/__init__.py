@@ -18,7 +18,7 @@ from .extensions import cache, socketio
 from .blueprints.auth import auth_bp as auth_blueprint
 from .blueprints.auth import hcaptcha
 from .decorators import fully_authenticated
-from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open
+from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 
@@ -203,7 +203,11 @@ def apply():
                         return redirect(url_for("user.profile"))
                     else:
                         # Check if the application is older than 7 days
-                        if dt.utcnow() - l_app.updated_at < timedelta(days=7):
+                        # TODO: Make the timedelta configurable
+                        time_since_app = dt.utcnow() - l_app.created_at
+                        delta = timedelta(days=7)
+                        print(time_since_app.total_seconds(), delta.total_seconds())
+                        if time_since_app.total_seconds() < delta.total_seconds():
                             # Means it's still within 7 days
                             flash("You can only apply once every 7 days.", "danger")
                             return redirect(url_for("user.profile"))
@@ -245,7 +249,9 @@ def apply():
                 flash("You're already whitelisted!", "success")
                 return redirect(url_for("user.profile"))
             factions = Faction.query.all()
-            return render_template("apply.html", factions=factions)
+            classes = Class.query.all()
+            races = Race.query.all()
+            return render_template("apply.html", factions=factions, classes=classes, races=races)
     else:
         flash("Applications are currently closed.", "danger")
         return redirect(url_for("index"))
