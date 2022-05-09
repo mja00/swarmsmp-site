@@ -10,6 +10,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk import last_event_id
 
 from .blueprints.admin import admin_bp as admin_blueprint
 from .blueprints.api import api as api_blueprint
@@ -25,8 +26,9 @@ sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", ""),
     integrations=[FlaskIntegration()],
     traces_sample_rate=1.0,
-    environment=os.getenv("FLASK_ENV", ""),
-    send_default_pii=True
+    environment=os.getenv("FLASK_ENV", "development"),
+    send_default_pii=True,
+    debug=False
 )
 
 development_env = os.getenv("FLASK_ENV", "development") == "development"
@@ -144,6 +146,16 @@ def inject_site_settings():
         "applications_open": get_applications_open(),
     }
     return dict(return_dict)
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template("errors/500.html", sentry_event_id=last_event_id(), dsn=os.getenv("SENTRY_DSN")), 500
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("errors/404.html")
 
 
 @app.route("/")
