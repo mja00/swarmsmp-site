@@ -175,8 +175,8 @@ class Application(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     character_name = db.Column(db.String(255), nullable=False)
     character_faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
-    character_race = db.Column(db.String(255), nullable=False)
-    character_class = db.Column(db.String(255), nullable=False)
+    character_race = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
+    character_class = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
     rejection_reason = db.Column(db.Text(), nullable=True)
@@ -213,8 +213,8 @@ class Character(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
-    subrace = db.Column(db.String(255), nullable=False)
-    clazz = db.Column(db.String(255), nullable=False)
+    subrace = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
+    clazz = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
 
@@ -530,6 +530,46 @@ class Faction(db.Model):
     def offline(self):
         # TODO: Make this pull from the DB
         return len(self.characters)
+
+
+class Class(db.Model):
+    __tablename__ = 'classes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    characters = db.relationship('Character', backref='class', lazy=True)
+    applications = db.relationship('Application', backref='class', lazy=True)
+    hidden = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Class %r>' % self.id
+
+
+class Race(db.Model):
+    __tablename__ = 'races'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    characters = db.relationship('Character', backref='race', lazy=True)
+    applications = db.relationship('Application', backref='race', lazy=True)
+    hidden = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Race %r>' % self.id
 
 
 class AuditLog(db.Model):
