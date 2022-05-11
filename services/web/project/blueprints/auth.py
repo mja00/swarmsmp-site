@@ -21,6 +21,9 @@ auth_bp = Blueprint('auth', __name__)
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 hcaptcha = hCaptcha()
 
+DISCORD_BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
+DISCORD_GUILD_ID = os.environ.get('DISCORD_GUILD_ID')
+
 
 def send_registration_email(user, confirmation_token):
     # Get the user's email address
@@ -95,13 +98,13 @@ def get_discord_authorization_url():
     client_id = os.environ.get('DISCORD_CLIENT_ID')
     scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
     redirect_uri = url_for('auth.discord_callback', _external=True, _scheme=scheme)
-    scope = "identify"
+    scope = "identify guilds.join"
     return_url = f"{base_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
     return return_url
 
 
 def convert_discord_code_to_token(code):
-    base_url = "https://discord.com/api/v6/oauth2/token"
+    base_url = "https://discord.com/api/v10/oauth2/token"
     client_id = os.environ.get('DISCORD_CLIENT_ID')
     client_secret = os.environ.get('DISCORD_CLIENT_SECRET')
     scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
@@ -118,10 +121,27 @@ def convert_discord_code_to_token(code):
 
 
 def get_discord_info_for_token(token):
-    base_url = "https://discord.com/api/v6/users/@me"
+    base_url = "https://discord.com/api/v10/users/@me"
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(base_url, headers=headers)
     return response.json()
+
+
+def make_user_join_discord_guild(token, guild_id, user_id, access_token):
+    base_url = f"https://discord.com/api/v10/guilds/{guild_id}/members/{user_id}"
+    headers = {
+        "Authorization": f"Bot {token}",
+        "Content-Type": "application/json"
+    }
+    data = {"access_token": access_token}
+    response = requests.put(base_url, headers=headers, json=data)
+    if response.status_code == 204:
+        return True
+    elif response.status_code == 201:
+        return True
+    else:
+        print(response.text)
+        return False
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -388,6 +408,10 @@ def discord_callback():
         access_token = token_info['access_token']
         user_info = get_discord_info_for_token(access_token)
         user = User.query.filter_by(id=current_user.id).first()
+        success = make_user_join_discord_guild(DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, user_info['id'], access_token)
+        if not success:
+            flash('Error joining Discord guild', "danger")
+            return redirect(url_for('index'))
     except KeyError as e:
         print(e)
         print(f"Error: {token_info['error']}\nError Description: {token_info['error_description']}")
