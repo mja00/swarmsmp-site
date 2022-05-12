@@ -167,7 +167,7 @@ def index():
 if development_env:
     @app.route('/sentry_debug')
     def sentry_debug():
-        divide_by_zero = 1 / 0
+        _divide_by_zero = 1 / 0
         return "You should never see this"
 
 
