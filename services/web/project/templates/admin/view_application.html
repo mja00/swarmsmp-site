@@ -1,5 +1,5 @@
 {% extends "admin/admin_base.html" %}
-{% block header %}Viewing Application for {{ application.user.username }}{% endblock %}
+{% block header %}<h5>Viewing Application for {{ application.user.username }}</h5>{% endblock %}
 {% block admin_content %}
     <div class="row mb-4">
         <div class="col">
@@ -29,12 +29,12 @@
             <div class="col-6">
                     <label for="characterClass">Character Class</label>
                     <input type="text" id="characterClass" name="characterClass" class="form-control"
-                           placeholder="Character Class" value="{{ application.character_class }}" disabled>
+                           placeholder="Character Class" value="{{ application.class.name }}" disabled>
             </div>
             <div class="col-6">
                     <label for="characterRace">Character Race</label>
                     <input type="text" id="characterRace" name="characterRace" class="form-control"
-                           placeholder="Character Race" value="{{ application.character_race }}" disabled>
+                           placeholder="Character Race" value="{{ application.race.name }}" disabled>
             </div>
             <div class="col-12">
                     <label for="characterBackstory">Character Backstory</label>

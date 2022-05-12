@@ -27,12 +27,22 @@
                             <div class="col-6">
                                 <label class="form-label" for="characterClass">Class</label>
                                 <!-- TODO: Add classes to the DB and populate this dropdown. For now, use an input -->
-                                <input class="form-control" type="text" name="characterClass" id="characterClass" placeholder="Warrior" required>
+                                <select class="form-select" id="characterClass" name="characterClass" required>
+                                    <option value="">Select Class</option>
+                                    {% for class in classes %}
+                                        <option value="{{ class.id }}">{{ class.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <div class="col-6">
                                 <label class="form-label" for="characterRace">Race</label>
                                 <!-- TODO: This will also use a dropdown eventually, use an input for now -->
-                                <input class="form-control" type="text" name="characterRace" id="characterRace" placeholder="Human" required>
+                                <select class="form-select" id="characterRace" name="characterRace" required>
+                                    <option value="">Select Race</option>
+                                    {% for race in races %}
+                                        <option value="{{ race.id }}">{{ race.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <div class="col-12">
                                 <label for="characterDescription">Description</label>

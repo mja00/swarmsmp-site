@@ -1,7 +1,8 @@
-from ..extensions import socketio
-from flask_socketio import send, emit
-from flask_socketio import join_room, leave_room, rooms
 from flask_login import current_user
+from flask_socketio import emit
+from flask_socketio import join_room, leave_room, rooms
+
+from ..extensions import socketio
 
 
 @socketio.on('connect')
@@ -14,13 +15,11 @@ def handle_disconnect():
     # Remove user from all rooms that they're in
     for room in rooms():
         leave_room(room)
-    return
 
 
 @socketio.on('server listen')
 def listen_server_status(data):
     join_room('server')
-    return
 
 
 def broadcast_server_status(status):
@@ -31,7 +30,6 @@ def broadcast_server_status(status):
 @socketio.on('notifications join')
 def handle_notifications_join(data):
     join_room(f'notifications-{current_user.id}')
-    return
 
 
 def broadcast_notification_to_user(user_id, message, notif_type='info', notif_title="System Notification"):

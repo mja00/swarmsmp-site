@@ -1,9 +1,9 @@
 {% extends "admin/admin_base.html" %}
-{% block header %}Statistics{% endblock %}
+{% block header %}<h5>Statistics</h5>{% endblock %}
 {% block admin_content %}
     <h5 class="text-center">Faction Stats</h5>
     {% for faction_row in factions|batch(3, "empty") %}
-        <div class="row">
+        <div class="row mb-2">
             {% for faction in faction_row %}
                 <div class="col">
                     {% if faction == "empty" %}

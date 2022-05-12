@@ -3,11 +3,12 @@ from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
-from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus
-from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, get_server_settings
 from ..extensions import cache
 from ..logger import log_dev_status, log_staff_status
-from ..helpers import is_server_online
+from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
+    Class, Race
+from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
+    get_server_settings
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -199,6 +200,16 @@ def departments():
     return render_template('admin/departments.html', departments=departments_list, title='Departments')
 
 
+@admin_bp.route('/manage/options', methods=['GET'])
+def manage_options():
+    # Get all the factions
+    factions = Faction.query.all()
+    classes = Class.query.all()
+    races = Race.query.all()
+    return render_template("admin/manage_options.html", title="Manage Options", factions=factions, classes=classes,
+                           races=races)
+
+
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == "POST":
@@ -296,3 +307,42 @@ def audit_logs_data():
         'recordsTotal': AuditLog.query.count(),
         'draw': request.args.get('draw', type=int)
     })
+
+
+@admin_bp.route('/faction/new', methods=['POST'])
+def new_faction():
+    name = request.form.get('factionName')
+    if name:
+        faction_obj = Faction(name=name)
+        db.session.add(faction_obj)
+        db.session.commit()
+        flash('Faction created', 'success')
+    else:
+        flash('Faction name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/class/new', methods=['POST'])
+def new_class():
+    name = request.form.get('className')
+    if name:
+        class_obj = Class(name=name)
+        db.session.add(class_obj)
+        db.session.commit()
+        flash('Class created', 'success')
+    else:
+        flash('Class name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/race/new', methods=['POST'])
+def new_race():
+    name = request.form.get("raceName")
+    if name:
+        race_obj = Race(name=name)
+        db.session.add(race_obj)
+        db.session.commit()
+        flash('Race created', 'success')
+    else:
+        flash('Race name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))

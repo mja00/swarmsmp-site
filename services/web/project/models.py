@@ -90,6 +90,7 @@ class User(UserMixin, db.Model):
     def minecraft_uuid_as_plain(self):
         return self.minecraft_uuid.replace('-', '')
 
+    @cache.memoize(timeout=3600)
     def has_character(self):
         characters = Character.query.filter_by(user_id=self.id, is_permad=False).all()
         return len(characters) > 0
@@ -103,8 +104,13 @@ class User(UserMixin, db.Model):
     def is_elevated(self):
         return self.is_admin or self.is_staff
 
+    @cache.memoize(timeout=3600)
     def get_most_recent_character(self):
         return db.session.query(Character).filter_by(user_id=self.id, is_permad=False).order_by(Character.created_at.desc()).options(db.joinedload('faction')).first()
+
+    def delete_character_caches(self):
+        cache.delete_memoized(self.has_character)
+        cache.delete_memoized(self.get_most_recent_character)
 
     def get_id(self):
         return str(self.session_id)
@@ -175,8 +181,8 @@ class Application(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     character_name = db.Column(db.String(255), nullable=False)
     character_faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
-    character_race = db.Column(db.String(255), nullable=False)
-    character_class = db.Column(db.String(255), nullable=False)
+    character_race = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
+    character_class = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
     rejection_reason = db.Column(db.Text(), nullable=True)
@@ -213,8 +219,8 @@ class Character(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
-    subrace = db.Column(db.String(255), nullable=False)
-    clazz = db.Column(db.String(255), nullable=False)
+    subrace = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
+    clazz = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
 
@@ -223,6 +229,7 @@ class Character(db.Model):
 
     # Boolean
     is_permad = db.Column(db.Boolean, default=False, nullable=False)
+    is_active = db.Column(db.Boolean, default=False, nullable=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -521,15 +528,67 @@ class Faction(db.Model):
         return '<Faction %r>' % self.id
 
     def total(self):
-        return len(self.characters)
+        # Get all characters that aren't perma'd
+        characters = Character.query.filter_by(faction_id=self.id).filter_by(is_permad=False).filter_by(is_active=True).all()
+        return len(characters)
 
     def online(self):
         # TODO: Make this pull from the DB
-        return len(self.characters)
+        _characters = self.characters
+        return "N/A"
 
     def offline(self):
         # TODO: Make this pull from the DB
-        return len(self.characters)
+        _characters = self.characters
+        return "N/A"
+
+
+class Class(db.Model):
+    __tablename__ = 'classes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    characters = db.relationship('Character', backref='class', lazy=True)
+    applications = db.relationship('Application', backref='class', lazy=True)
+    hidden = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Class %r>' % self.id
+
+    def total(self):
+        characters = Character.query.filter_by(clazz=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
+        return len(characters)
+
+
+class Race(db.Model):
+    __tablename__ = 'races'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    characters = db.relationship('Character', backref='race', lazy=True)
+    applications = db.relationship('Application', backref='race', lazy=True)
+    hidden = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return '<Race %r>' % self.id
+
+    def total(self):
+        characters = Character.query.filter_by(subrace=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
+        return len(characters)
 
 
 class AuditLog(db.Model):

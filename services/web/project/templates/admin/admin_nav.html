@@ -32,6 +32,9 @@
         <a href="{{ url_for('admin.departments') }}"
            class="list-group-item list-group-item-action {% if request.endpoint == 'admin.departments' %}active{% endif %}">Manage
             Departments</a>
+        <a href="{{ url_for('admin.manage_options') }}"
+           class="list-group-item list-group-item-action {% if request.endpoint == 'admin.manage_options' %}active{% endif %}">Manage
+            Factions/Classes/Races</a>
         <a href="{{ url_for('admin.settings') }}"
            class="list-group-item list-group-item-action {% if request.endpoint == 'admin.settings' %}active{% endif %}">Settings</a>
     </ul>
