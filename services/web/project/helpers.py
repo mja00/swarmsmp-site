@@ -98,10 +98,7 @@ def is_server_online(server_uuid: str) -> bool:
         # Get the status
         status = response['status']
         # If the status is 1 it's online, if not, it's offline
-        if status == 1:
-            return True
-        else:
-            return False
+        return status == 1
     else:
         return False
 
@@ -119,9 +116,6 @@ def send_command_to_server(server_name: str, command: str) -> bool:
     # We need to do a post request to the panel to send a command
     url = f"{panel_settings['panel_api_url']}servers/{server_uuid}/command"
     r = requests.post(url, headers=headers, json={'command': command})
-    if r.status_code == 204:
-        return True
-    else:
-        return False
+    return r.status_code == 204
 
 
