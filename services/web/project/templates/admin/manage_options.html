@@ -11,24 +11,49 @@
             </button>
         </div>
     </div>
+    <!-- Faction add modal -->
+    <div class="modal fade" id="addFaction" tabindex="-1" aria-labelledby="addFactionLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFactionLabel">Add a faction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addFactionForm" action="{{ url_for('admin.new_faction') }}" method="POST">
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="factionName">Faction Name</label>
+                                <input type="text" class="form-control" id="factionName" name="factionName" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="addFactionForm" class="btn btn-success">Add</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block admin_content %}
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Character Count</th>
-            </tr>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Character Count</th>
+        </tr>
         </thead>
         <tbody>
-            {% for faction in factions %}
-                <tr>
-                    <td>{{ faction.id }}</td>
-                    <td>{{ faction.name }}</td>
-                    <td>{{ faction.total() }}</td>
-                </tr>
-            {% endfor %}
+        {% for faction in factions %}
+            <tr>
+                <td>{{ faction.id }}</td>
+                <td>{{ faction.name }}</td>
+                <td>{{ faction.total() }}</td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 {% endblock %}
@@ -45,24 +70,49 @@
                     </button>
                 </div>
             </div>
+            <!-- Faction add modal -->
+            <div class="modal fade" id="addClass" tabindex="-1" aria-labelledby="addClassLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addClassLabel">Add a class</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addClassForm" action="{{ url_for('admin.new_class') }}" method="POST">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="className">Class Name</label>
+                                        <input type="text" class="form-control" id="className" name="className" required>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" form="addClassForm" class="btn btn-success">Add</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Character Count</th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Character Count</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for class in classes %}
-                        <tr>
-                            <td>{{ class.id }}</td>
-                            <td>{{ class.name }}</td>
-                            <td>{{ class.total() }}</td>
-                        </tr>
-                    {% endfor %}
+                {% for class in classes %}
+                    <tr>
+                        <td>{{ class.id }}</td>
+                        <td>{{ class.name }}</td>
+                        <td>{{ class.total() }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -79,24 +129,49 @@
                     </button>
                 </div>
             </div>
+            <!-- Faction add modal -->
+            <div class="modal fade" id="addRace" tabindex="-1" aria-labelledby="addRaceLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addRaceLabel">Add a race</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addRaceForm" action="{{ url_for('admin.new_race') }}" method="POST">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="raceName">Race Name</label>
+                                        <input type="text" class="form-control" id="raceName" name="raceName" required>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" form="addClassForm" class="btn btn-success">Add</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Character Count</th>
-                    </tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Character Count</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for race in races %}
-                        <tr>
-                            <td>{{ race.id }}</td>
-                            <td>{{ race.name }}</td>
-                            <td>{{ race.total() }}</td>
-                        </tr>
-                    {% endfor %}
+                {% for race in races %}
+                    <tr>
+                        <td>{{ race.id }}</td>
+                        <td>{{ race.name }}</td>
+                        <td>{{ race.total() }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>

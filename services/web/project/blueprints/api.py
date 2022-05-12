@@ -41,6 +41,8 @@ def application_accepted(application: Application):
     db.session.add(character)
     db.session.commit()
     print("Accepted application for user {}".format(user.username))
+    # TODO: Give the user the whitelist role on Discord
+    # TODO: Give the user their faction role on Discord
     # Delete the caches for the user's character functions
     user.delete_character_caches()
     # Email the user

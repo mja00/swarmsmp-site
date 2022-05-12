@@ -22,16 +22,17 @@ from .models import db, User, SystemSetting, Faction, Application, get_site_them
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN", ""),
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=1.0,
-    environment=os.getenv("FLASK_ENV", "development"),
-    send_default_pii=True,
-    debug=False
-)
-
 development_env = os.getenv("FLASK_ENV", "development") == "development"
+
+if not development_env:
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN", ""),
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,
+        environment=os.getenv("FLASK_ENV", "development"),
+        send_default_pii=True,
+        debug=False
+    )
 
 
 app = Flask(__name__)

@@ -90,6 +90,7 @@ class User(UserMixin, db.Model):
     def minecraft_uuid_as_plain(self):
         return self.minecraft_uuid.replace('-', '')
 
+    @cache.memoize(timeout=3600)
     def has_character(self):
         characters = Character.query.filter_by(user_id=self.id, is_permad=False).all()
         return len(characters) > 0
@@ -103,6 +104,7 @@ class User(UserMixin, db.Model):
     def is_elevated(self):
         return self.is_admin or self.is_staff
 
+    @cache.memoize(timeout=3600)
     def get_most_recent_character(self):
         return db.session.query(Character).filter_by(user_id=self.id, is_permad=False).order_by(Character.created_at.desc()).options(db.joinedload('faction')).first()
 
@@ -227,6 +229,7 @@ class Character(db.Model):
 
     # Boolean
     is_permad = db.Column(db.Boolean, default=False, nullable=False)
+    is_active = db.Column(db.Boolean, default=False, nullable=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -525,15 +528,17 @@ class Faction(db.Model):
         return '<Faction %r>' % self.id
 
     def total(self):
-        return len(self.characters)
+        # Get all characters that aren't perma'd
+        characters = Character.query.filter_by(faction_id=self.id).filter_by(is_permad=False).filter_by(is_active=True).all()
+        return len(characters)
 
     def online(self):
         # TODO: Make this pull from the DB
-        return len(self.characters)
+        return "N/A"
 
     def offline(self):
         # TODO: Make this pull from the DB
-        return len(self.characters)
+        return "N/A"
 
 
 class Class(db.Model):
@@ -556,7 +561,8 @@ class Class(db.Model):
         return '<Class %r>' % self.id
 
     def total(self):
-        return len(self.characters)
+        characters = Character.query.filter_by(clazz=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
+        return len(characters)
 
 
 class Race(db.Model):
@@ -579,7 +585,8 @@ class Race(db.Model):
         return '<Race %r>' % self.id
 
     def total(self):
-        return len(self.characters)
+        characters = Character.query.filter_by(subrace=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
+        return len(characters)
 
 
 class AuditLog(db.Model):

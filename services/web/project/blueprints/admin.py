@@ -307,3 +307,42 @@ def audit_logs_data():
         'recordsTotal': AuditLog.query.count(),
         'draw': request.args.get('draw', type=int)
     })
+
+
+@admin_bp.route('/faction/new', methods=['POST'])
+def new_faction():
+    name = request.form.get('factionName')
+    if name:
+        faction_obj = Faction(name=name)
+        db.session.add(faction_obj)
+        db.session.commit()
+        flash('Faction created', 'success')
+    else:
+        flash('Faction name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/class/new', methods=['POST'])
+def new_class():
+    name = request.form.get('className')
+    if name:
+        class_obj = Class(name=name)
+        db.session.add(class_obj)
+        db.session.commit()
+        flash('Class created', 'success')
+    else:
+        flash('Class name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/race/new', methods=['POST'])
+def new_race():
+    name = request.form.get("raceName")
+    if name:
+        race_obj = Race(name=name)
+        db.session.add(race_obj)
+        db.session.commit()
+        flash('Race created', 'success')
+    else:
+        flash('Race name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
