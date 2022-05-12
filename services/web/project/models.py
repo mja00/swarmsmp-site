@@ -534,12 +534,12 @@ class Faction(db.Model):
 
     def online(self):
         # TODO: Make this pull from the DB
-        characters = self.characters
+        _characters = self.characters
         return "N/A"
 
     def offline(self):
         # TODO: Make this pull from the DB
-        characters = self.characters
+        _characters = self.characters
         return "N/A"
 
 
