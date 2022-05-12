@@ -191,6 +191,7 @@ def apply():
             character_race = form_data.get("characterRace")
             character_backstory = form_data.get("characterBackstory")
             character_description = form_data.get("characterDescription")
+            character_scale = form_data.get("characterScale")
             rule_agreement = form_data.get("ruleAgreement") == "on"
 
             # Check if the user has already applied
@@ -238,7 +239,8 @@ def apply():
                 character_class=character_class,
                 character_race=character_race,
                 backstory=character_backstory,
-                description=character_description
+                description=character_description,
+                scale=character_scale
             )
             # Save
             db.session.add(application)

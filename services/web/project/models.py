@@ -183,6 +183,7 @@ class Application(db.Model):
     character_faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
     character_race = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
     character_class = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    character_scale = db.Column(db.String(255), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
     rejection_reason = db.Column(db.Text(), nullable=True)
@@ -196,7 +197,7 @@ class Application(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, user, character_name, character_faction, character_race, character_class, backstory, description):
+    def __init__(self, user, character_name, character_faction, character_race, character_class, backstory, description, scale):
         self.user_id = user.id
         self.character_name = character_name
         self.character_faction_id = character_faction
@@ -204,6 +205,7 @@ class Application(db.Model):
         self.character_class = character_class
         self.backstory = backstory
         self.description = description
+        self.character_scale = scale
 
     def __repr__(self):
         return '<Application %r>' % self.id
@@ -221,6 +223,7 @@ class Character(db.Model):
     faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
     subrace = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
     clazz = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    scale = db.Column(db.String(255), nullable=False)
     backstory = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
 
@@ -235,7 +238,7 @@ class Character(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, user_id, name, faction, subrace, clazz, backstory, description, starting_power, is_permad):
+    def __init__(self, user_id, name, faction, subrace, clazz, backstory, description, starting_power, is_permad, scale):
         self.user_id = user_id
         self.name = name
         self.faction_id = faction.id
@@ -245,6 +248,7 @@ class Character(db.Model):
         self.description = description
         self.starting_power = starting_power
         self.is_permad = is_permad
+        self.scale = scale
 
     def __repr__(self):
         return '<Character %r>' % self.id

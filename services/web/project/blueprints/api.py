@@ -33,6 +33,7 @@ def application_accepted(application: Application):
         clazz=application.character_class,
         backstory=application.backstory,
         description=application.description,
+        scale=application.character_scale,
         starting_power={},
         is_permad=False
     )
