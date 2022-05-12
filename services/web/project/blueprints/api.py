@@ -1,22 +1,20 @@
+import time
 from datetime import datetime as dt
+from threading import Thread
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, copy_current_request_context
 from flask_login import login_required, current_user
-from flask_socketio import emit
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import scoped_session, sessionmaker
-from threading import Thread
-import time
 
+from .socket import broadcast_server_status, broadcast_notification_to_user
 from ..decorators import staff_required, admin_required, auth_key_required
+from ..extensions import cache
 from ..helpers import get_username_from_uuid, MojangAPIError
 from ..helpers import send_template_to_email, send_command_to_server
-from ..extensions import cache
+from ..logger import log_connect
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus
-from .socket import broadcast_server_status, broadcast_notification_to_user
-from ..logger import log_connect
 
 api = Blueprint('api', __name__)
 

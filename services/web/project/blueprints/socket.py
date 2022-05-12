@@ -1,7 +1,8 @@
-from ..extensions import socketio
-from flask_socketio import send, emit
-from flask_socketio import join_room, leave_room, rooms
 from flask_login import current_user
+from flask_socketio import emit
+from flask_socketio import join_room, leave_room, rooms
+
+from ..extensions import socketio
 
 
 @socketio.on('connect')
