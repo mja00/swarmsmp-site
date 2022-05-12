@@ -18,12 +18,7 @@ admin_bp = Blueprint('admin', __name__)
 @admin_required
 # skipcq: PTC-W0049
 def before_request():
-    """
-    This function is executed before each request.
-    pass
-    :return: Nothing
-    """
-    pass
+    pass # Limits only admins to be able to access any of these routes
 
 
 @admin_bp.route('/')

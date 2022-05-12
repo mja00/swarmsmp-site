@@ -12,12 +12,7 @@ ticket_bp = Blueprint('ticket', __name__)
 @whitelist_required
 # skipcq: PTC-W0049
 def before_request():
-    """
-    This function is executed before each request.
-    pass
-    :return: Nothing
-    """
-    pass
+    pass # Limits only whitelisted players to access any of these routes
 
 
 @ticket_bp.route('/mine/')

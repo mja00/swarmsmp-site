@@ -259,4 +259,5 @@ def apply():
 
 
 if __name__ == "__main__":
+    # skipcq: BAN-B104
     socketio.run(app, host="0.0.0.0", port=5000)

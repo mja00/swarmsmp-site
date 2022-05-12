@@ -21,9 +21,9 @@ headers = {
 def get_status_for_server(server_uuid):
     url = f'{PANEL_API_URL}servers/{server_uuid}/resources'
     print(f"Getting status for server {server_uuid}")
-    headers = {'Authorization': f'Bearer {PANEL_API_KEY}'}
+    local_headers = {'Authorization': f'Bearer {PANEL_API_KEY}'}
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=local_headers)
         return response.json()
     except requests.exceptions.ConnectionError:
         print(f"Error getting status for server {server_uuid}")
@@ -74,7 +74,7 @@ def post_data_to_portal(data):
             response_json = response.json()
             print(f"Error posting data to portal: {response_json['msg']}")
         except json.decoder.JSONDecodeError:
-            print(f"Error posting data to portal")
+            print("Error posting data to portal")
     else:
         print("Successfully posted data to portal")
 
