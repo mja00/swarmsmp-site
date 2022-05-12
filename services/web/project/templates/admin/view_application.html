@@ -7,7 +7,7 @@
                 Return to Applications</a>
             <div class="float-end">
                 <button onclick="acceptApplication()" class="btn btn-success">Approve</button>
-                <button onclick="rejectApplication()" class="btn btn-danger">Reject</button>
+                <button onclick="rejectApplicationPrompt()" class="btn btn-danger">Reject</button>
             </div>
         </div>
     </div>
@@ -64,6 +64,31 @@
             </div>
         </div>
     </form>
+    <!-- Reject modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rejectModalLabel">Rejection Reason</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="#" method="post">
+            <div class="row">
+                <div class="col-12">
+                    <label for="rejectionReason" class="form-label">Reason</label>
+                    <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="8"></textarea>
+                </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" onclick="rejectApplication()">Reject</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 {% block userscripts %}
     <script>
@@ -82,9 +107,12 @@
         }
 
         function rejectApplication() {
+            // Get the rejection reason
+            let reason = $('#rejectionReason').val();
             $.ajax({
                 url: '{{ url_for('api.reject_application', application_id=application.id) }}',
                 type: 'POST',
+                data: {reason: reason},
                 success: function (data) {
                     window.location.href = '{{ url_for('admin.applications') }}';
                 },
@@ -93,6 +121,10 @@
                     alert('An error occurred while rejecting the application.');
                 }
             })
+        }
+
+        function rejectApplicationPrompt() {
+            $('#rejectModal').modal('show');
         }
     </script>
 {% endblock %}

@@ -180,6 +180,8 @@
                                     {% if latest_application.is_rejected %}
                                         <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
                                             in {{ time_till }}.</p>
+                                        <p>Rejection reason: </p>
+                                        <p>{{ latest_application.rejection_reason }}</p>
                                     {% elif latest_application.is_accepted %}
                                         <p>Your application has been <b class="text-success">accepted!</b></p>
                                     {% else %}

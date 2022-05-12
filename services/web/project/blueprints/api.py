@@ -416,8 +416,12 @@ def reject_application(application_id):
     if not application:
         return jsonify({"msg": "Application not found"}), 400
 
+    # Get the rejection reason
+    reason = request.form.get('reason')
+
     application.is_rejected = True
     application.is_accepted = False
+    application.rejection_reason = reason
     db.session.commit()
     return jsonify({"msg": "Application rejected"}), 200
 
