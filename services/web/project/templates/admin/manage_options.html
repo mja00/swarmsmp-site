@@ -44,6 +44,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Character Count</th>
+            <th style="width: 25%">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -52,6 +53,7 @@
                 <td>{{ faction.id }}</td>
                 <td>{{ faction.name }}</td>
                 <td>{{ faction.total() }}</td>
+                <td></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -83,7 +85,8 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <label for="className">Class Name</label>
-                                        <input type="text" class="form-control" id="className" name="className" required>
+                                        <input type="text" class="form-control" id="className" name="className"
+                                               required>
                                     </div>
                                 </div>
                             </form>
@@ -103,6 +106,7 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Character Count</th>
+                    <th style="width: 25%">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -111,6 +115,11 @@
                         <td>{{ class.id }}</td>
                         <td>{{ class.name }}</td>
                         <td>{{ class.total() }}</td>
+                        <td>
+                            <button id="toggle-class-{{ class.id }}" onclick="toggleClassVisibility({{ class.id }})"
+                                    class="btn btn-sm btn-{% if class.hidden %}success{% else %}danger{% endif %}">
+                                {% if class.hidden %}Show Class{% else %}Hide Class{% endif %}</button>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -162,6 +171,7 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Character Count</th>
+                    <th style="width: 25%">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -170,10 +180,72 @@
                         <td>{{ race.id }}</td>
                         <td>{{ race.name }}</td>
                         <td>{{ race.total() }}</td>
+                        <td>
+                            <button id="toggle-race-{{ race.id }}" onclick="toggleRaceVisibility({{ race.id }})"
+                                    class="btn btn-sm btn-{% if race.hidden %}success{% else %}danger{% endif %}">
+                                {% if race.hidden %}Show Race{% else %}Hide Race{% endif %}</button>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+        function toggleClassVisibility(id) {
+            let button = $("#toggle-class-" + id);
+            // Disable button
+            button.prop("disabled", true);
+            $.ajax({
+                url: "{{ url_for('admin.toggle_class', class_id=-1) }}".replace("-1", id),
+                type: "POST",
+                success: function (data) {
+                    if (data.success) {
+                        // Reload the page
+                        let newValue = data.current;
+                        let newText = newValue ? "Show Class" : "Hide Class";
+                        let newBg = newValue ? "btn-success" : "btn-danger";
+                        button.text(newText);
+                        // Change color
+                        button.removeClass("btn-success btn-danger");
+                        button.addClass(newBg);
+                        // Enable button
+                        button.prop("disabled", false);
+                    }
+                },
+                error: function (data) {
+                    alert("Error: " + data.message);
+                }
+            });
+        }
+
+        function toggleRaceVisibility(id) {
+            let button = $("#toggle-race-" + id);
+            // Disable button
+            button.prop("disabled", true);
+            $.ajax({
+                url: "{{ url_for('admin.toggle_race', race_id=-1) }}".replace("-1", id),
+                type: "POST",
+                success: function (data) {
+                    if (data.success) {
+                        // Reload the page
+                        let newValue = data.current;
+                        let newText = newValue ? "Show Race" : "Hide Race";
+                        let newBg = newValue ? "btn-success" : "btn-danger";
+                        button.text(newText);
+                        // Change color
+                        button.removeClass("btn-success btn-danger");
+                        button.addClass(newBg);
+                        // Enable button
+                        button.prop("disabled", false);
+                    }
+                },
+                error: function (data) {
+                    alert("Error: " + data.message);
+                }
+            });
+        }
+    </script>
 {% endblock %}

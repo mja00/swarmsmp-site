@@ -246,12 +246,12 @@ def apply():
             flash("Your application has been submitted!", "success")
             return redirect(url_for("user.profile"))
         else:
-            if current_user.is_whitelisted:
+            if current_user.is_whitelisted and not current_user.is_admin:
                 flash("You're already whitelisted!", "success")
                 return redirect(url_for("user.profile"))
             factions = Faction.query.all()
-            classes = Class.query.all()
-            races = Race.query.all()
+            classes = Class.query.filter_by(hidden=False).all()
+            races = Race.query.filter_by(hidden=False).all()
             return render_template("apply.html", factions=factions, classes=classes, races=races)
     else:
         flash("Applications are currently closed.", "danger")

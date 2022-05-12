@@ -203,9 +203,9 @@ def departments():
 @admin_bp.route('/manage/options', methods=['GET'])
 def manage_options():
     # Get all the factions
-    factions = Faction.query.all()
-    classes = Class.query.all()
-    races = Race.query.all()
+    factions = Faction.query.order_by(Faction.id.asc()).all()
+    classes = Class.query.order_by(Class.id.asc()).all()
+    races = Race.query.order_by(Race.id.asc()).all()
     return render_template("admin/manage_options.html", title="Manage Options", factions=factions, classes=classes,
                            races=races)
 
@@ -335,6 +335,17 @@ def new_class():
     return redirect(url_for('admin.manage_options'))
 
 
+@admin_bp.route('/class/<int:class_id>/toggle', methods=['POST'])
+def toggle_class(class_id):
+    class_obj = Class.query.filter_by(id=class_id).first()
+    if class_obj:
+        class_obj.hidden = not class_obj.hidden
+        db.session.commit()
+        return jsonify({'success': True, 'current': class_obj.hidden})
+    else:
+        return jsonify({'success': False, 'message': 'Class not found'})
+
+
 @admin_bp.route('/race/new', methods=['POST'])
 def new_race():
     name = request.form.get("raceName")
@@ -346,3 +357,14 @@ def new_race():
     else:
         flash('Race name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/race/<int:race_id>/toggle', methods=['POST'])
+def toggle_race(race_id):
+    race_obj = Race.query.filter_by(id=race_id).first()
+    if race_obj:
+        race_obj.hidden = not race_obj.hidden
+        db.session.commit()
+        return jsonify({'success': True, 'current': race_obj.hidden})
+    else:
+        return jsonify({'success': False, 'message': 'Race not found'})
