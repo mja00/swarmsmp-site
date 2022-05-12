@@ -16,6 +16,7 @@ from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus
 from .socket import broadcast_server_status, broadcast_notification_to_user
+from ..logger import log_connect
 
 api = Blueprint('api', __name__)
 
@@ -444,15 +445,18 @@ def whitelist_user(user_id):
 @cache.cached(timeout=60)
 @auth_key_required
 def allow_connection(uuid):
+    print(f"Checking connection for {uuid}")
     user = User.query.filter_by(minecraft_uuid=uuid).first()
     if not user:
-        return jsonify({"msg": "User not found"}), 400
+        return jsonify({"msg": "User not found. Please create an account on the portal.", "allow": False}), 200
 
     if user.is_banned:
-        return jsonify({"msg": "User is banned", "allow": False}), 200
+        return jsonify({"msg": "User is banned. Reason: TODO", "allow": False}), 200
 
     if user.is_whitelisted:
         if user.has_character():
+            print(f"User {user.username} is whitelisted and has a character. Allowing connection.")
+            log_connect(user)
             @copy_current_request_context
             def check_command_queue(user_id):
                 # Wait 30 seconds to ensure the user has properly connected

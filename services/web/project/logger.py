@@ -33,3 +33,14 @@ def log_staff_status(user: User, status: bool, target: User) -> AuditLog:
     db.session.add(log_entry)
     db.session.commit()
     return log_entry
+
+
+def log_connect(user: User) -> AuditLog:
+    log_entry = AuditLog(
+        user_id=user.id,
+        action="CONNECT"
+    )
+    db.session.add(log_entry)
+    db.session.commit()
+    return log_entry
+    

@@ -134,6 +134,8 @@ def auth_key_required(f):
     def decorated_function(*args, **kwargs):
         # Get the Authorization header from the request
         auth_header = request.headers.get('Authorization')
+        if current_user.is_authenticated and current_user.is_admin:
+            return f(*args, **kwargs)
         if not auth_header:
             return jsonify({'message': 'Authorization header is missing.'}), 401
         if not os.getenv('AUTH_KEY'):

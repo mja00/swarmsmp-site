@@ -170,26 +170,28 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="card mt-4">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#applicationInfoBody">
-                            <h5>Application Information</h5>
-                        </div>
-                        <div class="card-body collapse show" id="applicationInfoBody">
-                            {% if latest_application %}
-                                {% if latest_application.is_rejected %}
-                                    <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
-                                        in {{ time_till }}.</p>
-                                {% elif latest_application.is_accepted %}
-                                    <p>Your application has been <b class="text-success">accepted!</b></p>
+                    {% if current_user.id == user.id %}
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5>Application Information</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if latest_application %}
+                                    {% if latest_application.is_rejected %}
+                                        <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
+                                            in {{ time_till }}.</p>
+                                    {% elif latest_application.is_accepted %}
+                                        <p>Your application has been <b class="text-success">accepted!</b></p>
+                                    {% else %}
+                                        <p>Your application is currently pending. It was
+                                            submitted {{ latest_application.get_humanized_created_at() }}.</p>
+                                    {% endif %}
                                 {% else %}
-                                    <p>Your application is currently pending. It was
-                                        submitted {{ latest_application.get_humanized_created_at() }}.</p>
+                                    <p>You have not yet submitted an application.</p>
                                 {% endif %}
-                            {% else %}
-                                <p>You have not yet submitted an application.</p>
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endif %}
                 {% if current_user.is_elevated() %}
                     <div class="card mt-4">
