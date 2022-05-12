@@ -31,8 +31,11 @@ def get_status_for_server(server_uuid):
 
 
 def is_server_online(status_json):
-    if status_json['status'] == 1:
-        return True
+    try:
+        if status_json['status'] == 1:
+            return True
+    except KeyError:
+        return False
     return False
 
 
