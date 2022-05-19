@@ -69,3 +69,10 @@ if [ "$first_arg" = "upgrade" ]; then
   sudo docker-compose -f docker-compose.prod.yml up -d
   exit 0
 fi
+
+# Refreshes static files
+if [ "$first_arg" = "refresh" ]; then
+  echo "Rebuilding web..."
+  sudo docker-compose -f docker-compose.prod.yml up -d --no-deps --build web
+  exit 0
+fi
