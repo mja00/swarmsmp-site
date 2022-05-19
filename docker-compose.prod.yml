@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   web:
-    build: ./services/web
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile.prod
     command: gunicorn --bind 0.0.0.0:5000 --worker-class eventlet -w 1 manage:app
     restart: always
     ports:
@@ -12,7 +14,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./services/web/project/static/launcher:/home/app/web/project/static/launcher
+      - ./services/web/project/static:/home/app/web/project/static
   db:
     image: postgres:13-alpine
     restart: always

@@ -158,8 +158,8 @@ def close_ticket(ticket_id):
         return jsonify({"msg": "Ticket not found"}), 400
 
     if (
-        not current_user.is_elevated()
-        and ticket.owner_id != current_user.id
+            not current_user.is_elevated()
+            and ticket.owner_id != current_user.id
     ):
         return jsonify({"msg": "You do not have permission to close this ticket"}), 400
 
@@ -248,7 +248,8 @@ def ticket_reply(ticket_id):
     if (current_user.is_elevated() and ticket.owner_id != current_user.id) and ticket.status != 'answered':
         ticket.status = 'answered'
         ticket.last_replied_at = dt.utcnow()
-        broadcast_notification_to_user(ticket.owner.id, 'A new reply has been posted to your ticket', 'info', 'New Ticket Reply')
+        broadcast_notification_to_user(ticket.owner.id, 'A new reply has been posted to your ticket', 'info',
+                                       'New Ticket Reply')
     else:
         ticket.status = 'replied'
         ticket.last_replied_at = dt.utcnow()
@@ -464,6 +465,7 @@ def allow_connection(uuid):
         if user.has_character():
             print(f"User {user.username} is whitelisted and has a character. Allowing connection.")
             log_connect(user)
+
             @copy_current_request_context
             def check_command_queue(user_id):
                 # Wait 30 seconds to ensure the user has properly connected
@@ -477,7 +479,8 @@ def allow_connection(uuid):
                         # Remove command
                         db.session.delete(command)
                         db.session.commit()
-            Thread(target=check_command_queue, args=(user.id, )).start()
+
+            Thread(target=check_command_queue, args=(user.id,)).start()
             return jsonify({"allow": True}), 200
         else:
             return jsonify({"allow": False, "msg": "You need to make a character on your profile."}), 200

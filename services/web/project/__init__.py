@@ -34,7 +34,6 @@ if not development_env:
         debug=False
     )
 
-
 app = Flask(__name__)
 app.debug = os.environ.get('FLASK_ENV') == 'development'
 csp = {
@@ -179,7 +178,8 @@ if development_env:
 
     @app.route('/notification_test/<string:user_id>')
     def notification_test(user_id):
-        socket.broadcast_notification_to_user(user_id, "I hope you stub your toe you fucking loser", notif_title='lol u suck ass', notif_type='success')
+        socket.broadcast_notification_to_user(user_id, "I hope you stub your toe you fucking loser",
+                                              notif_title='lol u suck ass', notif_type='success')
         return "Notification sent"
 
 

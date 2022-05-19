@@ -43,4 +43,3 @@ def log_connect(user: User) -> AuditLog:
     db.session.add(log_entry)
     db.session.commit()
     return log_entry
-    

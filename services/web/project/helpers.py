@@ -7,6 +7,7 @@ from .models import User, get_panel_settings, get_server_settings
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 
+
 class Error(Exception):
     """Base class for other exceptions"""
     pass
@@ -46,7 +47,8 @@ def get_username_from_uuid(uuid, pull_from_db=True) -> str:
             raise UserNotFoundError(f"User not found with uuid {uuid}")
 
 
-def send_template_to_email(email: str, template: str, subject: str, force: bool = False, variables: dict = None) -> bool:
+def send_template_to_email(email: str, template: str, subject: str, force: bool = False,
+                           variables: dict = None) -> bool:
     """
     Send a template to an email
     :param subject: Subject of the email
@@ -57,7 +59,8 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
     :return: True if the email was sent, False if not
     """
     if os.environ.get("FLASK_ENV") == "development" and not force:
-        print("\n\nWe've caught you from accidentally sending an email in development mode.\nWe'll return True to not affect any functions.\n\n")
+        print(
+            "\n\nWe've caught you from accidentally sending an email in development mode.\nWe'll return True to not affect any functions.\n\n")
         return True
     else:
         data = {
@@ -117,5 +120,3 @@ def send_command_to_server(server_name: str, command: str) -> bool:
     url = f"{panel_settings['panel_api_url']}servers/{server_uuid}/command"
     r = requests.post(url, headers=headers, json={'command': command})
     return r.status_code == 204
-
-
