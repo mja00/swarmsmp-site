@@ -5,3 +5,4 @@
 .env.dev
 
 .env.prod.auth
+/services/web/project/static/launcher/

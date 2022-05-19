@@ -5,7 +5,7 @@ import sentry_sdk
 from datetime import datetime as dt
 from datetime import timedelta
 
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -162,6 +162,12 @@ def page_not_found(error):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+# Serves all of our static launcher files
+@app.route("/launcher/<path:path>")
+def launcher(path):
+    return send_from_directory("static/launcher", path)
 
 
 if development_env:
