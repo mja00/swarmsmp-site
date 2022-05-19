@@ -11,6 +11,8 @@ services:
       - ./.env.prod
     depends_on:
       - db
+    volumes:
+      - ./services/web/project/static/launcher:/home/app/web/project/static/launcher
   db:
     image: postgres:13-alpine
     restart: always
