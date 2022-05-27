@@ -75,6 +75,10 @@
 
                     // Make the username clickable to view the user's profile
                     let uuid = row.minecraft_uuid;
+                    // Check if uuid is null
+                    if (uuid == null) {
+                        uuid = row.username;
+                    }
                     let url = '{{ url_for("user.get_user", uuid=-1) }}';
                     url = url.replace('-1', uuid);
                     table.cell(i, 1).node().innerHTML = '<a href="' + url + '">' + row.username + '</a>';

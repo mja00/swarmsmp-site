@@ -5,7 +5,11 @@
             <h5>Viewing {{ user.username }}</h5>
         </div>
         <div class="col-6">
+            {% if user.minecraft_uuid %}
             <a href="{{ url_for("user.get_user", uuid=user.minecraft_uuid) }}" class="btn btn-info btn-sm float-end">View Profile</a>
+            {% else %}
+            <a href="{{ url_for("user.get_user", uuid=user.username) }}" class="btn btn-info btn-sm float-end">View Profile</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
