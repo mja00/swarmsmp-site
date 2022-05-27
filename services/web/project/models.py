@@ -88,6 +88,9 @@ class User(UserMixin, db.Model):
         }
 
     def minecraft_uuid_as_plain(self):
+        if self.minecraft_uuid is None:
+            # Return a null UUID
+            return '00000000000000000000000000000000'
         return self.minecraft_uuid.replace('-', '')
 
     @cache.memoize(timeout=3600)
@@ -426,6 +429,11 @@ def get_applications_open():
     return SystemSetting.query.first().applications_open
 
 
+@cache.cached(timeout=0, key_prefix='can_register')
+def get_can_register():
+    return SystemSetting.query.first().can_register
+
+
 @cache.cached(timeout=0, key_prefix='panel_settings')
 def get_panel_settings():
     settings = SystemSetting.query.first()
@@ -461,6 +469,13 @@ def set_applications_status(status: bool):
     cache.delete('applications_open')
 
 
+def set_can_register(status: bool):
+    setting = SystemSetting.query.first()
+    setting.can_register = status
+    db.session.commit()
+    cache.delete('can_register')
+
+
 def set_site_theme(theme: str):
     setting = SystemSetting.query.first()
     setting.site_theme = theme
@@ -491,6 +506,7 @@ class SystemSetting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     applications_open = db.Column(db.Boolean, nullable=False, default=False)
     site_theme = db.Column(db.String(255), nullable=False, default='darkly')
+    can_register = db.Column(db.Boolean, nullable=False, default=False)
 
     # Panel related settings
     panel_api_key = db.Column(db.String(255), nullable=False, default='CHANGE_ME')

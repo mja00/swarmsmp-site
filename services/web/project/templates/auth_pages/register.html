@@ -4,6 +4,7 @@
     <div class="container mt-2 mb-2">
         <div class="row justify-content-center">
             <div class="col-6">
+                {% if can_register %}
                 <div class="card">
                     <div class="card-header text-center">
                         <h3>Register</h3>
@@ -45,6 +46,17 @@
                         </form>
                     </div>
                 </div>
+                {% else %}
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>Register</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <p>Registration is currently disabled.</p>
+                        <p>Please check back later.</p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

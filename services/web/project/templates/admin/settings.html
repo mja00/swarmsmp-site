@@ -10,6 +10,10 @@
                     <input type="checkbox" class="form-check-input" id="applications_open" name="applications_open" {% if settings.applications_open %}checked{% endif %}>
                     <label class="form-check-label" for="applications_open">Applications open</label>
                 </div>
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="can_register" name="can_register" {% if settings.can_register %}checked{% endif %}>
+                    <label class="form-check-label" for="can_register">Can register</label>
+                </div>
             </div>
             <div class="col-6">
                 {{ td.theme_dropdown() }}

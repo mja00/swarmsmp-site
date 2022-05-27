@@ -8,7 +8,7 @@ from ..logger import log_dev_status, log_staff_status
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
     Class, Race
 from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
-    get_server_settings
+    get_server_settings, set_can_register
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -209,6 +209,7 @@ def manage_options():
 def settings():
     if request.method == "POST":
         applications_open = request.form.get('applications_open') == 'on'
+        can_register = request.form.get('can_register') == 'on'
         site_theme = request.form.get('siteTheme')
         panel_api_key = request.form.get('api_key')
         panel_api_url = request.form.get('api_url')
@@ -221,6 +222,7 @@ def settings():
         set_site_theme(site_theme)
         set_panel_settings(panel_api_key, panel_api_url)
         set_server_settings(live_server_uuid, staging_server_uuid, fallback_server_uuid)
+        set_can_register(can_register)
 
         flash('Settings updated', 'success')
         return redirect(url_for('admin.settings'))

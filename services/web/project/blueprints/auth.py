@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..decorators import minecraft_authenticated
 from ..extensions import cache
 from ..logger import log_login
-from ..models import User, db, EmailConfirmation, MinecraftAuthentication
+from ..models import User, db, EmailConfirmation, MinecraftAuthentication, get_can_register
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -192,6 +192,10 @@ def logout():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+
+        if not get_can_register:
+            flash("Registration is currently disabled", "danger")
+            return redirect(url_for('index'))
 
         if not hcaptcha.verify():
             flash('Captcha failed', "danger")

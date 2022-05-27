@@ -18,7 +18,8 @@ from .extensions import cache, socketio
 from .blueprints.auth import auth_bp as auth_blueprint
 from .blueprints.auth import hcaptcha
 from .decorators import fully_authenticated
-from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race
+from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
+    get_can_register
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 
@@ -144,6 +145,7 @@ def inject_site_settings():
     return_dict = {
         "default_theme": get_site_theme(),
         "applications_open": get_applications_open(),
+        "can_register": get_can_register(),
     }
     return dict(return_dict)
 
