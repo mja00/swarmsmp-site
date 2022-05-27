@@ -121,6 +121,7 @@
                         {% endif %}
                     </div>
                 </div>
+                {% if current_user.is_authenticated %}
                 {% if user.id == current_user.id or current_user.is_elevated() %}
                     <div class="card mt-4">
                         <div class="card-header" data-bs-toggle="collapse" data-bs-target="#privCharBody">
@@ -212,6 +213,7 @@
                             </form>
                         </div>
                     </div>
+                {% endif %}
                 {% endif %}
             </div>
         </div>
