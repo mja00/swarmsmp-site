@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="container-fluid mt-2">
+        <h3 class="text-center">Without these people Season One would've never been possible. We're forever grateful for them.</h3><br>
+        {% for player_row in players|batch(5) %}
+            <div class="row mb-2">
+                {% for player in player_row %}
+                    <div class="col">
+                        <div class="card" id="{{ player }}-card">
+                            <div class="card-header bg-success">
+                                <h5 class="card-title text-center">{{ player }}</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <img src="{{ url_for('static', filename='s1-players/' + player + '.png') }}" class="img-fluid" alt="{{ player }}">
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

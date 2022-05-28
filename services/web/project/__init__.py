@@ -1,27 +1,27 @@
 import os
 import pickle
 import uuid
-import sentry_sdk
 from datetime import datetime as dt
 from datetime import timedelta
 
+import sentry_sdk
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk import last_event_id
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .blueprints.admin import admin_bp as admin_blueprint
 from .blueprints.api import api as api_blueprint
-from .extensions import cache, socketio
 from .blueprints.auth import auth_bp as auth_blueprint
 from .blueprints.auth import hcaptcha
-from .decorators import fully_authenticated
-from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
-    get_can_register
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
+from .decorators import fully_authenticated
+from .extensions import cache, socketio
+from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
+    get_can_register
 
 development_env = os.getenv("FLASK_ENV", "development") == "development"
 
@@ -187,6 +187,44 @@ if development_env:
         socket.broadcast_notification_to_user(user_id, "I hope you stub your toe you fucking loser",
                                               notif_title='lol u suck ass', notif_type='success')
         return "Notification sent"
+
+
+@cache.cached(timeout=3600)
+@app.route('/s1-thanks')
+def s1_thanks():
+    s1_players = ['0zdon', '1leggedroflcoptr', '77Gameboy', '99fredd', '_MANT1S_', '_moth___', '_Reta', 'Adorara',
+                  'Akann', 'Akukami', 'AlphaIncline', 'ANIME_LORD_SKYE', 'Aran_Cheezy', 'Arrendt', 'AtticusWhitemire',
+                  'AxelGirl30', 'Azure_Grimm', 'BandAid91', 'Bashboy128', 'BattleMasters', 'blacknightte',
+                  'BlueyPanther', 'Bormeus', 'BoundlessScar', 'BurningToasts', 'Cagbert', 'Cat_Batman',
+                  'CharaGlitchWitch', 'ChronoGear', 'Cibaly', 'Comrade_Socks', 'Conflee', 'Corowna',
+                  'CrystalGarden', 'd1amond_dra90n5', 'Dalca', 'DarkAngel25', 'DatzGhostie', 'daverboy', 'DawnMystique',
+                  'deadsha13', 'Dekustar714', 'Devious_Angel', 'DianaVTuber', 'Dillonator3', 'DocPayne_',
+                  'Dr_Hasashimi', 'Ender_kitty1', 'Everki_8', 'Falcon4562', 'Fastpoker', 'FeelsChevreuil',
+                  'Firelord1129', 'Flamewolf120', 'FluffyNeberu', 'Forttez', 'FyreLord', 'gaibtris', 'GalaxyDamakun',
+                  'GriseousAnim22', 'HatKidTTV', 'hmat09', 'huntman0697', 'ICON_maegeri', 'Imaginemod', 'ImParzival',
+                  'iTzNikkitty', 'JADemiser', 'Jakk9891', 'jharry01', 'jjstarlord', 'Jormunzumr', 'jowlbowl',
+                  'K3ntlageris', 'KalistaChan', 'katekyo61394', 'Kazuki286', 'Kevrex97', 'KingDepresso',
+                  'kingdragon1j8', 'Kivl', 'Korodachii', 'KOyster', 'Kraylek', 'KTKrysi', 'Kyithfantasy', 'KyriaKrysos',
+                  'Lady_azure3', 'LaurenDarkmore', 'LbpZero', 'LeekWhibble', 'LesbianToast', 'LichbaneCa',
+                  'lilsweeper1998', 'linxXsilver', 'lolchow00', 'LolHamsters', 'Lothrumaege', 'lotteje13',
+                  'Madmanartist', 'MapleSpyru', 'Mathrador', 'Megamorphton', 'megarock1018', 'MercurialWilting',
+                  'MisterMusashi', 'Misty_Lotus', 'Mitra123', 'mja00', 'moddkre', 'MorpheusTM', 'MrRespawn',
+                  'MsOblivious', 'Mulmil', 'mutatedfox', 'Narbae', 'NarvonAZ', 'Nekokikai', 'nevakari', 'NicBerry10',
+                  'NigelTrillnaire', 'NightclubRush', 'NoahAl', 'Noob04ever', 'OliviaKaori', 'OminousII', 'Omnijoel',
+                  'Orion_Skykaller', 'OverratedHype', 'Paijichor', 'Peterisms', 'phantomdust149', 'PhantomKatz_',
+                  'PhantomLord1180', 'PhoenixCraft2', 'Piilon', 'Professor_Alpaca', 'PsiRenn71', 'R0MAZI', 'RandomHill',
+                  'RandomsCreations', 'Ranger_Savage', 'redempaladin', 'RenagadeJay', 'rennnnnnnnnnnnnn',
+                  'RibbonyHeart', 'RockZero3', 'RPGPhysicist', 'Saiura', 'Satchi', 'Scionzenos', 'ScorpionShans13',
+                  'SelinBroz', 'ShaoUnaware', 'shawneemorrisart', 'ShinyRay', 'ShockandMaw', 'Shokeliz', 'silentknight',
+                  'SilverDusks', 'SilversShadow', 'Simulation_rk', 'sirclaw44', 'Skarra_365', 'Skulblaka1987',
+                  'Skullamancer', 'SmallsMerre', 'Smoli_uvu', 'StarPuddles', 'StaticKiller1', 'Stormrphosis', 'Strazis',
+                  'SugarcoatedWitch', 'Super5erious', 'T61Deadaim00', 'the_flyingangel', 'The_Kazz', 'TheChosenJuan007',
+                  'TheDudeBro21', 'TheInnerWolf', 'Tossorn', 'Trishy1232', 'Twismyer', 'twistingmtd',
+                  'TysontheCanadian', 'ValinCastor', 'Vecron', 'Ventiar0021', 'Versterven',
+                  'VevinaCiseris', 'VillianShiroe', 'VRC_Ruby_Rose', 'Warden_Kesmas', 'Windown4Window',
+                  'Wolfbrother13le', 'WolFierz', 'XerPSTV', 'YMGKevin', 'ZAMSPEAR', 'Zandwheet93', 'ZankioVR',
+                  'Zechibi', 'Zevaak', 'ZRFrost']
+    return render_template('thanks.html', players=s1_players)
 
 
 @app.route("/apply", methods=["GET", "POST"])
