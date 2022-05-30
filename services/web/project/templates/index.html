@@ -5,5 +5,30 @@
         <h3 class="text-center">Welcome to the SwarmSMP community portal.</h3><br>
         <h4 class="text-center">You'll want to <a href="{{ url_for('auth.register') }}">register</a> if you want to do
             anything.</h4>
+        <!-- Pic carousel -->
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div id="s1Pics" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in caro_images %}
+                            <div class="carousel-item {% if image == "pic1.png" %}active{% endif %}">
+                                <img class="d-block w-100" src="{{ url_for('static', filename='caro-pics/' + image) }}"
+                                     alt="Pic">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#s1Pics"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#s1Pics"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
