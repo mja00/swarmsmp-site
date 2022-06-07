@@ -85,10 +85,12 @@
                                 <li class="nav-item">
                                     <a class="nav-link {% if request.endpoint == 's1_thanks' %} active {% endif %}" href="{{ url_for('s1_thanks') }}">Season One</a>
                                 </li>
+                                {% if current_user.is_authenticated %}
                                 <li class="nav-item">
                                     <a class="nav-link {% if request.endpoint == 'apply' %} active {% endif %}" href="{{ url_for('apply') }}">Apply<span
                                             class="sr-only">(current)</span></a>
                                 </li>
+                                {% endif %}
                             </ul>
                             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                                 <!-- Dark mode toggle -->
