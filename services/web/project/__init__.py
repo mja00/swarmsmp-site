@@ -163,9 +163,11 @@ def page_not_found(error):
 @app.route("/")
 def index():
     caro_images = os.listdir(os.path.join(app.static_folder, "caro-pics"))
+    # Ignore any files that start with ._ since MacOS is a piece of shit
+    caro_images = [x for x in caro_images if not x.startswith("._")]
     # The images are in the format of pic[0-9].png
     # Sort them by their number
-    caro_images.sort(key=lambda x: int(x.replace("._", "").split(".")[0][3:]))
+    caro_images.sort(key=lambda x: int(x.split(".")[0][3:]))
     return render_template("index.html", caro_images=caro_images)
 
 
