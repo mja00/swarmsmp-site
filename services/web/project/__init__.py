@@ -165,7 +165,7 @@ def index():
     caro_images = os.listdir(os.path.join(app.static_folder, "caro-pics"))
     # The images are in the format of pic[0-9].png
     # Sort them by their number
-    caro_images.sort(key=lambda x: int(x.split(".")[0][3:]))
+    caro_images.sort(key=lambda x: int(x.replace("._", "").split(".")[0][3:]))
     return render_template("index.html", caro_images=caro_images)
 
 

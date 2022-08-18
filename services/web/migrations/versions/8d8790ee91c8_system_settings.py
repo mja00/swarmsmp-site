@@ -26,6 +26,8 @@ def upgrade():
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    # Create default row
+    op.execute("INSERT INTO system_settings (name, value, created_at, updated_at) VALUES ('applications_open', 'true', NOW(), NOW())")
     # ### end Alembic commands ###
 
 
