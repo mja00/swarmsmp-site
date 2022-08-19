@@ -130,20 +130,22 @@
     <h5 class="text-center">Server Status</h5>
     <div class="row">
         {% for server in servers %}
-            {% set online = status_json[servers[server]['uuid']]['online'] %}
-            {% set server_dict = servers[server] %}
-            {% set player_count = len(status_json[server_dict['uuid']]['player_list']) %}
-            <div class="col">
-                <div id='{{ server_dict['uuid'] }}' class="card {% if online %}bg-success{% else %}bg-danger{% endif %}">
-                    <div class="card-header">
-                        <h5 class="text-center">{{ server_dict['name'] }}</h5>
+                {% if servers[server]['uuid'] != "CHANGE_ME" %}
+                    {% set online = status_json[servers[server]['uuid']]['online'] %}
+                    {% set server_dict = servers[server] %}
+                    {% set player_count = len(status_json[server_dict['uuid']]['player_list']) %}
+                    <div class="col">
+                        <div id='{{ server_dict['uuid'] }}' class="card {% if online %}bg-success{% else %}bg-danger{% endif %}">
+                            <div class="card-header">
+                                <h5 class="text-center">{{ server_dict['name'] }}</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h4 id="{{ server_dict['uuid'] }}-status">{% if online %}Online{% else %}Offline{% endif %}</h4>
+                                <h5 id="{{ server_dict['uuid'] }}-count">Player Count: {{ player_count }}</h5>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body text-center">
-                        <h4 id="{{ server_dict['uuid'] }}-status">{% if online %}Online{% else %}Offline{% endif %}</h4>
-                        <h5 id="{{ server_dict['uuid'] }}-count">Player Count: {{ player_count }}</h5>
-                    </div>
-                </div>
-            </div>
+                {% endif %}
         {% endfor %}
     </div>
 {% endblock %}

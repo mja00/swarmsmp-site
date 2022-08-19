@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container-fluid mt-2">
         <h3 class="text-center">Welcome to the SwarmSMP community portal.</h3><br>
-        {% if can_register %}
+        {% if can_register and not current_user.is_authenticated %}
         <h4 class="text-center">You'll want to <a href="{{ url_for('auth.register') }}">register</a> if you want to do
             anything.</h4>
         {% endif %}

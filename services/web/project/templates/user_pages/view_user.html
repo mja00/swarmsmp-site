@@ -136,14 +136,14 @@
                                             <div class="form-group">
                                                 <label for="race">Race</label>
                                                 <input type="text" class="form-control" id="race"
-                                                       value="{{ latest_character.subrace }}" disabled>
+                                                       value="{{ latest_character.race.name }}" disabled>
                                             </div>
                                         </div>
                                         <div class="col">
                                             <div class="form-group">
                                                 <label for="class">Class</label>
                                                 <input type="text" class="form-control" id="class"
-                                                       value="{{ latest_character.clazz }}" disabled>
+                                                       value="{{ latest_character.class.name }}" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -208,6 +208,11 @@
                                         <label for="staff-notes" class="form-label">Staff Notes</label>
                                         <textarea class="form-control" id="staff-notes" rows="5"
                                                   readonly>{{ user.staff_notes if user.staff_notes}}</textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="original-backstory" class="form-label">Original Backstory</label>
+                                        <textarea class="form-control" id="original-backstory" rows="5"
+                                                  readonly>{{ latest_character.original_backstory }}</textarea>
                                     </div>
                                 </div>
                             </form>
