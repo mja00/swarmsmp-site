@@ -107,7 +107,7 @@ class User(UserMixin, db.Model):
     def is_elevated(self):
         return self.is_admin or self.is_staff
 
-    #@cache.memoize(timeout=3600)
+    # @cache.memoize(timeout=3600)
     def get_most_recent_character(self):
         return db.session.query(Character).filter_by(user_id=self.id, is_permad=False).order_by(Character.created_at.desc()).options(db.joinedload('faction')).first()
 
