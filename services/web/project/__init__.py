@@ -21,7 +21,7 @@ from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
 from .extensions import cache, socketio
 from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
-    get_can_register
+    get_can_register, get_application_settings
 
 development_env = os.getenv("FLASK_ENV", "development") == "development"
 
@@ -232,8 +232,10 @@ def s1_thanks():
 @app.route("/apply", methods=["GET", "POST"])
 @fully_authenticated
 def apply():
-    settings = SystemSetting.query.first()
-    if settings.applications_open:
+    app_settings = get_application_settings()
+    minimum_length = int(app_settings["minimum_length"])
+    maximum_length = int(app_settings["maximum_length"])
+    if get_applications_open():
         if request.method == "POST":
             # Get the form
             form_data = request.form
@@ -270,15 +272,15 @@ def apply():
                 flash("You must agree to the rules!", "danger")
                 return redirect(url_for("apply"))
             # Are we in development
-            if os.getenv("FLASK_ENV") != "development":
-                # Check if backstory and description are over 500 characters
-                if len(character_backstory) < 500 or len(character_description) < 500:
-                    flash("Your backstory and description must be over 500 characters!", "danger")
+            if os.getenv("FLASK_ENV") == "development":
+                # Check if backstory and description are under min characters
+                if len(character_backstory) < minimum_length or len(character_description) < minimum_length:
+                    flash(f"Your backstory and description must be over {minimum_length} characters!", "danger")
                     return redirect(url_for("apply"))
 
-                # Check if they're over 1500 characters
-                if len(character_backstory) > 750 or len(character_description) > 750:
-                    flash("Your backstory and description must be under 750 characters!", "danger")
+                # Check if they're over max characters
+                if len(character_backstory) > maximum_length or len(character_description) > maximum_length:
+                    flash(f"Your backstory and description must be under {maximum_length} characters!", "danger")
                     return redirect(url_for("apply"))
             else:
                 print("Skipping checks in development")
@@ -306,7 +308,7 @@ def apply():
             factions = Faction.query.all()
             classes = Class.query.filter_by(hidden=False).all()
             races = Race.query.filter_by(hidden=False).all()
-            return render_template("apply.html", factions=factions, classes=classes, races=races)
+            return render_template("apply.html", factions=factions, classes=classes, races=races, min=minimum_length, max=maximum_length)
     else:
         flash("Applications are currently closed.", "danger")
         return redirect(url_for("index"))

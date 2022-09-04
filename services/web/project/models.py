@@ -427,7 +427,7 @@ def get_site_theme():
 
 
 @cache.cached(timeout=0, key_prefix='applications_open')
-def get_applications_open():
+def get_applications_open() -> bool:
     return SystemSetting.query.first().applications_open
 
 
@@ -464,6 +464,20 @@ def get_server_settings():
     }
 
 
+@cache.cached(timeout=0, key_prefix='application_settings')
+def get_application_settings():
+    settings = SystemSetting.query.first()
+    return {
+        "minimum_length": int(settings.minimum_length),
+        "maximum_length": int(settings.maximum_length),
+    }
+
+
+@cache.cached(timeout=0, key_prefix='discord_settings')
+def get_join_discord():
+    return SystemSetting.query.first().join_discord_on_register
+
+
 def set_applications_status(status: bool):
     setting = SystemSetting.query.first()
     setting.applications_open = status
@@ -476,6 +490,13 @@ def set_can_register(status: bool):
     setting.can_register = status
     db.session.commit()
     cache.delete('can_register')
+
+
+def set_join_discord(status: bool):
+    setting = SystemSetting.query.first()
+    setting.join_discord_on_register = status
+    db.session.commit()
+    cache.delete('discord_settings')
 
 
 def set_site_theme(theme: str):
@@ -502,6 +523,14 @@ def set_server_settings(live_server_uuid: str, staging_server_uuid: str, fallbac
     cache.delete('server_settings')
 
 
+def set_application_settings(minimum_length: int, maximum_length: int):
+    setting = SystemSetting.query.first()
+    setting.minimum_length = minimum_length
+    setting.maximum_length = maximum_length
+    db.session.commit()
+    cache.delete('application_settings')
+
+
 class SystemSetting(db.Model):
     __tablename__ = 'system_settings'
 
@@ -509,6 +538,11 @@ class SystemSetting(db.Model):
     applications_open = db.Column(db.Boolean, nullable=False, default=False)
     site_theme = db.Column(db.String(255), nullable=False, default='darkly')
     can_register = db.Column(db.Boolean, nullable=False, default=False)
+    join_discord_on_register = db.Column(db.Boolean, nullable=False, default=False)
+
+    # Application settings
+    minimum_length = db.Column(db.Integer, nullable=False, default=20)
+    maximum_length = db.Column(db.Integer, nullable=False, default=10000)
 
     # Panel related settings
     panel_api_key = db.Column(db.String(255), nullable=False, default='CHANGE_ME')

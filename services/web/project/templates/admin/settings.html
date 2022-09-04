@@ -7,16 +7,36 @@
             <h5>Site Settings</h5>
             <div class="col-6">
                 <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" id="applications_open" name="applications_open" {% if settings.applications_open %}checked{% endif %}>
-                    <label class="form-check-label" for="applications_open">Applications open</label>
-                </div>
-                <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" id="can_register" name="can_register" {% if settings.can_register %}checked{% endif %}>
                     <label class="form-check-label" for="can_register">Can register</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="join_discord_on_register" name="join_discord_on_register" {% if settings.join_discord_on_register %}checked{% endif %}>
+                    <label class="form-check-label" for="join_discord_on_register">Join Discord on register</label>
                 </div>
             </div>
             <div class="col-6">
                 {{ td.theme_dropdown() }}
+            </div>
+            <hr>
+            <h5>Application Settings</h5>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="applications_open" name="applications_open" {% if settings.applications_open %}checked{% endif %}>
+                        <label class="form-check-label" for="applications_open">Applications open</label>
+                    </div>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-6">
+                    <label class="form-label" for="application_min_length">Minimum Length</label>
+                    <input type="number" class="form-control" id="application_min_length" name="application_min_length" value="{{ settings.minimum_length }}">
+                </div>
+                <div class="col-6">
+                    <label class="form-label" for="application_max_length">Maximum Length</label>
+                    <input type="number" class="form-control" id="application_max_length" name="application_max_length" value="{{ settings.maximum_length }}">
+                </div>
             </div>
             <hr>
             <h5>Server Settings</h5>

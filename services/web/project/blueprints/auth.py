@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..decorators import minecraft_authenticated
 from ..extensions import cache
 from ..logger import log_login
-from ..models import User, db, EmailConfirmation, MinecraftAuthentication, get_can_register
+from ..models import User, db, EmailConfirmation, MinecraftAuthentication, get_can_register, get_join_discord
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -412,10 +412,11 @@ def discord_callback():
         access_token = token_info['access_token']
         user_info = get_discord_info_for_token(access_token)
         user = User.query.filter_by(id=current_user.id).first()
-        success = make_user_join_discord_guild(DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, user_info['id'], access_token)
-        if not success:
-            flash('Error joining Discord guild', "danger")
-            return redirect(url_for('index'))
+        if get_join_discord():
+            success = make_user_join_discord_guild(DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, user_info['id'], access_token)
+            if not success:
+                flash('Error joining Discord guild', "danger")
+                return redirect(url_for('index'))
     except KeyError as e:
         print(e)
         print(f"Error: {token_info['error']}\nError Description: {token_info['error_description']}")

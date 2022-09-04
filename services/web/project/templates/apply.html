@@ -54,10 +54,12 @@
                             <div class="col-12">
                                 <label for="characterDescription">Description</label>
                                 <textarea class="form-control" name="characterDescription" id="characterDescription" rows="3" required></textarea>
+                                <div id="descriptionCount" class="form-text">0/{{ max }}</div>
                             </div>
                             <div class="col-12">
                                 <label for="characterBackstory">Backstory</label>
                                 <textarea class="form-control" name="characterBackstory" id="characterBackstory" rows="3" required></textarea>
+                                <div id="backstoryCount" class="form-text">0/{{ max }}</div>
                             </div>
                             <div class="col-12">
                                 <div class="form-check">
@@ -75,4 +77,34 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block userscripts %}
+    <script>
+    $(document).ready(function() {
+        let maximumLength = {{ max }};
+        let minimumLength = {{ min }};
+        $('#characterDescription').on('input', function() {
+            let length = $(this).val().length;
+            let descriptionCount = $('#descriptionCount');
+            descriptionCount.text(length + '/' + maximumLength);
+            // If over the limit make the text red
+            if (length > maximumLength || length < minimumLength) {
+                descriptionCount.addClass('text-danger');
+            } else {
+                descriptionCount.removeClass('text-danger');
+            }
+        });
+        $('#characterBackstory').on('input', function() {
+            let length = $(this).val().length;
+            let backstoryCount = $('#backstoryCount');
+            backstoryCount.text(length + '/' + maximumLength);
+            // If over the limit make the text red
+            if (length > maximumLength || length < minimumLength) {
+                backstoryCount.addClass('text-danger');
+            } else {
+                backstoryCount.removeClass('text-danger');
+            }
+        });
+    });
+    </script>
 {% endblock %}

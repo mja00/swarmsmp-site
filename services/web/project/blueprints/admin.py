@@ -8,7 +8,7 @@ from ..logger import log_dev_status, log_staff_status
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
     Class, Race
 from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
-    get_server_settings, set_can_register
+    get_server_settings, set_can_register, set_application_settings, set_join_discord
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -216,6 +216,9 @@ def settings():
         live_server_uuid = request.form.get('live_server_uuid')
         staging_server_uuid = request.form.get('staging_server_uuid')
         fallback_server_uuid = request.form.get('fallback_server_uuid')
+        application_max_length = int(request.form.get('application_max_length'))
+        application_min_length = int(request.form.get('application_min_length'))
+        join_discord_on_register = request.form.get('join_discord_on_register') == 'on'
 
         # update settings
         set_applications_status(applications_open)
@@ -223,6 +226,8 @@ def settings():
         set_panel_settings(panel_api_key, panel_api_url)
         set_server_settings(live_server_uuid, staging_server_uuid, fallback_server_uuid)
         set_can_register(can_register)
+        set_application_settings(application_min_length, application_max_length)
+        set_join_discord(join_discord_on_register)
 
         flash('Settings updated', 'success')
         return redirect(url_for('admin.settings'))
