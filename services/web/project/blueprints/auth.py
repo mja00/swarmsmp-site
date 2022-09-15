@@ -38,7 +38,7 @@ def send_registration_email(user, confirmation_token):
         return False
 
     # Check if we're currently in development mode
-    if os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('ENVIRONMENT') == 'development':
         # We'll just simulate the email sending and print out the confirmation link
         print('Confirmation link: ' + url_for('auth.confirm_email', token=confirmation_token, _external=True))
         return True
@@ -59,7 +59,7 @@ def send_registration_email(user, confirmation_token):
 
 def send_password_reset_email(email, user):
     token = user.get_password_reset_token()
-    if os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('ENVIRONMENT') == 'development':
         print('Password reset link: ' + url_for('auth.reset_password', token=token, _external=True))
         return True
     else:
@@ -96,7 +96,7 @@ def generate_confirmation_token(email):
 def get_discord_authorization_url():
     base_url = "https://discord.com/api/v10/oauth2/authorize"
     client_id = os.environ.get('DISCORD_CLIENT_ID')
-    scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
+    scheme = "http" if os.environ.get('ENVIRONMENT') == 'development' else "https"
     redirect_uri = url_for('auth.discord_callback', _external=True, _scheme=scheme)
     scope = "identify guilds.join"
     return_url = f"{base_url}?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code"
@@ -107,7 +107,7 @@ def convert_discord_code_to_token(code):
     base_url = "https://discord.com/api/v10/oauth2/token"
     client_id = os.environ.get('DISCORD_CLIENT_ID')
     client_secret = os.environ.get('DISCORD_CLIENT_SECRET')
-    scheme = "http" if os.environ.get('FLASK_ENV') == 'development' else "https"
+    scheme = "http" if os.environ.get('ENVIRONMENT') == 'development' else "https"
     redirect_uri = url_for('auth.discord_callback', _external=True, _scheme=scheme)
     data = {
         "client_id": client_id,

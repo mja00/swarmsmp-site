@@ -58,7 +58,7 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
 
     :return: True if the email was sent, False if not
     """
-    if os.environ.get("FLASK_ENV") == "development" and not force:
+    if os.environ.get("ENVIRONMENT") == "development" and not force:
         print(
             "\n\nWe've caught you from accidentally sending an email in development mode.\nWe'll return True to not affect any functions.\n\n")
         return True
