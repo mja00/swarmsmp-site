@@ -23,20 +23,20 @@ from .extensions import cache, socketio
 from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
     get_can_register, get_application_settings
 
-development_env = os.getenv("FLASK_ENV", "development") == "development"
+development_env = os.getenv("ENVIRONMENT", "development") == "development"
 
 if not development_env:
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN", ""),
         integrations=[FlaskIntegration()],
         traces_sample_rate=1.0,
-        environment=os.getenv("FLASK_ENV", "development"),
+        environment=os.getenv("ENVIRONMENT", "development"),
         send_default_pii=True,
         debug=False
     )
 
 app = Flask(__name__)
-app.debug = os.environ.get('FLASK_ENV') == 'development'
+app.debug = os.environ.get('ENVIRONMENT') == 'development'
 csp = {
     'default-src': '\'self\'',
     'img-src': '*',
@@ -93,7 +93,7 @@ app.config["CACHE_REDIS_URL"] = os.getenv("CACHE_REDIS_URL", "redis://localhost:
 app.config["CACHE_DEFAULT_TIMEOUT"] = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300"))
 
 # Scheme settings
-if not os.getenv('FLASK_ENV') == 'development':
+if not os.getenv('ENVIRONMENT') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"
 
 db.init_app(app)
@@ -272,7 +272,7 @@ def apply():
                 flash("You must agree to the rules!", "danger")
                 return redirect(url_for("apply"))
             # Are we in development
-            if os.getenv("FLASK_ENV") == "development":
+            if os.getenv("ENVIRONMENT") == "development":
                 # Check if backstory and description are under min characters
                 if len(character_backstory) < minimum_length or len(character_description) < minimum_length:
                     flash(f"Your backstory and description must be over {minimum_length} characters!", "danger")
