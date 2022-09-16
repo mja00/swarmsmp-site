@@ -39,7 +39,7 @@ def application_accepted(application: Application):
     )
     db.session.add(character)
     db.session.commit()
-    print("Accepted application for user {}".format(user.username))
+    print(f"Accepted application for user {user.username}")
     # TODO: Give the user the whitelist role on Discord
     # TODO: Give the user their faction role on Discord
     # Delete the caches for the user's character functions
@@ -379,7 +379,7 @@ def new_department():
         flash('Department added', 'success')
         return redirect(url_for('admin.departments'))
     except SQLAlchemyError as e:
-        flash('Error adding department: {}'.format(e), 'danger')
+        flash(f'Error adding department: {e}', 'danger')
         return redirect(url_for('admin.departments'))
 
 
