@@ -1,6 +1,7 @@
 {% extends "admin/admin_base.html" %}
 {% import 'components/theme_dropdown.html' as td %}
 {% block header %}
+    <p>Don't touch any of this shit if you're unsure what it is. If you break something I will personally delete you.</p>
     <div class="row g-0">
         <div class="col-6">
             <h5>Manage Factions</h5>
@@ -153,6 +154,15 @@
                                         <label for="raceName">Race Name</label>
                                         <input type="text" class="form-control" id="raceName" name="raceName" required>
                                     </div>
+                                    <div class="col-12">
+                                        <label for="raceFaction">Race's Faction</label>
+                                        <select class="form-select" id="a" name="raceFaction" required>
+                                            <option value="">Select Faction</option>
+                                            {% for faction in factions %}
+                                                <option value="{{ faction.id }}">{{ faction.name }}</option>
+                                            {% endfor %} %}
+                                        </select>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -170,6 +180,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Faction</th>
                     <th>Character Count</th>
                     <th style="width: 25%">Actions</th>
                 </tr>
@@ -179,21 +190,46 @@
                     <tr>
                         <td>{{ race.id }}</td>
                         <td>{{ race.name }}</td>
+                        <td>{{ race.faction.name }}</td>
                         <td>{{ race.total() }}</td>
                         <td>
                             <button id="toggle-race-{{ race.id }}" onclick="toggleRaceVisibility({{ race.id }})"
                                     class="btn btn-sm btn-{% if race.hidden %}success{% else %}danger{% endif %}">
                                 {% if race.hidden %}Show Race{% else %}Hide Race{% endif %}</button>
+                            {% if race.id != 1 %}
+                            <button id="delete-race-{{ race.id }}" onclick="deleteRace({{ race.id }})"
+                                    class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Fair warning, there's a chance races won't delete with 0 feedback. This is probably because a
+                        character or application is using that race. Just hide it!"><i class="fa-solid fa-trash"></i></button>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+        <div class="card-footer">
+            <p>If you need to edit a race, and it isn't used yet, just delete it and re-create it. Or just ask MJ to manually
+            change the race in the DB.</p>
+        </div>
     </div>
 {% endblock %}
 {% block userscripts %}
     <script>
+        function deleteRace(id) {
+            $.ajax({
+                url: "{{ url_for('admin.delete_race', race_id=-1) }}".replace("-1", id),
+                type: "DELETE",
+                success: function(data) {
+                    // Reload page
+                    location.reload();
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            })
+        }
+
         function toggleClassVisibility(id) {
             let button = $("#toggle-class-" + id);
             // Disable button

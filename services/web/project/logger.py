@@ -43,3 +43,13 @@ def log_connect(user: User) -> AuditLog:
     db.session.add(log_entry)
     db.session.commit()
     return log_entry
+
+
+def log_options_change(user: User, option: str) -> AuditLog:
+    log_entry = AuditLog(
+        user_id=user.id,
+        action=option
+    )
+    db.session.add(log_entry)
+    db.session.commit()
+    return log_entry
