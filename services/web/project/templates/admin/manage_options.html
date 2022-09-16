@@ -118,7 +118,7 @@
                         <td>
                             <button id="toggle-class-{{ class.id }}" onclick="toggleClassVisibility({{ class.id }})"
                                     class="btn btn-sm btn-{% if class.hidden %}success{% else %}danger{% endif %}">
-                                {% if class.hidden %}Show Class{% else %}Hide Class{% endif %}</button>"
+                                {% if class.hidden %}Show Class{% else %}Hide Class{% endif %}</button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -195,13 +195,21 @@
                             <button id="toggle-race-{{ race.id }}" onclick="toggleRaceVisibility({{ race.id }})"
                                     class="btn btn-sm btn-{% if race.hidden %}success{% else %}danger{% endif %}">
                                 {% if race.hidden %}Show Race{% else %}Hide Race{% endif %}</button>
+                            {% if race.id != 1 %}
                             <button id="delete-race-{{ race.id }}" onclick="deleteRace({{ race.id }})"
-                                    class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                                    class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Fair warning, there's a chance races won't delete with 0 feedback. This is probably because a
+                        character or application is using that race. Just hide it!"><i class="fa-solid fa-trash"></i></button>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="card-footer">
+            <p>If you need to edit a race, and it isn't used yet, just delete it and re-create it. Or just ask MJ to manually
+            change the race in the DB.</p>
         </div>
     </div>
 {% endblock %}

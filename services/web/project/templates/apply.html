@@ -118,10 +118,10 @@
                     // Add each race to the dropdown
                     raceDropdown.empty();
                     validOptions.forEach(option => {
-                        `raceDropdown.append($('<option>', {
+                        raceDropdown.append($('<option>', {
                             value: option.id,
                             text: option.name
-                        }));`
+                        }));
                     })
                 },
                 error: function (data) {
