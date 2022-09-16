@@ -20,8 +20,8 @@ from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
 from .extensions import cache, socketio
-from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
-    get_can_register, get_application_settings
+from .models import db, User, SystemSetting, Faction, Application, Class, Race
+from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
 
 development_env = os.getenv("ENVIRONMENT", "development") == "development"
 

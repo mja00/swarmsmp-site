@@ -14,7 +14,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..decorators import minecraft_authenticated
 from ..extensions import cache
 from ..logger import log_login
-from ..models import User, db, EmailConfirmation, MinecraftAuthentication, get_can_register, get_join_discord
+from ..models import User, db, EmailConfirmation, MinecraftAuthentication
+from ..settings_helper import get_can_register, get_join_discord
 
 auth_bp = Blueprint('auth', __name__)
 

@@ -7,7 +7,7 @@ from ..extensions import cache
 from ..logger import log_dev_status, log_staff_status, log_options_change
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
     Class, Race
-from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
+from ..settings_helper import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
     get_server_settings, set_can_register, set_application_settings, set_join_discord
 
 admin_bp = Blueprint('admin', __name__)
