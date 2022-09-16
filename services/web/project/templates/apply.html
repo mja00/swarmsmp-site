@@ -37,9 +37,6 @@
                                 <label class="form-label" for="characterRace">Race</label>
                                 <select class="form-select" id="characterRace" name="characterRace" required>
                                     <option value="">Select Race</option>
-                                    {% for race in races %}
-                                        <option value="{{ race.id }}">{{ race.name }}</option>
-                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="col-6">
@@ -104,6 +101,33 @@
             } else {
                 backstoryCount.removeClass('text-danger');
             }
+        });
+
+        // On faction change
+        $('#characterFaction').on('change', function() {
+            // Get what's currently picked
+            let currentPick = $(this).val();
+            // Do a GET request to /api/get_faction_info/<faction_id>
+            $.ajax({
+                url: "/api/get_faction_info/" + currentPick,
+                type: "GET",
+                success: function (data) {
+                    // Get the array
+                    let validOptions = data['races'];
+                    let raceDropdown = $('#characterRace');
+                    // Add each race to the dropdown
+                    raceDropdown.empty();
+                    validOptions.forEach(option => {
+                        `raceDropdown.append($('<option>', {
+                            value: option.id,
+                            text: option.name
+                        }));`
+                    })
+                },
+                error: function (data) {
+                    console.log(data);
+                }
+            })
         });
     });
     </script>

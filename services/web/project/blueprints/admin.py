@@ -351,8 +351,9 @@ def toggle_class(class_id):
 @admin_bp.route('/race/new', methods=['POST'])
 def new_race():
     name = request.form.get("raceName")
+    faction_id = request.form.get("raceFaction")
     if name:
-        race_obj = Race(name=name)
+        race_obj = Race(name=name, faction_id=faction_id)
         db.session.add(race_obj)
         db.session.commit()
         flash('Race created', 'success')

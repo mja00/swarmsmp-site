@@ -14,7 +14,7 @@ from ..helpers import send_template_to_email, send_command_to_server
 from ..logger import log_connect
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
-    ServerStatus
+    ServerStatus, Faction
 
 api = Blueprint('api', __name__)
 
@@ -535,3 +535,17 @@ def update_server_status():
     db.session.add(status_obj)
     db.session.commit()
     return jsonify({"msg": "Server status updated", "data": data}), 200
+
+
+@api.route('/get_faction_info/<int:faction_id>', methods=['GET'])
+def get_faction_info(faction_id):
+    faction = Faction.query.filter_by(id=faction_id).first()
+    if not faction:
+        return jsonify({"msg": "Faction not found"}), 400
+
+    data = {
+        "name": faction.name,
+        "classes": faction.classes,
+        "races": [{"name": race.name, "id": race.id} for race in faction.races if not race.hidden]
+    }
+    return jsonify(data)

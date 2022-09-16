@@ -118,7 +118,7 @@
                         <td>
                             <button id="toggle-class-{{ class.id }}" onclick="toggleClassVisibility({{ class.id }})"
                                     class="btn btn-sm btn-{% if class.hidden %}success{% else %}danger{% endif %}">
-                                {% if class.hidden %}Show Class{% else %}Hide Class{% endif %}</button>
+                                {% if class.hidden %}Show Class{% else %}Hide Class{% endif %}</button>"
                         </td>
                     </tr>
                 {% endfor %}
@@ -153,6 +153,15 @@
                                         <label for="raceName">Race Name</label>
                                         <input type="text" class="form-control" id="raceName" name="raceName" required>
                                     </div>
+                                    <div class="col-12">
+                                        <label for="raceFaction">Race's Faction</label>
+                                        <select class="form-select" id="a" name="raceFaction" required>
+                                            <option value="">Select Faction</option>
+                                            {% for faction in factions %}
+                                                <option value="{{ faction.id }}">{{ faction.name }}</option>
+                                            {% endfor %} %}
+                                        </select>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -170,6 +179,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Faction</th>
                     <th>Character Count</th>
                     <th style="width: 25%">Actions</th>
                 </tr>
@@ -179,6 +189,7 @@
                     <tr>
                         <td>{{ race.id }}</td>
                         <td>{{ race.name }}</td>
+                        <td>{{ race.faction.name }}</td>
                         <td>{{ race.total() }}</td>
                         <td>
                             <button id="toggle-race-{{ race.id }}" onclick="toggleRaceVisibility({{ race.id }})"

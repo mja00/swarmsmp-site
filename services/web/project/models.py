@@ -572,6 +572,8 @@ class Faction(db.Model):
     name = db.Column(db.String(255), nullable=False)
     characters = db.relationship('Character', backref='faction', lazy=True)
     applications = db.relationship('Application', backref='faction', lazy=True)
+    classes = db.relationship('Class', backref='faction', lazy=True)
+    races = db.relationship('Race', backref='faction', lazy=True)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -607,6 +609,7 @@ class Class(db.Model):
     characters = db.relationship('Character', backref='class', lazy=True)
     applications = db.relationship('Application', backref='class', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
+    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -631,13 +634,15 @@ class Race(db.Model):
     characters = db.relationship('Character', backref='race', lazy=True)
     applications = db.relationship('Application', backref='race', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
+    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, name):
+    def __init__(self, name, faction_id):
         self.name = name
+        self.faction_id = faction_id
 
     def __repr__(self):
         return '<Race %r>' % self.id
