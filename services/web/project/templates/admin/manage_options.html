@@ -195,6 +195,8 @@
                             <button id="toggle-race-{{ race.id }}" onclick="toggleRaceVisibility({{ race.id }})"
                                     class="btn btn-sm btn-{% if race.hidden %}success{% else %}danger{% endif %}">
                                 {% if race.hidden %}Show Race{% else %}Hide Race{% endif %}</button>
+                            <button id="delete-race-{{ race.id }}" onclick="deleteRace({{ race.id }})"
+                                    class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -205,6 +207,20 @@
 {% endblock %}
 {% block userscripts %}
     <script>
+        function deleteRace(id) {
+            $.ajax({
+                url: "{{ url_for('admin.delete_race', race_id=-1) }}".replace("-1", id),
+                type: "DELETE",
+                success: function(data) {
+                    // Reload page
+                    location.reload();
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            })
+        }
+
         function toggleClassVisibility(id) {
             let button = $("#toggle-class-" + id);
             // Disable button

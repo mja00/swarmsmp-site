@@ -371,3 +371,16 @@ def toggle_race(race_id):
         return jsonify({'success': True, 'current': race_obj.hidden})
     else:
         return jsonify({'success': False, 'message': 'Race not found'})
+
+
+@admin_bp.route('/race/<int:race_id>/delete', methods=['DELETE'])
+def delete_race(race_id):
+    race_obj = Race.query.filter_by(id=race_id).first()
+    if race_obj.is_used():
+        return jsonify({'success': False, 'message': "Race is being used by characters or applications"}), 409
+    if race_obj:
+        db.session.delete(race_obj)
+        db.session.commit()
+        return jsonify({'success': True}), 204
+    else:
+        return jsonify({'success': False, 'message': "Race not found"}), 404

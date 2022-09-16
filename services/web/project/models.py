@@ -625,6 +625,12 @@ class Class(db.Model):
         characters = Character.query.filter_by(clazz=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
         return len(characters)
 
+    def is_used(self):
+        # Check if there is characters or applications using this class
+        if len(self.characters) > 0 or len(self.applications) > 0:
+            return True
+        return False
+
 
 class Race(db.Model):
     __tablename__ = 'races'
@@ -650,6 +656,12 @@ class Race(db.Model):
     def total(self):
         characters = Character.query.filter_by(subrace=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
         return len(characters)
+
+    def is_used(self):
+        # Check if there is characters or applications using this class
+        if len(self.characters) > 0 or len(self.applications) > 0:
+            return True
+        return False
 
 
 class AuditLog(db.Model):
