@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ..decorators import admin_required
 from ..extensions import cache
-from ..logger import log_dev_status, log_staff_status
+from ..logger import log_dev_status, log_staff_status, log_options_change
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
     Class, Race
 from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
@@ -319,6 +319,7 @@ def new_faction():
         db.session.add(faction_obj)
         db.session.commit()
         flash('Faction created', 'success')
+        log_options_change(current_user, f"CREATED FACTION {name}")
     else:
         flash('Faction name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
@@ -332,6 +333,7 @@ def new_class():
         db.session.add(class_obj)
         db.session.commit()
         flash('Class created', 'success')
+        log_options_change(current_user, f"CREATED CLASS {name}")
     else:
         flash('Class name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
@@ -343,6 +345,7 @@ def toggle_class(class_id):
     if class_obj:
         class_obj.hidden = not class_obj.hidden
         db.session.commit()
+        log_options_change(current_user, f"{class_obj.name} {'HIDDEN' if class_obj.hidden else 'UNHIDDEN'}")
         return jsonify({'success': True, 'current': class_obj.hidden})
     else:
         return jsonify({'success': False, 'message': 'Class not found'})
@@ -357,6 +360,7 @@ def new_race():
         db.session.add(race_obj)
         db.session.commit()
         flash('Race created', 'success')
+        log_options_change(current_user, f"CREATED RACE {name}")
     else:
         flash('Race name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
@@ -368,6 +372,7 @@ def toggle_race(race_id):
     if race_obj:
         race_obj.hidden = not race_obj.hidden
         db.session.commit()
+        log_options_change(current_user, f"{race_obj.name} {'HIDDEN' if race_obj.hidden else 'UNHIDDEN'}")
         return jsonify({'success': True, 'current': race_obj.hidden})
     else:
         return jsonify({'success': False, 'message': 'Race not found'})
@@ -381,6 +386,7 @@ def delete_race(race_id):
     if race_obj:
         db.session.delete(race_obj)
         db.session.commit()
+        log_options_change(current_user, f"DELETED RACE {race_obj.name}")
         return jsonify({'success': True}), 204
     else:
         return jsonify({'success': False, 'message': "Race not found"}), 404
