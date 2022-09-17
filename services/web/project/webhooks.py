@@ -1,7 +1,6 @@
 from .extensions import app
 from .models import User, Ticket, Application
 from .settings_helper import get_webhook_settings
-from flask import url_for
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import hashlib
 

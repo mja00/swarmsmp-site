@@ -2,14 +2,9 @@ import json
 import os
 
 import requests
-import hashlib
 
-from flask import url_for
-from discord_webhook import DiscordWebhook, DiscordEmbed
-
-from .models import User, Ticket, Application
-from .settings_helper import get_panel_settings, get_server_settings, get_webhook_settings
-from .extensions import app
+from .models import User
+from .settings_helper import get_panel_settings, get_server_settings
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 

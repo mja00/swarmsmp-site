@@ -6,7 +6,7 @@ from datetime import timedelta
 from threading import Thread
 
 import sentry_sdk
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import render_template, request, flash, redirect, url_for, send_from_directory
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -21,7 +21,7 @@ from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
 from .extensions import cache, socketio, app
-from .models import db, User, SystemSetting, Faction, Application, Class, Race
+from .models import db, User, Faction, Application, Class, Race
 from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
 from .webhooks import new_application
 
