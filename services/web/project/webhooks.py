@@ -14,7 +14,11 @@ def new_ticket_webhook(ticket_id, first_message):
     with app.app_context():
         ticket = Ticket.query.filter_by(id=ticket_id).first()
         webhook_settings = get_webhook_settings()
-        webhook = DiscordWebhook(url=webhook_settings['ticket_webhook'], username=ticket.owner.username, avatar_url=ticket.owner.get_avatar_link())
+        webhook = DiscordWebhook(
+            url=webhook_settings['ticket_webhook'],
+            username=ticket.owner.username,
+            avatar_url=ticket.owner.get_avatar_link()
+        )
         embed = DiscordEmbed(title='New ticket created', color=0x00ff00)
         embed.set_timestamp()
 
@@ -23,7 +27,6 @@ def new_ticket_webhook(ticket_id, first_message):
         embed.add_embed_field(name='Subject', value=ticket.subject, inline=False)
         embed.add_embed_field(name='Content', value=first_message, inline=False)
 
-        embed.set_url(url_for("ticket.view", ticket_id=ticket.id, _external=True))
         webhook.add_embed(embed)
         webhook.execute()
 
@@ -43,7 +46,6 @@ def new_ticket_reply(ticket, reply_content):
         embed.add_embed_field(name='Department', value=ticket.department.name, inline=True)
         embed.add_embed_field(name='Reply', value=reply_content, inline=False)
 
-        embed.set_url(url_for("ticket.view", ticket_id=ticket.id, _external=True))
         webhook.add_embed(embed)
         webhook.execute()
 
@@ -65,7 +67,6 @@ def new_application(application):
         embed.add_embed_field(name='Race', value=current_application.race.name, inline=True)
         embed.add_embed_field(name='Class', value=current_application.clazz.name, inline=True)
 
-        embed.set_url(url_for('admin.view_application', application_id=current_application.id, _external=True))
         webhook.add_embed(embed)
         webhook.execute()
 
