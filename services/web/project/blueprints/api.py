@@ -10,11 +10,12 @@ from .socket import broadcast_server_status, broadcast_notification_to_user
 from ..decorators import staff_required, admin_required, auth_key_required
 from ..extensions import cache
 from ..helpers import get_username_from_uuid, MojangAPIError
-from ..helpers import send_template_to_email, send_command_to_server, new_ticket_reply
+from ..helpers import send_template_to_email, send_command_to_server
 from ..logger import log_connect
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus, Faction
+from ..webhooks import new_ticket_reply
 
 api = Blueprint('api', __name__)
 

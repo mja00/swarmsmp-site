@@ -4,7 +4,7 @@ from threading import Thread
 
 from ..decorators import whitelist_required
 from ..models import db, Ticket, TicketReply, TicketDepartment
-from ..helpers import new_ticket_webhook
+from ..webhooks import new_ticket_webhook
 
 ticket_bp = Blueprint('ticket', __name__)
 

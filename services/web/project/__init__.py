@@ -23,7 +23,7 @@ from .decorators import fully_authenticated
 from .extensions import cache, socketio, app
 from .models import db, User, SystemSetting, Faction, Application, Class, Race
 from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
-from .helpers import new_application
+from .webhooks import new_application
 
 development_env = os.getenv("ENVIRONMENT", "development") == "development"
 

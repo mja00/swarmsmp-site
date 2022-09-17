@@ -16,7 +16,7 @@ from ..extensions import cache
 from ..logger import log_login
 from ..models import User, db, EmailConfirmation, MinecraftAuthentication
 from ..settings_helper import get_can_register, get_join_discord
-from ..helpers import new_user, email_confirmed_hook, discord_linked_hook, minecraft_linked_hook
+from ..webhooks import new_user, email_confirmed_hook, discord_linked_hook, minecraft_linked_hook
 
 auth_bp = Blueprint('auth', __name__)
 
