@@ -1,4 +1,4 @@
-from models import SystemSetting, db
+from .models import SystemSetting, db
 from .extensions import cache
 
 
@@ -59,6 +59,17 @@ def get_join_discord():
     return SystemSetting.query.first().join_discord_on_register
 
 
+@cache.cached(timeout=0, key_prefix='webhook_settings')
+def get_webhook_settings():
+    settings = SystemSetting.query.first()
+    return {
+        "ticket_webhook": settings.ticket_webhook,
+        "application_webhook": settings.application_webhook,
+        "general_webhook": settings.general_webhook,
+        "dev_webhook": settings.dev_webhook,
+    }
+
+
 def set_applications_status(status: bool):
     setting = SystemSetting.query.first()
     setting.applications_open = status
@@ -110,3 +121,13 @@ def set_application_settings(minimum_length: int, maximum_length: int):
     setting.maximum_length = maximum_length
     db.session.commit()
     cache.delete('application_settings')
+
+
+def set_webhook_settings(ticket, application, general, dev):
+    setting = SystemSetting.query.first()
+    setting.ticket_webhook = ticket
+    setting.application_webhook = application
+    setting.general_webhook = general
+    setting.dev_webhook = dev
+    db.session.commit()
+    cache.delete('webhook_settings')

@@ -438,6 +438,12 @@ class SystemSetting(db.Model):
     staging_server_uuid = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
     fallback_server_uuid = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
 
+    # Webhook settings
+    ticket_webhook = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    application_webhook = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    general_webhook = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+    dev_webhook = db.Column(db.String(255), nullable=False, default='CHANGE_ME')
+
     # Server settings
     maintenance_mode = db.Column(db.Boolean, nullable=False, default=False)
 
@@ -496,7 +502,7 @@ class Class(db.Model):
     characters = db.relationship('Character', backref='class', lazy=True)
     applications = db.relationship('Application', backref='class', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
-    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
+    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=True)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -527,7 +533,7 @@ class Race(db.Model):
     characters = db.relationship('Character', backref='race', lazy=True)
     applications = db.relationship('Application', backref='race', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
-    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=False)
+    faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=True)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())

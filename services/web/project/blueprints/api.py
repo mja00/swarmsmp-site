@@ -10,7 +10,7 @@ from .socket import broadcast_server_status, broadcast_notification_to_user
 from ..decorators import staff_required, admin_required, auth_key_required
 from ..extensions import cache
 from ..helpers import get_username_from_uuid, MojangAPIError
-from ..helpers import send_template_to_email, send_command_to_server
+from ..helpers import send_template_to_email, send_command_to_server, new_ticket_reply
 from ..logger import log_connect
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
@@ -253,6 +253,8 @@ def ticket_reply(ticket_id):
     else:
         ticket.status = 'replied'
         ticket.last_replied_at = dt.utcnow()
+        # Client replied to ticket, send webhook
+        new_ticket_reply(ticket, reply_content)
 
     db.session.commit()
     flash('Reply added', 'success')

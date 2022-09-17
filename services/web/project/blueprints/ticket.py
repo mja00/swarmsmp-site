@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from threading import Thread
 
 from ..decorators import whitelist_required
 from ..models import db, Ticket, TicketReply, TicketDepartment
+from ..helpers import new_ticket_webhook
 
 ticket_bp = Blueprint('ticket', __name__)
 
@@ -58,6 +60,9 @@ def create():
         ticket = Ticket(owner=current_user, subject=title, department=department)
         db.session.add(ticket)
         db.session.commit()
+
+        # Send our webhook
+        new_ticket_webhook(ticket.id, message)
 
         # Add the message
         ticket_reply = TicketReply(ticket=ticket, content=message, user=current_user)

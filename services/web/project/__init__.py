@@ -19,7 +19,7 @@ from .blueprints.auth import hcaptcha
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
-from .extensions import cache, socketio
+from .extensions import cache, socketio, app
 from .models import db, User, SystemSetting, Faction, Application, Class, Race
 from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
 
@@ -35,7 +35,6 @@ if not development_env:
         debug=False
     )
 
-app = Flask(__name__)
 app.debug = os.environ.get('ENVIRONMENT') == 'development'
 csp = {
     'default-src': '\'self\'',
@@ -95,6 +94,10 @@ app.config["CACHE_DEFAULT_TIMEOUT"] = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "30
 # Scheme settings
 if not os.getenv('ENVIRONMENT') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"
+    app.config["SERVER_NAME"] = "swarmsmp.com"
+else:
+    app.config["PREFERRED_URL_SCHEME"] = "http"
+    app.config["SERVER_NAME"] = "127.0.0.1:5000"
 
 db.init_app(app)
 migrate = Migrate(app, db)
