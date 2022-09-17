@@ -16,6 +16,7 @@ from ..extensions import cache
 from ..logger import log_login
 from ..models import User, db, EmailConfirmation, MinecraftAuthentication
 from ..settings_helper import get_can_register, get_join_discord
+from ..helpers import new_user, email_confirmed_hook, discord_linked_hook, minecraft_linked_hook
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -237,6 +238,7 @@ def register():
             # Send the confirmation email
             success = send_registration_email(user, confirmation_token)
             if success:
+                new_user(username, email, request.remote_addr)
                 flash('Successfully registered.', "success")
                 return redirect(url_for('auth.login'))
             else:
@@ -288,6 +290,7 @@ def minecraft_authentication():
 
             db.session.commit()
             flash('Successfully authenticated', "success")
+            minecraft_linked_hook(user)
             return redirect(url_for('auth.discord_authentication'))
         except SQLAlchemyError:
             flash('Something went wrong', "danger")
@@ -322,6 +325,8 @@ def confirm_email(token):
             db.session.delete(confirmation_token)
             db.session.commit()
             flash('Email confirmed', "success")
+            # Fire webhook
+            email_confirmed_hook(user)
             return redirect(url_for('auth.login'))
         else:
             flash('Invalid confirmation token', "danger")
@@ -428,6 +433,7 @@ def discord_callback():
     try:
         user.set_discord_uuid(user_info['id'])
         flash('Discord account linked', "success")
+        discord_linked_hook(user)
         return redirect(url_for('index'))
     except SQLAlchemyError as e:
         print(e)

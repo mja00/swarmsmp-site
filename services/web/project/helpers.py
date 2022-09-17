@@ -2,6 +2,7 @@ import json
 import os
 
 import requests
+import hashlib
 
 from flask import url_for
 from discord_webhook import DiscordWebhook, DiscordEmbed
@@ -150,22 +151,23 @@ def new_ticket_webhook(ticket_id, first_message):
 
 
 def new_ticket_reply(ticket, reply_content):
-    webhook_settings = get_webhook_settings()
-    webhook = DiscordWebhook(
-        url=webhook_settings['ticket_webhook'],
-        username=ticket.owner.username,
-        avatar_url=ticket.owner.get_avatar_link()
-    )
-    embed = DiscordEmbed(title='New reply to ticket', color=0xf39c12)
-    embed.set_timestamp()
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['ticket_webhook'],
+            username=ticket.owner.username,
+            avatar_url=ticket.owner.get_avatar_link()
+        )
+        embed = DiscordEmbed(title='New reply to ticket', color=0xf39c12)
+        embed.set_timestamp()
 
-    embed.add_embed_field(name='Ticket ID', value=str(trim_ticket_id(ticket.id)), inline=True)
-    embed.add_embed_field(name='Department', value=ticket.department.name, inline=True)
-    embed.add_embed_field(name='Reply', value=reply_content, inline=False)
+        embed.add_embed_field(name='Ticket ID', value=str(trim_ticket_id(ticket.id)), inline=True)
+        embed.add_embed_field(name='Department', value=ticket.department.name, inline=True)
+        embed.add_embed_field(name='Reply', value=reply_content, inline=False)
 
-    embed.set_url(url_for("ticket.view", ticket_id=ticket.id, _external=True))
-    webhook.add_embed(embed)
-    webhook.execute()
+        embed.set_url(url_for("ticket.view", ticket_id=ticket.id, _external=True))
+        webhook.add_embed(embed)
+        webhook.execute()
 
 
 def new_application(application):
@@ -186,5 +188,78 @@ def new_application(application):
         embed.add_embed_field(name='Class', value=current_application.clazz.name, inline=True)
 
         embed.set_url(url_for('admin.view_application', application_id=current_application.id, _external=True))
+        webhook.add_embed(embed)
+        webhook.execute()
+
+
+def hash_ip(ip: str) -> str:
+    return hashlib.sha256(ip.encode()).hexdigest()
+
+
+def new_user(username, email, request_ip):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['general_webhook'],
+            username=username
+        )
+        embed = DiscordEmbed(title='New user', color=0x00ff00)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Username', value=username, inline=True)
+        embed.add_embed_field(name='Email', value=email, inline=True)
+        embed.add_embed_field(name='IP Hash', value=hash_ip(request_ip), inline=False)
+
+        webhook.add_embed(embed)
+        webhook.execute()
+
+
+def email_confirmed_hook(user):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['general_webhook'],
+            username=user.username
+        )
+        embed = DiscordEmbed(title='Email confirmed', color=0x00ff00)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Username', value=user.username, inline=True)
+        embed.add_embed_field(name='Email', value=user.email, inline=True)
+
+        webhook.add_embed(embed)
+        webhook.execute()
+
+
+def discord_linked_hook(user: User):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['general_webhook'],
+            username=user.username
+        )
+        embed = DiscordEmbed(title='Discord linked', color=0x00ff00)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Discord', value=f"<@{user.discord_uuid}>", inline=True)
+
+        webhook.add_embed(embed)
+        webhook.execute()
+
+
+def minecraft_linked_hook(user: User):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['general_webhook'],
+            username=user.username,
+            avatar_url=user.get_avatar_link()
+        )
+        embed = DiscordEmbed(title='Minecraft linked', color=0x00ff00)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Minecraft Username', value=user.minecraft_username, inline=True)
+        embed.add_embed_field(name='Minecraft UUID', value=user.minecraft_uuid, inline=True)
+
         webhook.add_embed(embed)
         webhook.execute()

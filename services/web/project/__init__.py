@@ -96,10 +96,8 @@ app.config["CACHE_DEFAULT_TIMEOUT"] = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "30
 # Scheme settings
 if not os.getenv('ENVIRONMENT') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"
-    app.config["SERVER_NAME"] = "swarmsmp.com"
 else:
     app.config["PREFERRED_URL_SCHEME"] = "http"
-    app.config["SERVER_NAME"] = "127.0.0.1:5000"
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -153,6 +151,15 @@ def inject_site_settings():
         "can_register": get_can_register(),
     }
     return dict(return_dict)
+
+
+@app.before_request
+def correct_ip_for_cloudflare():
+    # Check if CF-Connecting-IP is in the headers
+    if "CF-Connecting-IP" in request.headers:
+        real_ip = request.headers.get("CF-Connecting-IP")
+        # Set remote_addr to the CF-Connecting-IP
+        setattr(request, "remote_addr", real_ip)
 
 
 @app.errorhandler(500)
