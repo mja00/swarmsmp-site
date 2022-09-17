@@ -3,6 +3,7 @@ import pickle
 import uuid
 from datetime import datetime as dt
 from datetime import timedelta
+from threading import Thread
 
 import sentry_sdk
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
@@ -22,6 +23,7 @@ from .decorators import fully_authenticated
 from .extensions import cache, socketio, app
 from .models import db, User, SystemSetting, Faction, Application, Class, Race
 from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
+from .helpers import new_application
 
 development_env = os.getenv("ENVIRONMENT", "development") == "development"
 
@@ -265,8 +267,7 @@ def apply():
                         # TODO: Make the timedelta configurable
                         time_since_app = dt.utcnow() - l_app.created_at
                         delta = timedelta(days=7)
-                        print(time_since_app.total_seconds(), delta.total_seconds())
-                        if time_since_app.total_seconds() < delta.total_seconds():
+                        if time_since_app.total_seconds() < delta.total_seconds() and os.environ.get("ENVIRONMENT") != "development":
                             # Means it's still within 7 days
                             flash("You can only apply once every 7 days.", "danger")
                             return redirect(url_for("user.profile"))
@@ -302,6 +303,8 @@ def apply():
             # Save
             db.session.add(application)
             db.session.commit()
+            # Successful application submission, send a webhook
+            Thread(target=new_application, args=(application,)).start()
             flash("Your application has been submitted!", "success")
             return redirect(url_for("user.profile"))
         else:

@@ -6,7 +6,7 @@ import requests
 from flask import url_for
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
-from .models import User, Ticket
+from .models import User, Ticket, Application
 from .settings_helper import get_panel_settings, get_server_settings, get_webhook_settings
 from .extensions import app
 
@@ -151,7 +151,11 @@ def new_ticket_webhook(ticket_id, first_message):
 
 def new_ticket_reply(ticket, reply_content):
     webhook_settings = get_webhook_settings()
-    webhook = DiscordWebhook(url=webhook_settings['ticket_webhook'], username=ticket.owner.username, avatar_url=ticket.owner.get_avatar_link())
+    webhook = DiscordWebhook(
+        url=webhook_settings['ticket_webhook'],
+        username=ticket.owner.username,
+        avatar_url=ticket.owner.get_avatar_link()
+    )
     embed = DiscordEmbed(title='New reply to ticket', color=0xf39c12)
     embed.set_timestamp()
 
@@ -162,3 +166,25 @@ def new_ticket_reply(ticket, reply_content):
     embed.set_url(url_for("ticket.view", ticket_id=ticket.id, _external=True))
     webhook.add_embed(embed)
     webhook.execute()
+
+
+def new_application(application):
+    with app.app_context():
+        current_application = Application.query.filter_by(id=application.id).first()
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['application_webhook'],
+            username=current_application.user.username,
+            avatar_url=current_application.user.get_avatar_link()
+        )
+        embed = DiscordEmbed(title='New application', color=0xf39c12)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Name', value=current_application.character_name, inline=True)
+        embed.add_embed_field(name='Faction', value=current_application.faction.name, inline=True)
+        embed.add_embed_field(name='Race', value=current_application.race.name, inline=True)
+        embed.add_embed_field(name='Class', value=current_application.clazz.name, inline=True)
+
+        embed.set_url(url_for('admin.view_application', application_id=current_application.id, _external=True))
+        webhook.add_embed(embed)
+        webhook.execute()

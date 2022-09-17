@@ -61,8 +61,8 @@ def create():
         db.session.add(ticket)
         db.session.commit()
 
-        # Send our webhook
-        new_ticket_webhook(ticket.id, message)
+        # Send our webhook, do it in a thread so the ticket isn't blocked if an error occurs
+        Thread(target=new_ticket_webhook, args=(ticket.id, message)).start()
 
         # Add the message
         ticket_reply = TicketReply(ticket=ticket, content=message, user=current_user)

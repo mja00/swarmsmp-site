@@ -254,7 +254,7 @@ def ticket_reply(ticket_id):
         ticket.status = 'replied'
         ticket.last_replied_at = dt.utcnow()
         # Client replied to ticket, send webhook
-        new_ticket_reply(ticket, reply_content)
+        Thread(target=new_ticket_reply, args=(ticket, reply_content)).start()
 
     db.session.commit()
     flash('Reply added', 'success')
