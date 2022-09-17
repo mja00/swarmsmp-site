@@ -9,6 +9,7 @@ from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction,
     Class, Race
 from ..settings_helper import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
     get_server_settings, set_can_register, set_application_settings, set_join_discord, set_webhook_settings
+from ..webhooks import user_edited_by_admin, site_settings_hook
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -98,6 +99,7 @@ def edit_user(user_id):
         # Invalidate the cache
         user_obj.delete_cache_for_user()
         flash('User updated successfully!', 'success')
+        user_edited_by_admin(user_obj, current_user)
         return redirect(url_for('admin.user', user_id=user_id))
     else:
         return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
@@ -237,6 +239,7 @@ def settings():
         )
 
         flash('Settings updated', 'success')
+        site_settings_hook(current_user)
         return redirect(url_for('admin.settings'))
     else:
         try:

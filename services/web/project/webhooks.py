@@ -142,3 +142,36 @@ def minecraft_linked_hook(user: User):
 
         webhook.add_embed(embed)
         webhook.execute()
+
+
+def user_edited_by_admin(user, admin):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['dev_webhook'],
+            username=admin.username,
+            avatar_url=admin.get_avatar_link()
+        )
+        embed = DiscordEmbed(title=f'User edited by {admin.username}', color=0xff0000)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Username', value=user.username, inline=True)
+        embed.add_embed_field(name='Email', value=user.email, inline=True)
+        embed.add_embed_field(name='Discord', value=f"<@{user.discord_uuid}>", inline=True)
+        embed.add_embed_field(name='Minecraft Username', value=user.minecraft_username, inline=True)
+        embed.add_embed_field(name='Minecraft UUID', value=user.minecraft_uuid, inline=True)
+
+        webhook.add_embed(embed)
+        webhook.execute()
+
+
+def site_settings_hook(admin):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['dev_webhook'],
+            username=admin.username,
+            avatar_url=admin.get_avatar_link(),
+            content="I just messed with the site's settings!"
+        )
+        webhook.execute()
