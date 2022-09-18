@@ -174,3 +174,20 @@ def site_settings_hook(admin):
             content="I just messed with the site's settings!"
         )
         webhook.execute()
+
+
+def player_connected_hook(user):
+    with app.app_context():
+        webhook_settings = get_webhook_settings()
+        webhook = DiscordWebhook(
+            url=webhook_settings['general_webhook'],
+            username=user.username,
+            avatar_url=user.get_avatar_link()
+        )
+        embed = DiscordEmbed(title='Player connected', color=0x6cc8ff)
+        embed.set_timestamp()
+
+        embed.add_embed_field(name='Minecraft Username', value=user.minecraft_username, inline=True)
+
+        webhook.add_embed(embed)
+        webhook.execute()

@@ -15,7 +15,7 @@ from ..logger import log_connect
 from ..models import MinecraftAuthentication, db, DiscordAuthentication, User, \
     Ticket, TicketReply, TicketDepartment, Application, Character, CommandQueue, \
     ServerStatus, Faction
-from ..webhooks import new_ticket_reply
+from ..webhooks import new_ticket_reply, player_connected_hook
 
 api = Blueprint('api', __name__)
 
@@ -484,6 +484,7 @@ def allow_connection(uuid):
                         db.session.commit()
 
             Thread(target=check_command_queue, args=(user.id,)).start()
+            Thread(target=player_connected_hook, args=(user,)).start()
             return jsonify({"allow": True}), 200
         else:
             return jsonify({"allow": False, "msg": "You need to make a character on your profile."}), 200
