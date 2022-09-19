@@ -269,15 +269,13 @@ def apply_post():
                     # Means they're still pending
                     flash("You already have an application pending.", "danger")
                     return redirect(url_for("user.profile"))
+                elif not l_app.cooldown:
+                    continue
                 else:
-                    # Check if the application is older than 7 days
-                    # TODO: Make the timedelta configurable
-                    time_since_app = dt.utcnow() - l_app.created_at
-                    delta = timedelta(days=7)
-                    if time_since_app.total_seconds() < delta.total_seconds() and os.environ.get(
-                            "ENVIRONMENT") != "development":
-                        # Means it's still within 7 days
-                        flash("You can only apply once every 7 days.", "danger")
+                    # Check if they're still in the cooldown period
+                    current_time = dt.utcnow()
+                    if current_time < l_app.cooldown:
+                        flash(f"You're still in the cooldown period. You can apply again in {l_app.get_humanized_cooldown()}.", "danger")
                         return redirect(url_for("user.profile"))
 
         if not rule_agreement:

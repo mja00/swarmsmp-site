@@ -42,7 +42,7 @@ def get_user(uuid):
     if application:
         now = datetime.utcnow()
         # TODO: Make the timedelta configurable
-        time_till_next_application = humanize.naturaltime(now - (application.created_at + timedelta(days=7)))
+        time_till_next_application = application.get_humanized_cooldown()
     else:
         time_till_next_application = None
     if user.has_character():

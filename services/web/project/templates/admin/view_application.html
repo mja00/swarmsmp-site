@@ -79,6 +79,11 @@
                     <label for="rejectionReason" class="form-label">Reason</label>
                     <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="8"></textarea>
                 </div>
+                <div class="col-12">
+                    <label for="cooldown_hours" class="form-label">Application Cooldown</label>
+                    <input type="number" class="form-control" id="cooldown_hours" name="cooldown_hours" value="24">
+                    <div class="form-text">How long the user needs to wait before submitting another attempt.</div>
+                </div>
             </div>
         </form>
       </div>
@@ -109,10 +114,11 @@
         function rejectApplication() {
             // Get the rejection reason
             let reason = $('#rejectionReason').val();
+            let cooldown = $('#cooldown_hours').val();
             $.ajax({
                 url: '{{ url_for('api.reject_application', application_id=application.id) }}',
                 type: 'POST',
-                data: {reason: reason},
+                data: {reason: reason, cooldown_hours: cooldown},
                 success: function (data) {
                     window.location.href = '{{ url_for('admin.applications') }}';
                 },

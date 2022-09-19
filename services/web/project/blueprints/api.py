@@ -1,5 +1,6 @@
 import time
 from datetime import datetime as dt
+from datetime import timedelta
 from threading import Thread
 
 from flask import Blueprint, jsonify, request, flash, redirect, url_for, copy_current_request_context
@@ -426,10 +427,13 @@ def reject_application(application_id):
 
     # Get the rejection reason
     reason = request.form.get('reason')
+    cooldown_hours = request.form.get('cooldown_hours')
 
     application.is_rejected = True
     application.is_accepted = False
     application.rejection_reason = reason
+    # Get the current time and add cooldown hours to it
+    application.cooldown = dt.utcnow() + timedelta(hours=int(cooldown_hours))
     db.session.commit()
     return jsonify({"msg": "Application rejected"}), 200
 

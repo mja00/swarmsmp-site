@@ -222,6 +222,9 @@ class Application(db.Model):
     def get_humanized_created_at(self):
         return humanize.naturaltime(datetime.datetime.now() - self.created_at)
 
+    def get_humanized_cooldown(self):
+        return humanize.naturaltime(datetime.datetime.now() - self.cooldown).replace(" from now", "")
+
 
 class Character(db.Model):
     __tablename__ = 'characters'
