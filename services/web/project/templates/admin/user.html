@@ -164,13 +164,19 @@
                 <tr>
                     <th>ID</th>
                     <th>Command</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for command in user.commands %}
-                    <tr>
+                    <tr id="row-{{ command.id }}">
                         <td>{{ command.id }}</td>
                         <td>{{ command.command }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" id="delete-{{ command.id }}" onclick="deleteCommand('{{ command.id }}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -180,6 +186,22 @@
 {% endblock %}
 {% block userscripts %}
     <script>
+        function deleteCommand(command_id) {
+            let url = '{{ url_for('api.delete_command', user_id=user.id, command_id=-1) }}'.replace('-1', command_id);
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function (result) {
+                    if (result.success) {
+                        // Delete the row
+                        $('#row-' + command_id).remove();
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            });
+        }
+
         function toggleDev() {
             let url = '{{ url_for('admin.toggle_dev', user_id=user.id) }}';
             // POST the URL

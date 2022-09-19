@@ -43,6 +43,10 @@ def application_accepted(application: Application):
     print(f"Accepted application for user {user.username}")
     # TODO: Give the user the whitelist role on Discord
     # TODO: Give the user their faction role on Discord
+    # Assign all the needed commands to the user
+    user.add_list_of_commands(application.faction.get_commands_as_list())
+    user.add_list_of_commands(application.clazz.get_commands_as_list())
+    user.add_list_of_commands(application.race.get_commands_as_list())
     # Delete the caches for the user's character functions
     user.delete_character_caches()
     # Email the user
@@ -527,6 +531,22 @@ def add_command(user_id):
 
     user.add_command(command)
     return jsonify({"msg": "Command added"}), 200
+
+
+@api.route('/user/<int:user_id>/command/<command_id>', methods=['DELETE'])
+@admin_required
+def delete_command(user_id, command_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"msg": "User not found", "success": False}), 400
+
+    command = CommandQueue.query.filter_by(id=command_id).first()
+    if not command:
+        return jsonify({"msg": "Command not found", "success": False}), 400
+
+    db.session.delete(command)
+    db.session.commit()
+    return jsonify({"msg": "Command deleted", "success": True}), 200
 
 
 @api.route('/update_server_status', methods=['POST'])
