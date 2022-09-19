@@ -184,6 +184,11 @@ def index():
     return render_template("index.html", caro_images=caro_images)
 
 
+@app.route("/robots.txt")
+def robots():
+    return send_from_directory("static", "robots.txxt")
+
+
 # Serves all of our static launcher files
 @app.route("/launcher/<path:path>")
 def launcher(path):
