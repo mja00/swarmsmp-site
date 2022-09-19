@@ -186,7 +186,7 @@ def index():
 
 @app.route("/robots.txt")
 def robots():
-    return send_from_directory("static", "robots.txxt")
+    return send_from_directory("static", "robots.txt")
 
 
 # Serves all of our static launcher files
