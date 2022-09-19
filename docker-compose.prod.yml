@@ -5,7 +5,7 @@ services:
     build:
       context: ./services/web
       dockerfile: Dockerfile.prod
-    command: gunicorn --bind 0.0.0.0:5000 --worker-class eventlet -w 1 --threads 20 manage:app
+    command: gunicorn --bind 0.0.0.0:5000 --worker-class gevent -w 1 --threads 20 --timeout 120 manage:app
     restart: always
     ports:
       - "127.0.0.1:5001:5000"
