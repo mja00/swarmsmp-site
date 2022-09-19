@@ -341,6 +341,26 @@ def new_faction():
     return redirect(url_for('admin.manage_options'))
 
 
+@admin_bp.route('/faction/<int:faction_id>/edit', methods=['POST'])
+def edit_faction(faction_id):
+    name = request.form.get('factionName')
+    commands = request.form.get('faction_commands', None)
+    if name:
+        faction_obj = Faction.query.filter_by(id=faction_id).first()
+        if not faction_obj:
+            flash('Invalid faction', 'danger')
+            return redirect(url_for('admin.manage_options'))
+
+        faction_obj.name = name
+        faction_obj.commands = commands
+        db.session.commit()
+        flash('Faction updated', 'success')
+        log_options_change(current_user, f"EDITED FACTION {name}")
+    else:
+        flash('Faction name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
 @admin_bp.route('/class/new', methods=['POST'])
 def new_class():
     name = request.form.get('className')
@@ -351,6 +371,26 @@ def new_class():
         db.session.commit()
         flash('Class created', 'success')
         log_options_change(current_user, f"CREATED CLASS {name}")
+    else:
+        flash('Class name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/class/<int:class_id>/edit', methods=['POST'])
+def edit_class(class_id):
+    name = request.form.get('className')
+    commands = request.form.get('class_commands', None)
+    if name:
+        class_obj = Class.query.filter_by(id=class_id).first()
+        if not class_obj:
+            flash('Invalid class', 'danger')
+            return redirect(url_for('admin.manage_options'))
+
+        class_obj.name = name
+        class_obj.commands = commands
+        db.session.commit()
+        flash('Class updated', 'success')
+        log_options_change(current_user, f"EDITED CLASS {name}")
     else:
         flash('Class name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
@@ -379,6 +419,28 @@ def new_race():
         db.session.commit()
         flash('Race created', 'success')
         log_options_change(current_user, f"CREATED RACE {name}")
+    else:
+        flash('Race name cannot be empty', 'danger')
+    return redirect(url_for('admin.manage_options'))
+
+
+@admin_bp.route('/race/<int:race_id>/edit', methods=['POST'])
+def edit_race(race_id):
+    name = request.form.get("raceName")
+    faction_id = request.form.get("raceFaction")
+    commands = request.form.get("race_commands", None)
+    if name:
+        race_obj = Race.query.filter_by(id=race_id).first()
+        if not race_obj:
+            flash('Invalid race', 'danger')
+            return redirect(url_for('admin.manage_options'))
+
+        race_obj.name = name
+        race_obj.faction_id = faction_id
+        race_obj.commands = commands
+        db.session.commit()
+        flash('Race updated', 'success')
+        log_options_change(current_user, f"EDITED RACE {name}")
     else:
         flash('Race name cannot be empty', 'danger')
     return redirect(url_for('admin.manage_options'))
