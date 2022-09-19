@@ -146,41 +146,43 @@ def make_user_join_discord_guild(token, guild_id, user_id, access_token):
         return False
 
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET'])
 def login():
-    if request.method == 'POST':
-        # Get the form contents
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = bool(request.form.get('remember'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    else:
+        return render_template('auth_pages/login.html')
 
-        # Look for the user
-        user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
-        if user:
-            # Check if password is correct
-            if check_password_hash(user.password, password):
-                login_user(user, remember=remember)
-                flash('Logged in', "success")
-                log_login(user)
-                if not user.minecraft_uuid:
-                    return redirect(url_for('auth.minecraft_authentication'))
-                if not user.discord_uuid:
-                    return redirect(url_for('auth.discord_authentication'))
-                return redirect(url_for('index'))
-            else:
-                flash('Either username or password incorrect', "danger")
-                return redirect(url_for('auth.login'))
+
+@auth_bp.route('/login', methods=['POST'])
+def login_post():
+    # Get the form contents
+    username = request.form.get('username')
+    password = request.form.get('password')
+    remember = bool(request.form.get('remember'))
+
+    # Look for the user
+    user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
+    if user:
+        # Check if password is correct
+        if check_password_hash(user.password, password):
+            login_user(user, remember=remember)
+            flash('Logged in', "success")
+            log_login(user)
+            if not user.minecraft_uuid:
+                return redirect(url_for('auth.minecraft_authentication'))
+            if not user.discord_uuid:
+                return redirect(url_for('auth.discord_authentication'))
+            return redirect(url_for('index'))
         else:
             flash('Either username or password incorrect', "danger")
             return redirect(url_for('auth.login'))
     else:
-        if current_user.is_authenticated:
-            return redirect(url_for('index'))
-        else:
-            return render_template('auth_pages/login.html')
+        flash('Either username or password incorrect', "danger")
+        return redirect(url_for('auth.login'))
 
 
-@auth_bp.route('/logout', methods=['GET', 'POST'])
+@auth_bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
     # Remove user from cache
@@ -191,119 +193,123 @@ def logout():
     return redirect(url_for('index'))
 
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET'])
 def register():
-    if request.method == 'POST':
-
-        if not get_site_settings()['registration_settings']['can_register']:
-            flash("Registration is currently disabled", "danger")
-            return redirect(url_for('index'))
-
-        if not hcaptcha.verify():
-            flash('Captcha failed', "danger")
-            return redirect(url_for('auth.register'))
-        # Get the form contents
-        username = request.form.get('username')
-        password = request.form.get('password')
-        password_confirm = request.form.get('confirm')
-        email = request.form.get('email')
-
-        # Check for errors
-        if password != password_confirm:
-            flash('Passwords do not match', "danger")
-            return redirect(url_for('auth.register'))
-        if len(password) < 6:
-            flash('Password must be at least 6 characters long', "danger")
-            return redirect(url_for('auth.register'))
-        if len(username) < 3:
-            flash('Username must be at least 3 characters long', "danger")
-            return redirect(url_for('auth.register'))
-
-        # Check if username is taken
-        user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
-        if user:
-            flash('Username already taken', "danger")
-            return redirect(url_for('auth.register'))
-
-        # Create the user
-        password = generate_password_hash(password)
-        user = User(username=username, password=password, email=email)
-
-        try:
-            db.session.add(user)
-            db.session.commit()
-
-            # Generate a confirmation token
-            confirmation_token = generate_confirmation_token(email)
-            # Send the confirmation email
-            success = send_registration_email(user, confirmation_token)
-            if success:
-                new_user(username, email, request.remote_addr)
-                flash('Successfully registered.', "success")
-                return redirect(url_for('auth.login'))
-            else:
-                flash('Failed to send confirmation email.', "danger")
-                return redirect(url_for('auth.register'))
-        except SQLAlchemyError:
-            flash('Something went wrong', "danger")
-            return redirect(url_for('auth.register'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     else:
-        if current_user.is_authenticated:
-            return redirect(url_for('index'))
+        return render_template('auth_pages/register.html')
+
+
+@auth_bp.route('/register', methods=['POST'])
+def register_post():
+    if not get_site_settings()['registration_settings']['can_register']:
+        flash("Registration is currently disabled", "danger")
+        return redirect(url_for('index'))
+
+    if not hcaptcha.verify():
+        flash('Captcha failed', "danger")
+        return redirect(url_for('auth.register'))
+        # Get the form contents
+    username = request.form.get('username')
+    password = request.form.get('password')
+    password_confirm = request.form.get('confirm')
+    email = request.form.get('email')
+
+    # Check for errors
+    if password != password_confirm:
+        flash('Passwords do not match', "danger")
+        return redirect(url_for('auth.register'))
+    if len(password) < 6:
+        flash('Password must be at least 6 characters long', "danger")
+        return redirect(url_for('auth.register'))
+    if len(username) < 3:
+        flash('Username must be at least 3 characters long', "danger")
+        return redirect(url_for('auth.register'))
+
+    # Check if username is taken
+    user = User.query.filter(func.lower(User.username) == func.lower(username)).first()
+    if user:
+        flash('Username already taken', "danger")
+        return redirect(url_for('auth.register'))
+
+    # Create the user
+    password = generate_password_hash(password)
+    user = User(username=username, password=password, email=email)
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+
+        # Generate a confirmation token
+        confirmation_token = generate_confirmation_token(email)
+        # Send the confirmation email
+        success = send_registration_email(user, confirmation_token)
+        if success:
+            new_user(username, email, request.remote_addr)
+            flash('Successfully registered.', "success")
+            return redirect(url_for('auth.login'))
         else:
-            return render_template('auth_pages/register.html')
+            flash('Failed to send confirmation email.', "danger")
+            return redirect(url_for('auth.register'))
+    except SQLAlchemyError:
+        flash('Something went wrong', "danger")
+        return redirect(url_for('auth.register'))
 
 
-@auth_bp.route('/minecraft/authentication', methods=['GET', 'POST'])
+@auth_bp.route('/minecraft/authentication', methods=['GET'])
 @login_required
 def minecraft_authentication():
-    if request.method == 'POST':
-        # Get the form data
-        auth_code = request.form.get('authCode', None)
-        print(auth_code)
-        if not auth_code:
-            flash('No auth code provided', "danger")
-            return redirect(url_for('auth.minecraft_authentication'))
-
-        # Look up the auth code entered
-        auth_code_object = MinecraftAuthentication.query.filter_by(auth_code=auth_code, is_used=False).first()
-        if not auth_code_object:
-            flash('Invalid auth code', "danger")
-            return redirect(url_for('auth.minecraft_authentication'))
-
-        # Check to see if the UUID is already in the database
-        user_uuid = auth_code_object.uuid
-        test_user = User.query.filter_by(minecraft_uuid=user_uuid).first()
-        if test_user:
-            flash('This Minecraft account has already been linked.', "danger")
-            return redirect(url_for('auth.minecraft_authentication'))
-
-        # Our auth code is valid, so we can now update the user's minecraft uuid
-        # Get the user
-        try:
-
-            user = User.query.filter_by(id=current_user.id).first()
-            user.set_minecraft_username(auth_code_object.username)
-            user.set_minecraft_uuid(auth_code_object.uuid)
-            # Delete the auth code object
-            db.session.delete(auth_code_object)
-
-            db.session.commit()
-            flash('Successfully authenticated', "success")
-            minecraft_linked_hook(user)
-            return redirect(url_for('auth.discord_authentication'))
-        except SQLAlchemyError:
-            flash('Something went wrong', "danger")
-            return redirect(url_for('auth.minecraft_authentication'))
+    if not current_user.minecraft_uuid:
+        return render_template('auth_pages/minecraft_authentication.html')
     else:
-        if not current_user.minecraft_uuid:
-            return render_template('auth_pages/minecraft_authentication.html')
-        else:
-            flash('Already authenticated', "danger")
-            return redirect(url_for('index'))
+        flash('Already authenticated', "danger")
+        return redirect(url_for('index'))
 
 
-@auth_bp.route('/discord/authentication', methods=['GET', 'POST'])
+@auth_bp.route('/minecraft/authentication', methods=['POST'])
+@login_required
+def minecraft_authentication_post():
+    # Get the form data
+    auth_code = request.form.get('authCode', None)
+    print(auth_code)
+    if not auth_code:
+        flash('No auth code provided', "danger")
+        return redirect(url_for('auth.minecraft_authentication'))
+
+    # Look up the auth code entered
+    auth_code_object = MinecraftAuthentication.query.filter_by(auth_code=auth_code, is_used=False).first()
+    if not auth_code_object:
+        flash('Invalid auth code', "danger")
+        return redirect(url_for('auth.minecraft_authentication'))
+
+    # Check to see if the UUID is already in the database
+    user_uuid = auth_code_object.uuid
+    test_user = User.query.filter_by(minecraft_uuid=user_uuid).first()
+    if test_user:
+        flash('This Minecraft account has already been linked.', "danger")
+        return redirect(url_for('auth.minecraft_authentication'))
+
+    # Our auth code is valid, so we can now update the user's minecraft uuid
+    # Get the user
+    try:
+
+        user = User.query.filter_by(id=current_user.id).first()
+        user.set_minecraft_username(auth_code_object.username)
+        user.set_minecraft_uuid(auth_code_object.uuid)
+        # Delete the auth code object
+        db.session.delete(auth_code_object)
+
+        db.session.commit()
+        flash('Successfully authenticated', "success")
+        minecraft_linked_hook(user)
+        return redirect(url_for('auth.discord_authentication'))
+    except SQLAlchemyError:
+        flash('Something went wrong', "danger")
+        return redirect(url_for('auth.minecraft_authentication'))
+
+
+@auth_bp.route('/discord/authentication', methods=['GET'])
 @login_required
 @minecraft_authenticated
 def discord_authentication():
@@ -343,63 +349,71 @@ def fully_authenticated():
     return redirect(url_for('index'))
 
 
-@auth_bp.route('/forgot_password', methods=['GET', 'POST'])
+@auth_bp.route('/forgot_password', methods=['GET'])
 def forgot_password():
-    if request.method == 'POST':
-        # Get the email from the form
-        email = request.form.get('email', None)
-        if email is None:
-            flash('Please enter an email', "danger")
-            return redirect(url_for('auth.forgot_password'))
-        # Lookup the user
-        user = User.query.filter_by(email=email).first()
-        if user:
-            send_password_reset_email(user.email, user)
-        flash("If an account exists with that email we'll send an email.", "success")
-        return redirect(url_for('index'))
-
-    else:
-        return render_template('auth_pages/forgot_password.html')
+    return render_template('auth_pages/forgot_password.html')
 
 
-@auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+@auth_bp.route('/forgot_password', methods=['POST'])
+def forgot_password_post():
+    # Get the email from the form
+    email = request.form.get('email', None)
+    if email is None:
+        flash('Please enter an email', "danger")
+        return redirect(url_for('auth.forgot_password'))
+    # Lookup the user
+    user = User.query.filter_by(email=email).first()
+    if user:
+        send_password_reset_email(user.email, user)
+    flash("If an account exists with that email we'll send an email.", "success")
+    return redirect(url_for('index'))
+
+
+@auth_bp.route('/reset_password/<token>', methods=['GET'])
 def reset_password(token):
     user = verify_reset_token(token)
     if user is None:
         flash('Invalid or expired token', "danger")
         return redirect(url_for('auth.forgot_password'))
     else:
-        if request.method == 'POST':
-            # Get the form data
-            data = request.form
-            password1 = data.get('password', None)
-            password2 = data.get('password2', None)
-            if password1 is None or password2 is None:
-                flash('Please enter a password', "danger")
-                return redirect(url_for('auth.reset_password', token=token))
-            if password1 != password2:
-                flash('Passwords do not match', "danger")
-                return redirect(url_for('auth.reset_password', token=token))
+        return render_template('auth_pages/reset_password.html', token=token)
 
-            password_hash = generate_password_hash(password1)
-            # Check if the password is already set to that
-            if user.password == password_hash:
-                flash('You cannot use the same password.', "danger")
-                return redirect(url_for('auth.reset_password', token=token))
 
-            # Update the user
-            try:
-                user.set_password(password_hash)
-                # Generate a new UUID for their session_id
-                user.refresh_session_id()
-                flash('Password updated', "success")
-                return redirect(url_for('auth.login'))
-            except SQLAlchemyError as e:
-                print(e)
-                flash('Error updating password', "danger")
-                return redirect(url_for('auth.reset_password', token=token))
-        else:
-            return render_template('auth_pages/reset_password.html', token=token)
+@auth_bp.route('/reset_password/<token>', methods=['POST'])
+def reset_password_post(token):
+    user = verify_reset_token(token)
+    if user is None:
+        flash('Invalid or expired token', "danger")
+        return redirect(url_for('auth.forgot_password'))
+    else:
+        # Get the form data
+        data = request.form
+        password1 = data.get('password', None)
+        password2 = data.get('password2', None)
+        if password1 is None or password2 is None:
+            flash('Please enter a password', "danger")
+            return redirect(url_for('auth.reset_password', token=token))
+        if password1 != password2:
+            flash('Passwords do not match', "danger")
+            return redirect(url_for('auth.reset_password', token=token))
+
+        password_hash = generate_password_hash(password1)
+        # Check if the password is already set to that
+        if user.password == password_hash:
+            flash('You cannot use the same password.', "danger")
+            return redirect(url_for('auth.reset_password', token=token))
+
+        # Update the user
+        try:
+            user.set_password(password_hash)
+            # Generate a new UUID for their session_id
+            user.refresh_session_id()
+            flash('Password updated', "success")
+            return redirect(url_for('auth.login'))
+        except SQLAlchemyError as e:
+            print(e)
+            flash('Error updating password', "danger")
+            return redirect(url_for('auth.reset_password', token=token))
 
 
 @auth_bp.route('/discord/callback', methods=['GET'])
