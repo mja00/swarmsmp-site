@@ -111,7 +111,7 @@ def email_confirmed_hook(user):
 
 def discord_linked_hook(user: User):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['general_webhook'],
             username=user.username
