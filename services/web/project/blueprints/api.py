@@ -533,6 +533,22 @@ def add_command(user_id):
     return jsonify({"msg": "Command added"}), 200
 
 
+@api.route('/user/<int:user_id>/command/<command_id>', methods=['DELETE'])
+@admin_required
+def delete_command(user_id, command_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"msg": "User not found", "success": False}), 400
+
+    command = CommandQueue.query.filter_by(id=command_id).first()
+    if not command:
+        return jsonify({"msg": "Command not found", "success": False}), 400
+
+    db.session.delete(command)
+    db.session.commit()
+    return jsonify({"msg": "Command deleted", "success": True}), 200
+
+
 @api.route('/update_server_status', methods=['POST'])
 @auth_key_required
 def update_server_status():
