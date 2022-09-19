@@ -7,8 +7,9 @@ from ..extensions import cache
 from ..logger import log_dev_status, log_staff_status, log_options_change
 from ..models import User, db, Ticket, TicketDepartment, SystemSetting, Faction, Application, AuditLog, ServerStatus, \
     Class, Race
-from ..models import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
-    get_server_settings, set_can_register, set_application_settings, set_join_discord
+from ..settings_helper import set_applications_status, set_site_theme, set_panel_settings, set_server_settings, \
+    get_server_settings, set_can_register, set_application_settings, set_join_discord, set_webhook_settings
+from ..webhooks import user_edited_by_admin, site_settings_hook
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -98,6 +99,7 @@ def edit_user(user_id):
         # Invalidate the cache
         user_obj.delete_cache_for_user()
         flash('User updated successfully!', 'success')
+        user_edited_by_admin(user_obj, current_user)
         return redirect(url_for('admin.user', user_id=user_id))
     else:
         return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
@@ -208,28 +210,36 @@ def manage_options():
 @admin_bp.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == "POST":
-        applications_open = request.form.get('applications_open') == 'on'
-        can_register = request.form.get('can_register') == 'on'
-        site_theme = request.form.get('siteTheme')
-        panel_api_key = request.form.get('api_key')
-        panel_api_url = request.form.get('api_url')
-        live_server_uuid = request.form.get('live_server_uuid')
-        staging_server_uuid = request.form.get('staging_server_uuid')
-        fallback_server_uuid = request.form.get('fallback_server_uuid')
-        application_max_length = int(request.form.get('application_max_length'))
-        application_min_length = int(request.form.get('application_min_length'))
-        join_discord_on_register = request.form.get('join_discord_on_register') == 'on'
+        # Site settings section
+        set_site_theme(request.form.get('siteTheme'))
+        set_join_discord(request.form.get('join_discord_on_register') == 'on')
+        set_can_register(request.form.get('can_register') == 'on')
 
-        # update settings
-        set_applications_status(applications_open)
-        set_site_theme(site_theme)
-        set_panel_settings(panel_api_key, panel_api_url)
-        set_server_settings(live_server_uuid, staging_server_uuid, fallback_server_uuid)
-        set_can_register(can_register)
-        set_application_settings(application_min_length, application_max_length)
-        set_join_discord(join_discord_on_register)
+        # Servers settings section
+        set_panel_settings(request.form.get('api_key'), request.form.get('api_url'))
+        set_server_settings(
+            request.form.get('live_server_uuid'),
+            request.form.get('staging_server_uuid'),
+            request.form.get('fallback_server_uuid')
+        )
+
+        # Application settings section
+        set_applications_status(request.form.get('applications_open') == 'on')
+        set_application_settings(
+            int(request.form.get('application_min_length')),
+            int(request.form.get('application_max_length'))
+        )
+
+        # Webhook settings section
+        set_webhook_settings(
+            request.form.get("ticket_webhook"),
+            request.form.get("application_webhook"),
+            request.form.get("general_webhook"),
+            request.form.get("dev_webhook")
+        )
 
         flash('Settings updated', 'success')
+        site_settings_hook(current_user)
         return redirect(url_for('admin.settings'))
     else:
         try:

@@ -3,7 +3,8 @@ import os
 
 import requests
 
-from .models import User, get_panel_settings, get_server_settings
+from .models import User
+from .settings_helper import get_panel_settings, get_server_settings
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 

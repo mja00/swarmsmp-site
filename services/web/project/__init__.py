@@ -3,9 +3,10 @@ import pickle
 import uuid
 from datetime import datetime as dt
 from datetime import timedelta
+from threading import Thread
 
 import sentry_sdk
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import render_template, request, flash, redirect, url_for, send_from_directory
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -19,9 +20,10 @@ from .blueprints.auth import hcaptcha
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
-from .extensions import cache, socketio
-from .models import db, User, SystemSetting, Faction, Application, get_site_theme, get_applications_open, Class, Race, \
-    get_can_register, get_application_settings
+from .extensions import cache, socketio, app
+from .models import db, User, Faction, Application, Class, Race
+from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
+from .webhooks import new_application
 
 development_env = os.getenv("ENVIRONMENT", "development") == "development"
 
@@ -35,7 +37,6 @@ if not development_env:
         debug=False
     )
 
-app = Flask(__name__)
 app.debug = os.environ.get('ENVIRONMENT') == 'development'
 csp = {
     'default-src': '\'self\'',
@@ -95,6 +96,8 @@ app.config["CACHE_DEFAULT_TIMEOUT"] = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "30
 # Scheme settings
 if not os.getenv('ENVIRONMENT') == 'development':
     app.config["PREFERRED_URL_SCHEME"] = "https"
+else:
+    app.config["PREFERRED_URL_SCHEME"] = "http"
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -148,6 +151,15 @@ def inject_site_settings():
         "can_register": get_can_register(),
     }
     return dict(return_dict)
+
+
+@app.before_request
+def correct_ip_for_cloudflare():
+    # Check if CF-Connecting-IP is in the headers
+    if "CF-Connecting-IP" in request.headers:
+        real_ip = request.headers.get("CF-Connecting-IP")
+        # Set remote_addr to the CF-Connecting-IP
+        setattr(request, "remote_addr", real_ip)
 
 
 @app.errorhandler(500)
@@ -262,8 +274,7 @@ def apply():
                         # TODO: Make the timedelta configurable
                         time_since_app = dt.utcnow() - l_app.created_at
                         delta = timedelta(days=7)
-                        print(time_since_app.total_seconds(), delta.total_seconds())
-                        if time_since_app.total_seconds() < delta.total_seconds():
+                        if time_since_app.total_seconds() < delta.total_seconds() and os.environ.get("ENVIRONMENT") != "development":
                             # Means it's still within 7 days
                             flash("You can only apply once every 7 days.", "danger")
                             return redirect(url_for("user.profile"))
@@ -299,6 +310,8 @@ def apply():
             # Save
             db.session.add(application)
             db.session.commit()
+            # Successful application submission, send a webhook
+            Thread(target=new_application, args=(application,)).start()
             flash("Your application has been submitted!", "success")
             return redirect(url_for("user.profile"))
         else:

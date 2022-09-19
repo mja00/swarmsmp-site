@@ -60,6 +60,23 @@
                 <label class="form-label" for="fallback_server_uuid">Fallback Server UUID</label>
                 <input type="text" class="form-control" id="fallback_server_uuid" name="fallback_server_uuid" value="{{ settings.fallback_server_uuid }}">
             </div>
+            <h5>Webhook Settings</h5>
+            <div class="col-6">
+                <label class="form-label" for="ticket_webhook">Ticket Webhook</label>
+                <input type="text" class="form-control" id="ticket_webhook" name="ticket_webhook" value="{{ settings.ticket_webhook }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="application_webhook">Application Webhook</label>
+                <input type="text" class="form-control" id="application_webhook" name="application_webhook" value="{{ settings.application_webhook }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="general_webhook">General Webhook</label>
+                <input type="text" class="form-control" id="general_webhook" name="general_webhook" value="{{ settings.general_webhook }}">
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="dev_webhook">Dev Webhook</label>
+                <input type="text" class="form-control" id="dev_webhook" name="dev_webhook" value="{{ settings.dev_webhook }}">
+            </div>
         </div>
     </form>
     <div class="row">
