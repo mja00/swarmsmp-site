@@ -6,7 +6,7 @@ from ..extensions import socketio
 
 
 @socketio.on('connect')
-def handle_message(data):
+def handle_message(_):
     emit('after connect', {'data': 'Connected'})
 
 
@@ -18,7 +18,7 @@ def handle_disconnect():
 
 
 @socketio.on('server listen')
-def listen_server_status(data):
+def listen_server_status(_):
     join_room('server')
 
 
@@ -28,7 +28,7 @@ def broadcast_server_status(status):
 
 # User notifications
 @socketio.on('notifications join')
-def handle_notifications_join(data):
+def handle_notifications_join(_):
     join_room(f'notifications-{current_user.id}')
 
 

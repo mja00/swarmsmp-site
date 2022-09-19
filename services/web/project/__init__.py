@@ -164,12 +164,12 @@ def correct_ip_for_cloudflare():
 
 
 @app.errorhandler(500)
-def internal_server_error(error):
+def internal_server_error(_):
     return render_template("errors/500.html", sentry_event_id=last_event_id(), dsn=os.getenv("SENTRY_DSN")), 500
 
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(_):
     return render_template("errors/404.html")
 
 
