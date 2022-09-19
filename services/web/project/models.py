@@ -59,7 +59,7 @@ class User(UserMixin, db.Model):
         self.minecraft_uuid = minecraft_uuid
 
     def __repr__(self):
-        return '<User %s %s>' % (self.username, self.id)
+        return f'<User {self.username} {self.id}>'
 
     def get_password_reset_token(self, expires_in=600):
         return jwt.encode({
@@ -211,7 +211,7 @@ class Application(db.Model):
         self.character_scale = scale
 
     def __repr__(self):
-        return '<Application %r>' % self.id
+        return f'<Application {self.id}>'
 
     def get_humanized_created_at(self):
         return humanize.naturaltime(datetime.datetime.now() - self.created_at)
@@ -256,7 +256,7 @@ class Character(db.Model):
         self.scale = scale
 
     def __repr__(self):
-        return '<Character %r>' % self.id
+        return f'<Character {self.id}>'
 
 
 class MinecraftAuthentication(db.Model):
@@ -278,7 +278,7 @@ class MinecraftAuthentication(db.Model):
         self.username = username
 
     def __repr__(self):
-        return '<MinecraftAuthentication %r>' % self.id
+        return f'<MinecraftAuthentication {self.id}>'
 
 
 class DiscordAuthentication(db.Model):
@@ -297,7 +297,7 @@ class DiscordAuthentication(db.Model):
         self.auth_hash = auth_hash
 
     def __repr__(self):
-        return '<DiscordAuthentication %r>' % self.id
+        return f'<DiscordAuthentication {self.id}>'
 
 
 class EmailConfirmation(db.Model):
@@ -319,7 +319,7 @@ class EmailConfirmation(db.Model):
         self.token = token
 
     def __repr__(self):
-        return '<EmailConfirmation %r>' % self.id
+        return f'<EmailConfirmation {self.id}>'
 
 
 class TicketDepartment(db.Model):
@@ -343,7 +343,7 @@ class TicketDepartment(db.Model):
         self.is_disabled = is_disabled
 
     def __repr__(self):
-        return '<TicketDepartment %r>' % self.id
+        return f'<TicketDepartment {self.id}>'
 
     def to_dict(self):
         return {
@@ -376,7 +376,7 @@ class Ticket(db.Model):
         self.department_id = department.id
 
     def __repr__(self):
-        return '<Ticket %r>' % self.id
+        return f'<Ticket {self.id}>'
 
     def get_short_id(self):
         return str(self.id).split('-')[0]
@@ -409,7 +409,7 @@ class TicketReply(db.Model):
         self.content = content
 
     def __repr__(self):
-        return '<TicketReply %r>' % self.id
+        return f'<TicketReply {self.id}>'
 
     def get_humanized_created_at(self):
         return humanize.naturaltime(datetime.datetime.now() - self.created_at)
@@ -455,7 +455,7 @@ class SystemSetting(db.Model):
         self.applications_open = False
 
     def __repr__(self):
-        return '<SystemSetting %r>' % self.id
+        return f'<SystemSetting {self.id}>'
 
 
 class Faction(db.Model):
@@ -476,7 +476,7 @@ class Faction(db.Model):
         self.name = name
 
     def __repr__(self):
-        return '<Faction %r>' % self.id
+        return f'<Faction {self.id}>'
 
     def total(self):
         # Get all characters that aren't perma'd
@@ -512,7 +512,7 @@ class Class(db.Model):
         self.name = name
 
     def __repr__(self):
-        return '<Class %r>' % self.id
+        return f'<Class {self.id}>'
 
     def total(self):
         characters = Character.query.filter_by(clazz=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
@@ -544,7 +544,7 @@ class Race(db.Model):
         self.faction_id = faction_id
 
     def __repr__(self):
-        return '<Race %r>' % self.id
+        return f'<Race {self.id}'
 
     def total(self):
         characters = Character.query.filter_by(subrace=self.id).filter_by(is_permad=True).filter_by(is_active=True).all()
@@ -578,7 +578,7 @@ class AuditLog(db.Model):
         self.target_type = target_type
 
     def __repr__(self):
-        return '<AuditLog %r>' % self.id
+        return f'<AuditLog {self.id}>'
 
     def to_dict(self):
         return {
@@ -614,7 +614,7 @@ class CommandQueue(db.Model):
         self.command = command
 
     def __repr__(self):
-        return '<CommandQueue %r>' % self.id
+        return f'<CommandQueue {self.id}>'
 
 
 class ServerStatus(db.Model):
@@ -631,4 +631,4 @@ class ServerStatus(db.Model):
         self.status_json = status_json
 
     def __repr__(self):
-        return '<ServerStatus %r>' % self.id
+        return f'<ServerStatus {self.id}>'
