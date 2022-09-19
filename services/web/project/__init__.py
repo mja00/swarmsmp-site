@@ -164,12 +164,12 @@ def correct_ip_for_cloudflare():
 
 
 @app.errorhandler(500)
-def internal_server_error(error):
+def internal_server_error(_):
     return render_template("errors/500.html", sentry_event_id=last_event_id(), dsn=os.getenv("SENTRY_DSN")), 500
 
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(_):
     return render_template("errors/404.html")
 
 
@@ -242,87 +242,98 @@ def s1_thanks():
     return render_template('thanks.html', players=s1_players)
 
 
-@app.route("/apply", methods=["GET", "POST"])
+@app.route('/apply', methods=['POST'])
+@fully_authenticated
+def apply_post():
+    app_settings = get_site_settings()['application_settings']
+    minimum_length = int(app_settings["minimum_length"])
+    maximum_length = int(app_settings["maximum_length"])
+    if app_settings['applications_open']:
+        # Get the form
+        form_data = request.form
+        character_name = form_data.get("characterName")
+        character_faction = form_data.get("characterFaction")
+        character_class = form_data.get("characterClass")
+        character_race = form_data.get("characterRace")
+        character_backstory = form_data.get("characterBackstory")
+        character_description = form_data.get("characterDescription")
+        character_scale = form_data.get("characterScale")
+        rule_agreement = form_data.get("ruleAgreement") == "on"
+
+        # Check if the user has already applied
+        app_check = Application.query.filter_by(user_id=current_user.id).all()
+        if app_check:
+            # Loop through all the applications and look for any that are still pending
+            for l_app in app_check:
+                if not l_app.is_accepted and not l_app.is_rejected:
+                    # Means they're still pending
+                    flash("You already have an application pending.", "danger")
+                    return redirect(url_for("user.profile"))
+                else:
+                    # Check if the application is older than 7 days
+                    # TODO: Make the timedelta configurable
+                    time_since_app = dt.utcnow() - l_app.created_at
+                    delta = timedelta(days=7)
+                    if time_since_app.total_seconds() < delta.total_seconds() and os.environ.get(
+                            "ENVIRONMENT") != "development":
+                        # Means it's still within 7 days
+                        flash("You can only apply once every 7 days.", "danger")
+                        return redirect(url_for("user.profile"))
+
+        if not rule_agreement:
+            flash("You must agree to the rules!", "danger")
+            return redirect(url_for("apply"))
+        # Are we in development
+        if os.getenv("ENVIRONMENT") == "development":
+            # Check if backstory and description are under min characters
+            if len(character_backstory) < minimum_length or len(character_description) < minimum_length:
+                flash(f"Your backstory and description must be over {minimum_length} characters!", "danger")
+                return redirect(url_for("apply"))
+
+            # Check if they're over max characters
+            if len(character_backstory) > maximum_length or len(character_description) > maximum_length:
+                flash(f"Your backstory and description must be under {maximum_length} characters!", "danger")
+                return redirect(url_for("apply"))
+        else:
+            print("Skipping checks in development")
+
+        # Create the application
+        application = Application(
+            user=current_user,
+            character_name=character_name,
+            character_faction=character_faction,
+            character_class=character_class,
+            character_race=character_race,
+            backstory=character_backstory,
+            description=character_description,
+            scale=character_scale
+        )
+        # Save
+        db.session.add(application)
+        db.session.commit()
+        # Successful application submission, send a webhook
+        Thread(target=new_application, args=(application,)).start()
+        flash("Your application has been submitted!", "success")
+        return redirect(url_for("user.profile"))
+    else:
+        flash("Applications are currently closed.", "danger")
+        return redirect(url_for("index"))
+
+
+@app.route("/apply", methods=["GET"])
 @fully_authenticated
 def apply():
     app_settings = get_site_settings()['application_settings']
     minimum_length = int(app_settings["minimum_length"])
     maximum_length = int(app_settings["maximum_length"])
     if app_settings['applications_open']:
-        if request.method == "POST":
-            # Get the form
-            form_data = request.form
-            character_name = form_data.get("characterName")
-            character_faction = form_data.get("characterFaction")
-            character_class = form_data.get("characterClass")
-            character_race = form_data.get("characterRace")
-            character_backstory = form_data.get("characterBackstory")
-            character_description = form_data.get("characterDescription")
-            character_scale = form_data.get("characterScale")
-            rule_agreement = form_data.get("ruleAgreement") == "on"
-
-            # Check if the user has already applied
-            app_check = Application.query.filter_by(user_id=current_user.id).all()
-            if app_check:
-                # Loop through all the applications and look for any that are still pending
-                for l_app in app_check:
-                    if not l_app.is_accepted and not l_app.is_rejected:
-                        # Means they're still pending
-                        flash("You already have an application pending.", "danger")
-                        return redirect(url_for("user.profile"))
-                    else:
-                        # Check if the application is older than 7 days
-                        # TODO: Make the timedelta configurable
-                        time_since_app = dt.utcnow() - l_app.created_at
-                        delta = timedelta(days=7)
-                        if time_since_app.total_seconds() < delta.total_seconds() and os.environ.get("ENVIRONMENT") != "development":
-                            # Means it's still within 7 days
-                            flash("You can only apply once every 7 days.", "danger")
-                            return redirect(url_for("user.profile"))
-
-            if not rule_agreement:
-                flash("You must agree to the rules!", "danger")
-                return redirect(url_for("apply"))
-            # Are we in development
-            if os.getenv("ENVIRONMENT") == "development":
-                # Check if backstory and description are under min characters
-                if len(character_backstory) < minimum_length or len(character_description) < minimum_length:
-                    flash(f"Your backstory and description must be over {minimum_length} characters!", "danger")
-                    return redirect(url_for("apply"))
-
-                # Check if they're over max characters
-                if len(character_backstory) > maximum_length or len(character_description) > maximum_length:
-                    flash(f"Your backstory and description must be under {maximum_length} characters!", "danger")
-                    return redirect(url_for("apply"))
-            else:
-                print("Skipping checks in development")
-
-            # Create the application
-            application = Application(
-                user=current_user,
-                character_name=character_name,
-                character_faction=character_faction,
-                character_class=character_class,
-                character_race=character_race,
-                backstory=character_backstory,
-                description=character_description,
-                scale=character_scale
-            )
-            # Save
-            db.session.add(application)
-            db.session.commit()
-            # Successful application submission, send a webhook
-            Thread(target=new_application, args=(application,)).start()
-            flash("Your application has been submitted!", "success")
+        if current_user.is_whitelisted and not current_user.is_admin:
+            flash("You're already whitelisted!", "success")
             return redirect(url_for("user.profile"))
-        else:
-            if current_user.is_whitelisted and not current_user.is_admin:
-                flash("You're already whitelisted!", "success")
-                return redirect(url_for("user.profile"))
-            factions = Faction.query.all()
-            classes = Class.query.filter_by(hidden=False).all()
-            races = Race.query.filter_by(hidden=False).all()
-            return render_template("apply.html", factions=factions, classes=classes, races=races, min=minimum_length, max=maximum_length)
+        factions = Faction.query.all()
+        classes = Class.query.filter_by(hidden=False).all()
+        races = Race.query.filter_by(hidden=False).all()
+        return render_template("apply.html", factions=factions, classes=classes, races=races, min=minimum_length, max=maximum_length)
     else:
         flash("Applications are currently closed.", "danger")
         return redirect(url_for("index"))

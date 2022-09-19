@@ -67,42 +67,45 @@ def user(user_id):
     return render_template('admin/user.html', user=user_obj, title='View User', editing=False)
 
 
-@admin_bp.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/user/<int:user_id>/edit', methods=['GET'])
 def edit_user(user_id):
     user_obj = User.query.get_or_404(user_id)
-    if request.method == 'POST':
-        # Get form data
-        form_data = request.form
-        username = form_data.get('username', None)
-        email = form_data.get('email', None)
-        discord_uuid = form_data.get('discord_uuid', None)
-        minecraft_username = form_data.get('minecraft_username', None)
-        minecraft_uuid = form_data.get('minecraft_uuid', None)
-        staff_title = form_data.get('staff_title', None)
-        ban_reason = form_data.get('ban_reason', None)
-        staff_notes = form_data.get('staff_notes', None)
+    return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
 
-        # Set all the data that is not None
-        if username:
-            user_obj.username = username
-        if email:
-            user_obj.email = email
-        # These are able to be null
-        user_obj.minecraft_uuid = minecraft_uuid if minecraft_uuid != "" else None
-        user_obj.minecraft_username = minecraft_username if minecraft_username != "" else None
-        user_obj.discord_uuid = discord_uuid if discord_uuid != "" else None
-        user_obj.staff_title = staff_title if staff_title != "" else None
-        user_obj.ban_reason = ban_reason if ban_reason != "" else None
-        user_obj.staff_notes = staff_notes if staff_notes != "" else None
-        # Save the changes
-        db.session.commit()
-        # Invalidate the cache
-        user_obj.delete_cache_for_user()
-        flash('User updated successfully!', 'success')
-        user_edited_by_admin(user_obj, current_user)
-        return redirect(url_for('admin.user', user_id=user_id))
-    else:
-        return render_template('admin/user.html', user=user_obj, title='Edit User', editing=True)
+
+@admin_bp.route('/user/<int:user_id>/edit', methods=['POST'])
+def edit_user_post(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    # Get form data
+    form_data = request.form
+    username = form_data.get('username', None)
+    email = form_data.get('email', None)
+    discord_uuid = form_data.get('discord_uuid', None)
+    minecraft_username = form_data.get('minecraft_username', None)
+    minecraft_uuid = form_data.get('minecraft_uuid', None)
+    staff_title = form_data.get('staff_title', None)
+    ban_reason = form_data.get('ban_reason', None)
+    staff_notes = form_data.get('staff_notes', None)
+
+    # Set all the data that is not None
+    if username:
+        user_obj.username = username
+    if email:
+        user_obj.email = email
+    # These are able to be null
+    user_obj.minecraft_uuid = minecraft_uuid if minecraft_uuid != "" else None
+    user_obj.minecraft_username = minecraft_username if minecraft_username != "" else None
+    user_obj.discord_uuid = discord_uuid if discord_uuid != "" else None
+    user_obj.staff_title = staff_title if staff_title != "" else None
+    user_obj.ban_reason = ban_reason if ban_reason != "" else None
+    user_obj.staff_notes = staff_notes if staff_notes != "" else None
+    # Save the changes
+    db.session.commit()
+    # Invalidate the cache
+    user_obj.delete_cache_for_user()
+    flash('User updated successfully!', 'success')
+    user_edited_by_admin(user_obj, current_user)
+    return redirect(url_for('admin.user', user_id=user_id))
 
 
 @admin_bp.route('/user/<int:user_id>/toggle_dev', methods=['POST'])
@@ -207,49 +210,51 @@ def manage_options():
                            races=races)
 
 
-@admin_bp.route('/settings', methods=['GET', 'POST'])
+@admin_bp.route('/settings', methods=['GET'])
 def settings():
-    if request.method == "POST":
-        # Site settings section
-        set_site_theme(request.form.get('siteTheme'))
-        set_join_discord(request.form.get('join_discord_on_register') == 'on')
-        set_can_register(request.form.get('can_register') == 'on')
-
-        # Servers settings section
-        set_panel_settings(request.form.get('api_key'), request.form.get('api_url'))
-        set_server_settings(
-            request.form.get('live_server_uuid'),
-            request.form.get('staging_server_uuid'),
-            request.form.get('fallback_server_uuid')
-        )
-
-        # Application settings section
-        set_applications_status(request.form.get('applications_open') == 'on')
-        set_application_settings(
-            int(request.form.get('application_min_length')),
-            int(request.form.get('application_max_length'))
-        )
-
-        # Webhook settings section
-        set_webhook_settings(
-            request.form.get("ticket_webhook"),
-            request.form.get("application_webhook"),
-            request.form.get("general_webhook"),
-            request.form.get("dev_webhook")
-        )
-
-        flash('Settings updated', 'success')
-        site_settings_hook(current_user)
+    try:
+        settings_list = SystemSetting.query.first()
+        return render_template('admin/settings.html', title='Settings', settings=settings_list)
+    except SQLAlchemyError:
+        settings_obj = SystemSetting()
+        db.session.add(settings_obj)
+        db.session.commit()
         return redirect(url_for('admin.settings'))
-    else:
-        try:
-            settings_list = SystemSetting.query.first()
-            return render_template('admin/settings.html', title='Settings', settings=settings_list)
-        except SQLAlchemyError:
-            settings_obj = SystemSetting()
-            db.session.add(settings_obj)
-            db.session.commit()
-            return redirect(url_for('admin.settings'))
+
+
+@admin_bp.route('/settings', methods=['POST'])
+def settings_post():
+    # Site settings section
+    set_site_theme(request.form.get('siteTheme'))
+    set_join_discord(request.form.get('join_discord_on_register') == 'on')
+    set_can_register(request.form.get('can_register') == 'on')
+
+    # Servers settings section
+    set_panel_settings(request.form.get('api_key'), request.form.get('api_url'))
+    set_server_settings(
+        request.form.get('live_server_uuid'),
+        request.form.get('staging_server_uuid'),
+        request.form.get('fallback_server_uuid')
+    )
+
+    # Application settings section
+    set_applications_status(request.form.get('applications_open') == 'on')
+    set_application_settings(
+        int(request.form.get('application_min_length')),
+        int(request.form.get('application_max_length'))
+    )
+
+    # Webhook settings section
+    set_webhook_settings(
+        request.form.get("ticket_webhook"),
+        request.form.get("application_webhook"),
+        request.form.get("general_webhook"),
+        request.form.get("dev_webhook")
+    )
+
+    flash('Settings updated', 'success')
+    site_settings_hook(current_user)
+    return redirect(url_for('admin.settings'))
 
 
 @admin_bp.route('/applications')
