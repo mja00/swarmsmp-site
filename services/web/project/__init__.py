@@ -22,7 +22,7 @@ from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
 from .extensions import cache, socketio, app
 from .models import db, User, Faction, Application, Class, Race
-from .settings_helper import get_site_theme, get_application_settings, get_applications_open, get_can_register
+from .settings_helper import get_site_settings
 from .webhooks import new_application
 
 development_env = os.getenv("ENVIRONMENT", "development") == "development"
@@ -145,10 +145,11 @@ def load_user(user_id):
 
 @app.context_processor
 def inject_site_settings():
+    settings = get_site_settings()
     return_dict = {
-        "default_theme": get_site_theme(),
-        "applications_open": get_applications_open(),
-        "can_register": get_can_register(),
+        "default_theme": settings["site_theme"],
+        "applications_open": settings["application_settings"]["applications_open"],
+        "can_register": settings["registration_settings"]["can_register"],
     }
     return dict(return_dict)
 
@@ -244,10 +245,10 @@ def s1_thanks():
 @app.route("/apply", methods=["GET", "POST"])
 @fully_authenticated
 def apply():
-    app_settings = get_application_settings()
+    app_settings = get_site_settings()['application_settings']
     minimum_length = int(app_settings["minimum_length"])
     maximum_length = int(app_settings["maximum_length"])
-    if get_applications_open():
+    if app_settings['applications_open']:
         if request.method == "POST":
             # Get the form
             form_data = request.form

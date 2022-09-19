@@ -1,6 +1,6 @@
 from .extensions import app
 from .models import User, Ticket, Application
-from .settings_helper import get_webhook_settings
+from .settings_helper import get_site_settings
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import hashlib
 
@@ -12,7 +12,7 @@ def trim_ticket_id(ticket_id):
 def new_ticket_webhook(ticket_id, first_message):
     with app.app_context():
         ticket = Ticket.query.filter_by(id=ticket_id).first()
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['ticket_webhook'],
             username=ticket.owner.username,
@@ -32,7 +32,7 @@ def new_ticket_webhook(ticket_id, first_message):
 
 def new_ticket_reply(ticket, reply_content):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['ticket_webhook'],
             username=ticket.owner.username,
@@ -52,7 +52,7 @@ def new_ticket_reply(ticket, reply_content):
 def new_application(application):
     with app.app_context():
         current_application = Application.query.filter_by(id=application.id).first()
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['application_webhook'],
             username=current_application.user.username,
@@ -76,7 +76,7 @@ def hash_ip(ip: str) -> str:
 
 def new_user(username, email, request_ip):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['general_webhook'],
             username=username
@@ -94,7 +94,7 @@ def new_user(username, email, request_ip):
 
 def email_confirmed_hook(user):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['general_webhook'],
             username=user.username
@@ -127,7 +127,7 @@ def discord_linked_hook(user: User):
 
 def minecraft_linked_hook(user: User):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['general_webhook'],
             username=user.username,
@@ -145,7 +145,7 @@ def minecraft_linked_hook(user: User):
 
 def user_edited_by_admin(user, admin):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['dev_webhook'],
             username=admin.username,
@@ -166,7 +166,7 @@ def user_edited_by_admin(user, admin):
 
 def site_settings_hook(admin):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['dev_webhook'],
             username=admin.username,
@@ -178,7 +178,7 @@ def site_settings_hook(admin):
 
 def player_connected_hook(user):
     with app.app_context():
-        webhook_settings = get_webhook_settings()
+        webhook_settings = get_site_settings()['webhook_settings']
         webhook = DiscordWebhook(
             url=webhook_settings['general_webhook'],
             username=user.username,
