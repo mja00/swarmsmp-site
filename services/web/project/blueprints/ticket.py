@@ -40,37 +40,39 @@ def view(ticket_id):
     return render_template('tickets/view_ticket.html', ticket=ticket, title=f'Ticket #{ticket.get_short_id()}')
 
 
-@ticket_bp.route('/create/', methods=['GET', 'POST'])
+@ticket_bp.route('/create/', methods=['GET'])
 def create():
-    if request.method == 'POST':
-        form_data = request.form
-        title = form_data.get('title', None)
-        department_id = int(form_data.get('department', None))
-        message = form_data.get('message', None)
-        if not title or not message:
-            flash('Title and message are required', 'danger')
-            return redirect(url_for('ticket.create'))
-        # Look up the department
-        department = TicketDepartment.query.filter_by(id=department_id).first()
-        if not department:
-            flash('Invalid department', 'danger')
-            return redirect(url_for('ticket.create'))
+    # Get a list of ticket departments
+    departments = TicketDepartment.query.filter_by(is_hidden=False, is_disabled=False).all()
+    return render_template('tickets/create_ticket.html', departments=departments, title='Create Ticket')
 
-        # Create the ticket
-        ticket = Ticket(owner=current_user, subject=title, department=department)
-        db.session.add(ticket)
-        db.session.commit()
 
-        # Send our webhook, do it in a thread so the ticket isn't blocked if an error occurs
-        Thread(target=new_ticket_webhook, args=(ticket.id, message)).start()
+@ticket_bp.route('/create/', methods=['POST'])
+def create_post():
+    form_data = request.form
+    title = form_data.get('title', None)
+    department_id = int(form_data.get('department', None))
+    message = form_data.get('message', None)
+    if not title or not message:
+        flash('Title and message are required', 'danger')
+        return redirect(url_for('ticket.create'))
+    # Look up the department
+    department = TicketDepartment.query.filter_by(id=department_id).first()
+    if not department:
+        flash('Invalid department', 'danger')
+        return redirect(url_for('ticket.create'))
 
-        # Add the message
-        ticket_reply = TicketReply(ticket=ticket, content=message, user=current_user)
-        db.session.add(ticket_reply)
-        db.session.commit()
-        flash('Ticket created', 'success')
-        return redirect(url_for('ticket.mine'))
-    else:
-        # Get a list of ticket departments
-        departments = TicketDepartment.query.filter_by(is_hidden=False, is_disabled=False).all()
-        return render_template('tickets/create_ticket.html', departments=departments, title='Create Ticket')
+    # Create the ticket
+    ticket = Ticket(owner=current_user, subject=title, department=department)
+    db.session.add(ticket)
+    db.session.commit()
+
+    # Send our webhook, do it in a thread so the ticket isn't blocked if an error occurs
+    Thread(target=new_ticket_webhook, args=(ticket.id, message)).start()
+
+    # Add the message
+    ticket_reply = TicketReply(ticket=ticket, content=message, user=current_user)
+    db.session.add(ticket_reply)
+    db.session.commit()
+    flash('Ticket created', 'success')
+    return redirect(url_for('ticket.mine'))
