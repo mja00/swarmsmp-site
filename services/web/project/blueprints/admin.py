@@ -343,8 +343,9 @@ def new_faction():
 @admin_bp.route('/class/new', methods=['POST'])
 def new_class():
     name = request.form.get('className')
+    commands = request.form.get('class_commands', None)
     if name:
-        class_obj = Class(name=name)
+        class_obj = Class(name=name, commands=commands)
         db.session.add(class_obj)
         db.session.commit()
         flash('Class created', 'success')
@@ -370,8 +371,9 @@ def toggle_class(class_id):
 def new_race():
     name = request.form.get("raceName")
     faction_id = request.form.get("raceFaction")
+    commands = request.form.get("race_commands", None)
     if name:
-        race_obj = Race(name=name, faction_id=faction_id)
+        race_obj = Race(name=name, faction_id=faction_id, commands=commands)
         db.session.add(race_obj)
         db.session.commit()
         flash('Race created', 'success')

@@ -172,6 +172,12 @@ class User(UserMixin, db.Model):
         db.session.commit()
         self.delete_cache_for_user()
 
+    def add_list_of_commands(self, commands):
+        for command in commands:
+            # Add command if not blank string
+            if command != '':
+                self.add_command(command)
+
     def set_username(self, username):
         self.username = username
         self.commit_and_invalidate_cache()
@@ -503,13 +509,16 @@ class Class(db.Model):
     applications = db.relationship('Application', backref='clazz', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
     faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=True)
+    # Comma separated list of commands
+    commands = db.Column(db.Text(), nullable=True, default=None)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, name):
+    def __init__(self, name, commands):
         self.name = name
+        self.commands = commands
 
     def __repr__(self):
         return f'<Class {self.id}>'
@@ -524,6 +533,12 @@ class Class(db.Model):
             return True
         return False
 
+    def get_commands_as_list(self) -> [str]:
+        if self.commands is None:
+            return []
+        # Split the commands by command and clear any whitespace
+        return [x.strip() for x in self.commands.split(',')]
+
 
 class Race(db.Model):
     __tablename__ = 'races'
@@ -534,14 +549,17 @@ class Race(db.Model):
     applications = db.relationship('Application', backref='race', lazy=True)
     hidden = db.Column(db.Boolean, nullable=False, default=True)
     faction_id = db.Column(db.Integer, db.ForeignKey('factions.id'), nullable=True)
+    # Comma separated list of commands
+    commands = db.Column(db.Text(), nullable=True, default=None)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, name, faction_id):
+    def __init__(self, name, faction_id, commands):
         self.name = name
         self.faction_id = faction_id
+        self.commands = commands
 
     def __repr__(self):
         return f'<Race {self.id}'
@@ -555,6 +573,12 @@ class Race(db.Model):
         if len(self.characters) > 0 or len(self.applications) > 0:
             return True
         return False
+
+    def get_commands_as_list(self) -> [str]:
+        if self.commands is None:
+            return []
+        # Split the commands by command and clear any whitespace
+        return [x.strip() for x in self.commands.split(',')]
 
 
 class AuditLog(db.Model):
