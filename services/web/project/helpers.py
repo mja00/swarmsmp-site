@@ -4,7 +4,7 @@ import os
 import requests
 
 from .models import User
-from .settings_helper import get_panel_settings, get_server_settings
+from .settings_helper import get_server_settings, get_site_settings
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
 
@@ -85,7 +85,7 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
 
 
 def is_server_online(server_uuid: str) -> bool:
-    panel_settings = get_panel_settings()
+    panel_settings = get_site_settings()['panel_settings']
     headers = {
         "Authorization": f"Bearer {panel_settings['panel_api_key']}",
     }
@@ -109,7 +109,7 @@ def is_server_online(server_uuid: str) -> bool:
 
 def send_command_to_server(server_name: str, command: str) -> bool:
     print(f"Sending command {command} to server {server_name}")
-    panel_settings = get_panel_settings()
+    panel_settings = get_site_settings()['panel_settings']
     server_settings = get_server_settings()
     server_uuid = server_settings[server_name]['uuid']
     headers = {

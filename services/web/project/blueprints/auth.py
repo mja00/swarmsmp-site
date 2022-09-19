@@ -15,7 +15,7 @@ from ..decorators import minecraft_authenticated
 from ..extensions import cache
 from ..logger import log_login
 from ..models import User, db, EmailConfirmation, MinecraftAuthentication
-from ..settings_helper import get_can_register, get_join_discord
+from ..settings_helper import get_site_settings
 from ..webhooks import new_user, email_confirmed_hook, discord_linked_hook, minecraft_linked_hook
 
 auth_bp = Blueprint('auth', __name__)
@@ -195,7 +195,7 @@ def logout():
 def register():
     if request.method == 'POST':
 
-        if not get_can_register:
+        if not get_site_settings()['registration_settings']['can_register']:
             flash("Registration is currently disabled", "danger")
             return redirect(url_for('index'))
 
@@ -418,7 +418,7 @@ def discord_callback():
         access_token = token_info['access_token']
         user_info = get_discord_info_for_token(access_token)
         user = User.query.filter_by(id=current_user.id).first()
-        if get_join_discord():
+        if get_site_settings()['registration_settings']['join_discord_on_register']:
             success = make_user_join_discord_guild(DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, user_info['id'], access_token)
             if not success:
                 flash('Error joining Discord guild', "danger")
