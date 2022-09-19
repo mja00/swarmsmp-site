@@ -473,13 +473,15 @@ class Faction(db.Model):
     applications = db.relationship('Application', backref='faction', lazy=True)
     classes = db.relationship('Class', backref='faction', lazy=True)
     races = db.relationship('Race', backref='faction', lazy=True)
+    commands = db.Column(db.Text(), nullable=True, default=None)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, name):
+    def __init__(self, name, commands):
         self.name = name
+        self.commands = commands
 
     def __repr__(self):
         return f'<Faction {self.id}>'
@@ -498,6 +500,12 @@ class Faction(db.Model):
         # TODO: Make this pull from the DB
         _characters = self.characters
         return "N/A"
+
+    def get_commands_as_list(self) -> [str]:
+        if self.commands is None:
+            return []
+        # Split the commands by command and clear any whitespace
+        return [x.strip() for x in self.commands.split(',')]
 
 
 class Class(db.Model):

@@ -329,8 +329,9 @@ def audit_logs_data():
 @admin_bp.route('/faction/new', methods=['POST'])
 def new_faction():
     name = request.form.get('factionName')
+    commands = request.form.get('faction_commands', None)
     if name:
-        faction_obj = Faction(name=name)
+        faction_obj = Faction(name=name, commands=commands)
         db.session.add(faction_obj)
         db.session.commit()
         flash('Faction created', 'success')

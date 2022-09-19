@@ -44,6 +44,7 @@ def application_accepted(application: Application):
     # TODO: Give the user the whitelist role on Discord
     # TODO: Give the user their faction role on Discord
     # Assign all the needed commands to the user
+    user.add_list_of_commands(application.faction.get_commands_as_list())
     user.add_list_of_commands(application.clazz.get_commands_as_list())
     user.add_list_of_commands(application.race.get_commands_as_list())
     # Delete the caches for the user's character functions
