@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Downloads{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">Downloads</h1>
+        <h4 class="text-center">Latest version: {{ latest_version }}</h4>
+        <div class="row mt-4">
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-4 text-center">
+                      <i class="fa-brands fa-windows fa-8x" style="vertical-align: center;"></i>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Windows</h5>
+                        <p class="card-text">
+                            Total Downloads: {{ downloadable_assets['windows']['download_count'] }}
+                            <br>
+                            <a class="btn btn-success" href="{{ downloadable_assets['windows']['browser_download_url'] }}">Download</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-4 text-center">
+                      <i class="fa-brands fa-linux fa-8x" style="vertical-align: center;"></i>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Linux</h5>
+                        <p class="card-text">
+                            Total Downloads: {{ downloadable_assets['linux']['download_count'] }}
+                            <br>
+                            <a class="btn btn-success" href="{{ downloadable_assets['linux']['browser_download_url'] }}">Download</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-4 text-center">
+                      <i class="fa-brands fa-apple fa-8x" style="vertical-align: center;"></i>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">macOS (M-series)</h5>
+                        <p class="card-text">
+                            Total Downloads: {{ downloadable_assets['darwin-arm64']['download_count'] }}
+                            <br>
+                            <a class="btn btn-success" href="{{ downloadable_assets['darwin-arm64']['browser_download_url'] }}">Download</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-4 text-center">
+                      <i class="fa-brands fa-apple fa-8x" style="vertical-align: center;"></i>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">macOS (Intel)</h5>
+                        <p class="card-text">
+                            Total Downloads: {{ downloadable_assets['darwin-x64']['download_count'] }}
+                            <br>
+                            <a class="btn btn-success" href="{{ downloadable_assets['darwin-x64']['browser_download_url'] }}">Download</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

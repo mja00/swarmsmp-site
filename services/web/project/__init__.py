@@ -1,6 +1,7 @@
 import os
 import pickle
 import uuid
+import requests
 from datetime import datetime as dt
 from datetime import timedelta
 from threading import Thread
@@ -341,6 +342,31 @@ def apply():
         flash("Applications are currently closed.", "danger")
         return redirect(url_for("index"))
 
+
+def find_asset_for_system(asset_list, system):
+    for asset in asset_list:
+        if "blockmap" in asset["name"]:
+            continue
+        if system in asset["name"]:
+            return asset
+    return None
+
+@app.route("/download")
+def download():
+    # This'll be the download page, we need to get the artifacts from GitHub
+    github_api = "https://api.github.com/repos/mja00/SwarmSMPLauncher/releases/latest"
+    # Get the json from the API
+    response = requests.get(github_api)
+    if response.status_code == 200:
+        json_data = response.json()
+        assets = json_data["assets"]
+        downloadable_assets = {
+            "windows": find_asset_for_system(assets, ".exe"),
+            "linux": find_asset_for_system(assets, ".AppImage"),
+            "darwin-x64": find_asset_for_system(assets, "x64.dmg"),
+            "darwin-arm64": find_asset_for_system(assets, "arm64.dmg"),
+        }
+        return render_template("download.html", downloadable_assets=downloadable_assets, latest_version=downloadable_assets['windows']['name'].split('-')[3].split('.exe')[0])
 
 if __name__ == "__main__":
     # skipcq: BAN-B104
