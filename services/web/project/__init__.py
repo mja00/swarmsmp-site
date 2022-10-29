@@ -351,6 +351,7 @@ def find_asset_for_system(asset_list, system):
             return asset
     return None
 
+
 @app.route("/download")
 def download():
     # This'll be the download page, we need to get the artifacts from GitHub
@@ -367,6 +368,7 @@ def download():
             "darwin-arm64": find_asset_for_system(assets, "arm64.dmg"),
         }
         return render_template("download.html", downloadable_assets=downloadable_assets, latest_version=downloadable_assets['windows']['name'].split('-')[3].split('.exe')[0])
+
 
 if __name__ == "__main__":
     # skipcq: BAN-B104
