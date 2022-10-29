@@ -212,23 +212,21 @@ def register_post():
     # Get the cf-turnstile-response input
     cf_turnstile_response = request.form.get('cf-turnstile-response', None)
     if not cf_turnstile_response:
-        flash("Please complete the captcha. Missing response", "danger")
+        flash("Please complete the captcha.", "danger")
         return redirect(url_for('auth.register'))
     # Check if the response is valid
 
-    check_url = f"https://challenges.cloudflare.com/turnstile/v0/siteverify"
+    check_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
     body_data = {
         "secret": CF_SECRET,
         "response": cf_turnstile_response
     }
     response = requests.post(check_url, data=body_data)
     if response.status_code != 200:
-        flash("Please complete the captcha. Not 200 OK", "danger")
+        flash("An error occurred while validating the captcha.", "danger")
         return redirect(url_for('auth.register'))
     # Check the success value
     if not response.json()['success']:
-        print(response.json())
-        print(CF_SECRET)
         flash("The captcha was no longer valid. Please try again", "danger")
         return redirect(url_for('auth.register'))
 

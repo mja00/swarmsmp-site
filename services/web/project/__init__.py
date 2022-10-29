@@ -17,7 +17,6 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from .blueprints.admin import admin_bp as admin_blueprint
 from .blueprints.api import api as api_blueprint
 from .blueprints.auth import auth_bp as auth_blueprint
-from .blueprints.auth import hcaptcha
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
@@ -102,7 +101,6 @@ else:
 
 db.init_app(app)
 migrate = Migrate(app, db)
-hcaptcha.init_app(app)
 toolbar = DebugToolbarExtension(app)
 cache.init_app(app)
 socketio.init_app(app)
