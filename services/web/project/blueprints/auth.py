@@ -5,7 +5,6 @@ from datetime import datetime as dt
 import jwt
 import requests
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_hcaptcha import hCaptcha
 from flask_login import login_required, current_user, login_user, logout_user
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,10 +20,11 @@ from ..webhooks import new_user, email_confirmed_hook, discord_linked_hook, mine
 auth_bp = Blueprint('auth', __name__)
 
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
-hcaptcha = hCaptcha()
 
 DISCORD_BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
 DISCORD_GUILD_ID = os.environ.get('DISCORD_GUILD_ID')
+
+CF_SECRET = os.environ.get('CLOUDFLARE_TURNSTILE_KEY')
 
 
 def send_registration_email(user, confirmation_token):
@@ -203,14 +203,36 @@ def register():
 
 @auth_bp.route('/register', methods=['POST'])
 def register_post():
+    global CF_SECRET
     if not get_site_settings()['registration_settings']['can_register']:
         flash("Registration is currently disabled", "danger")
         return redirect(url_for('index'))
 
-    if not hcaptcha.verify():
-        flash('Captcha failed', "danger")
+    # Cloudflare Turnstile check
+    # Get the cf-turnstile-response input
+    cf_turnstile_response = request.form.get('cf-turnstile-response', None)
+    if not cf_turnstile_response:
+        flash("Please complete the captcha. Missing response", "danger")
         return redirect(url_for('auth.register'))
-        # Get the form contents
+    # Check if the response is valid
+
+    check_url = f"https://challenges.cloudflare.com/turnstile/v0/siteverify"
+    body_data = {
+        "secret": CF_SECRET,
+        "response": cf_turnstile_response
+    }
+    response = requests.post(check_url, data=body_data)
+    if response.status_code != 200:
+        flash("Please complete the captcha. Not 200 OK", "danger")
+        return redirect(url_for('auth.register'))
+    # Check the success value
+    if not response.json()['success']:
+        print(response.json())
+        print(CF_SECRET)
+        flash("The captcha was no longer valid. Please try again", "danger")
+        return redirect(url_for('auth.register'))
+
+    # Get the form contents
     username = request.form.get('username')
     password = request.form.get('password')
     password_confirm = request.form.get('confirm')
