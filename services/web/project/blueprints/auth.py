@@ -79,10 +79,10 @@ def send_password_reset_email(email, user):
         return True
     else:
         response = requests.post(
-            "https://api.mailgun.net/v3/ssmp.theairplan.com/messages",
+            "https://api.mailgun.net/v3/swarmsmp.com/messages",
             auth=("api", MAILGUN_API_KEY),
             data={
-                "from": "SwarmSMP <noreply@ssmp.theairplan.com>",
+                "from": "SwarmSMP <noreply@swarmsmp.com>",
                 "subject": "Reset your password",
                 "to": email,
                 "template": "reset-password",
