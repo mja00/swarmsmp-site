@@ -64,6 +64,9 @@
                                 Refresh Minecraft
                             </button>
                             <a href="{{ url_for('auth.discord_authentication') }}" class="btn btn-primary">Re-Link Discord</a>
+                        {% if not user.email_confirmed %}
+                            <a href="{{ url_for('auth.resend_confirmation_email') }}" class="btn btn-success">Resend Confirmation Email</a>
+                        {% endif %}
                         </div>
                     </div>
                 {% endif %}

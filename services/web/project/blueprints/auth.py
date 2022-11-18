@@ -31,6 +31,19 @@ def send_registration_email(user, confirmation_token):
     # Get the user's email address
     email = user.email
 
+    # Find any existing email confirmation records for this user
+    existing_confirmation = EmailConfirmation.query.filter_by(email=user.email).first()
+    if existing_confirmation:
+        # Check if the created_at time is more than 5 minutes ago
+        if (dt.now() - existing_confirmation.created_at).total_seconds() > 300:
+            # Delete the existing confirmation record
+            db.session.delete(existing_confirmation)
+            db.session.commit()
+        else:
+            # Return False to indicate that the email was not sent
+            return False
+
+
     # Create a new confirmation object
     try:
         confirmation = EmailConfirmation(user=user, token=confirmation_token, email=email)
@@ -46,10 +59,10 @@ def send_registration_email(user, confirmation_token):
         return True
     else:
         response = requests.post(
-            "https://api.mailgun.net/v3/ssmp.theairplan.com/messages",
+            "https://api.mailgun.net/v3/swarmsmp.com/messages",
             auth=("api", MAILGUN_API_KEY),
             data={
-                "from": "SwarmSMP <noreply@ssmp.theairplan.com>",
+                "from": "SwarmSMP <noreply@swarmsmp.com>",
                 "subject": "Welcome to SwarmSMP!",
                 "to": email,
                 "template": "confirm-email",
@@ -473,3 +486,23 @@ def discord_callback():
         print(e)
         flash('Error linking Discord account', "danger")
         return redirect(url_for('index'))
+
+
+@auth_bp.route("/resend_confirmation_email", methods=['GET'])
+@login_required
+def resend_confirmation_email():
+    user = User.query.filter_by(id=current_user.id).first()
+    if not user:
+        return redirect(url_for('index'))
+
+    # Generate a new confirmation token
+    token = generate_confirmation_token(user.email)
+    # Send the email
+    success = send_registration_email(user, token)
+    if success:
+        flash('Confirmation email sent', "success")
+        # Return them to their current page
+        return redirect(request.referrer)
+    else:
+        flash('You\'ve already requested a confirmation email! Please wait 5 minutes!', "danger")
+        return redirect(request.referrer)
