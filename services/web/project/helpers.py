@@ -65,7 +65,7 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
         return True
     else:
         data = {
-            "from": "SwarmSMP <noreply@ssmp.theairplan.com>",
+            "from": "SwarmSMP <noreply@swarmsmp.com>",
             "subject": subject,
             "to": email,
             "template": template,
@@ -73,7 +73,7 @@ def send_template_to_email(email: str, template: str, subject: str, force: bool 
         if variables:
             data["h:X-Mailgun-Variables"] = json.dumps(variables)
         response = requests.post(
-            "https://api.mailgun.net/v3/ssmp.theairplan.com/messages",
+            "https://api.mailgun.net/v3/swarmsmp.com/messages",
             auth=("api", MAILGUN_API_KEY),
             data=data
         )
