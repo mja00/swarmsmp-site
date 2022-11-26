@@ -355,7 +355,7 @@ def edit_faction(faction_id):
 
         faction_obj.name = name
         faction_obj.commands = commands
-        faction_obj.role = role
+        faction_obj.discord_role = role
         db.session.commit()
         flash('Faction updated', 'success')
         log_options_change(current_user, f"EDITED FACTION {name}")
