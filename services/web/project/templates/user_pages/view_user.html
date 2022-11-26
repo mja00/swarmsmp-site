@@ -67,10 +67,12 @@
                                     data-bs-placement="top" title="Updates your Minecraft username if it's changed.">
                                 Refresh Minecraft
                             </button>
-                            <a href="{{ url_for('auth.discord_authentication') }}" class="btn btn-primary">Re-Link Discord</a>
-                        {% if not user.email_confirmed %}
-                            <a href="{{ url_for('auth.resend_confirmation_email') }}" class="btn btn-success">Resend Confirmation Email</a>
-                        {% endif %}
+                            <a href="{{ url_for('auth.discord_authentication') }}" class="btn btn-primary">Re-Link
+                                Discord</a>
+                            {% if not user.email_confirmed %}
+                                <a href="{{ url_for('auth.resend_confirmation_email') }}" class="btn btn-success">Resend
+                                    Confirmation Email</a>
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}
@@ -81,7 +83,7 @@
                         </div>
                         <div class="card-body">
                             {% if user.is_banned %}
-                            <button onclick="unbanUser()" class="btn btn-success">Unban User</button>
+                                <button onclick="unbanUser()" class="btn btn-success">Unban User</button>
                             {% else %}
                                 <button onclick="banUser()" class="btn btn-danger">Ban User</button>
                             {% endif %}
@@ -90,85 +92,37 @@
                             {% else %}
                                 <button onclick="whitelistUser()" class="btn btn-success">Whitelist</button>
                             {% endif %}
-                            <a href="{{ url_for("admin.user", user_id=user.id) }}" class="btn btn-info">View On Dashboard</a>
+                            <a href="{{ url_for("admin.user", user_id=user.id) }}" class="btn btn-info">View On
+                                Dashboard</a>
                         </div>
                     </div>
                 {% endif %}
             </div>
             <div class="col-lg-8">
                 <div class="card">
-                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#charInfo">
+                    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#charInfoCollapse">
                         <h5>{{ user.username }}'s Character</h5>
                         {% if user.id == current_user.id %}
                             <small class="text-muted">This is public information</small>
                         {% endif %}
                     </div>
-                    <div class="card-body collapse show" id="charInfo">
-                        {% if user.has_character() %}
-                            <form>
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="name">Name</label>
-                                            <input type="text" class="form-control" id="name"
-                                                   value="{{ latest_character.name }}" disabled>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="faction">Faction</label>
-                                            <input type="text" class="form-control" id="faction"
-                                                   value="{{ latest_character.faction.name }}" disabled>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        {% else %}
-                            <p>This user has not created a character yet.</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {% if current_user.is_authenticated %}
-                {% if user.id == current_user.id or current_user.is_elevated() %}
-                    <div class="card mt-4">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#privCharBody">
-                            <h5>Private Character Information</h5>
-                            <small class="text-muted">Only SwarmSMP Staff and yourself can see this. Click this header to unhide it.</small>
-                        </div>
-                        <div class="card-body collapse" id="privCharBody">
+                    <div class="collapse show" id="charInfoCollapse">
+                        <div class="card-body" id="charInfo">
                             {% if user.has_character() %}
                                 <form>
                                     <div class="row">
                                         <div class="col">
                                             <div class="form-group">
-                                                <label for="race">Race</label>
-                                                <input type="text" class="form-control" id="race"
-                                                       value="{{ latest_character.race.name }}" disabled>
+                                                <label for="name">Name</label>
+                                                <input type="text" class="form-control" id="name"
+                                                       value="{{ latest_character.name }}" disabled>
                                             </div>
                                         </div>
                                         <div class="col">
                                             <div class="form-group">
-                                                <label for="class">Class</label>
-                                                <input type="text" class="form-control" id="class"
-                                                       value="{{ latest_character.class.name }}" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="backstory">Backstory</label>
-                                                <textarea class="form-control" id="backstory" rows="3"
-                                                          disabled>{{ latest_character.backstory }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="description">Description</label>
-                                                <textarea class="form-control" id="description" rows="3"
-                                                          disabled>{{ latest_character.description }}</textarea>
+                                                <label for="faction">Faction</label>
+                                                <input type="text" class="form-control" id="faction"
+                                                       value="{{ latest_character.faction.name }}" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -178,54 +132,112 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% if current_user.id == user.id %}
+                </div>
+                {% if current_user.is_authenticated %}
+                    {% if user.id == current_user.id or current_user.is_elevated() %}
                         <div class="card mt-4">
-                            <div class="card-header">
-                                <h5>Application Information</h5>
+                            <div class="card-header" data-bs-toggle="collapse" data-bs-target="#privCharBodyCollapse">
+                                <h5>Private Character Information</h5>
+                                <small class="text-muted">Only SwarmSMP Staff and yourself can see this. Click this
+                                    header to unhide it.</small>
                             </div>
-                            <div class="card-body">
-                                {% if latest_application %}
-                                    {% if latest_application.is_rejected %}
-                                        <p>Your application has been <b class="text-danger">rejected.</b> You can re-apply
-                                            in {{ time_till }}.</p>
-                                        <p>Rejection reason: </p>
-                                        <p>{{ latest_application.rejection_reason }}</p>
-                                    {% elif latest_application.is_accepted %}
-                                        <p>Your application has been <b class="text-success">accepted!</b></p>
+                            <div class="collapse" id="privCharBodyCollapse">
+                                <div class="card-body" id="privCharBody">
+                                    {% if user.has_character() %}
+                                        <form>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label for="race">Race</label>
+                                                        <input type="text" class="form-control" id="race"
+                                                               value="{{ latest_character.race.name }}" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label for="class">Class</label>
+                                                        <input type="text" class="form-control" id="class"
+                                                               value="{{ latest_character.class.name }}" disabled>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label for="backstory">Backstory</label>
+                                                        <textarea class="form-control" id="backstory" rows="3"
+                                                                  disabled>{{ latest_character.backstory }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group">
+                                                        <label for="description">Description</label>
+                                                        <textarea class="form-control" id="description" rows="3"
+                                                                  disabled>{{ latest_character.description }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
                                     {% else %}
-                                        <p>Your application is currently pending. It was
-                                            submitted {{ latest_application.get_humanized_created_at() }}.</p>
+                                        <p>This user has not created a character yet.</p>
                                     {% endif %}
-                                {% else %}
-                                    <p>You have not yet submitted an application.</p>
-                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if current_user.id == user.id %}
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Application Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if latest_application %}
+                                        {% if latest_application.is_rejected %}
+                                            <p>Your application has been <b class="text-danger">rejected.</b> You can
+                                                re-apply
+                                                in {{ time_till }}.</p>
+                                            <p>Rejection reason: </p>
+                                            <p>{{ latest_application.rejection_reason }}</p>
+                                        {% elif latest_application.is_accepted %}
+                                            <p>Your application has been <b class="text-success">accepted!</b></p>
+                                        {% else %}
+                                            <p>Your application is currently pending. It was
+                                                submitted {{ latest_application.get_humanized_created_at() }}.</p>
+                                        {% endif %}
+                                    {% else %}
+                                        <p>You have not yet submitted an application.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if current_user.is_elevated() %}
+                        <div class="card mt-4">
+                            <div class="card-header" data-bs-toggle="collapse" data-bs-target="#staffInfoBodyCollapse">
+                                <h5>Staff Information</h5>
+                            </div>
+                            <div class="collapse show" id="staffInfoBodyCollapse">
+                                <div class="card-body" id="staffInfoBody">
+                                    <form>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label for="staff-notes" class="form-label">Staff Notes</label>
+                                                <textarea class="form-control" id="staff-notes" rows="5"
+                                                          readonly>{{ user.staff_notes if user.staff_notes }}</textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="original-backstory" class="form-label">Original
+                                                    Backstory</label>
+                                                <textarea class="form-control" id="original-backstory" rows="5"
+                                                          readonly>{{ latest_character.original_backstory }}</textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     {% endif %}
-                {% endif %}
-                {% if current_user.is_elevated() %}
-                    <div class="card mt-4">
-                        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#staffInfoBody">
-                            <h5>Staff Information</h5>
-                        </div>
-                        <div class="card-body collapse show" id="staffInfoBody">
-                            <form>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="staff-notes" class="form-label">Staff Notes</label>
-                                        <textarea class="form-control" id="staff-notes" rows="5"
-                                                  readonly>{{ user.staff_notes if user.staff_notes}}</textarea>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="original-backstory" class="form-label">Original Backstory</label>
-                                        <textarea class="form-control" id="original-backstory" rows="5"
-                                                  readonly>{{ latest_character.original_backstory }}</textarea>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
                 {% endif %}
             </div>
         </div>
