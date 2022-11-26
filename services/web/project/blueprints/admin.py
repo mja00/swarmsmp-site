@@ -330,8 +330,9 @@ def audit_logs_data():
 def new_faction():
     name = request.form.get('factionName')
     commands = request.form.get('faction_commands', None)
+    role = request.form.get('faction_role', None)
     if name:
-        faction_obj = Faction(name=name, commands=commands)
+        faction_obj = Faction(name=name, commands=commands, role=role)
         db.session.add(faction_obj)
         db.session.commit()
         flash('Faction created', 'success')
@@ -345,6 +346,7 @@ def new_faction():
 def edit_faction(faction_id):
     name = request.form.get('factionName')
     commands = request.form.get('faction_commands', None)
+    role = request.form.get('faction_role', None)
     if name:
         faction_obj = Faction.query.filter_by(id=faction_id).first()
         if not faction_obj:
@@ -353,6 +355,7 @@ def edit_faction(faction_id):
 
         faction_obj.name = name
         faction_obj.commands = commands
+        faction_obj.role = role
         db.session.commit()
         flash('Faction updated', 'success')
         log_options_change(current_user, f"EDITED FACTION {name}")

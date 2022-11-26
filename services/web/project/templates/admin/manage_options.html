@@ -32,6 +32,10 @@
                                 <input type="text" class="form-control" id="faction_commands" name="faction_commands">
                                 <div id="faction_commands_hint" class="form-text">This needs to be a comma separated list.</div>
                             </div>
+                            <div class="col-12">
+                                <label for="faction_role">Discord Role ID</label>
+                                <input type="text" class="form-control" id="faction_role" name="faction_role">
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -62,6 +66,10 @@
                                 <input type="text" class="form-control" id="edit_faction_commands" name="faction_commands">
                                 <div id="faction_commands_hint" class="form-text">This needs to be a comma separated list.</div>
                             </div>
+                            <div class="col-12">
+                                <label for="edit_faction_role">Discord Role ID</label>
+                                <input type="text" class="form-control" id="edit_faction_role" name="faction_role">
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -91,7 +99,7 @@
                 <td>{{ faction.total() }}</td>
                 <td>
                     <button class="btn btn-sm btn-warning" id="edit-faction-{{ faction.id }}"
-                            onclick="editFaction('{{ faction.id }}', '{{ faction.name }}', '{{ faction.commands }}')">
+                            onclick="editFaction('{{ faction.id }}', '{{ faction.name }}', '{{ faction.commands }}', '{{ faction.discord_role }}')">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                 </td>
@@ -340,7 +348,7 @@
 {% endblock %}
 {% block userscripts %}
     <script>
-        function editFaction(faction_id, faction_name, faction_commands) {
+        function editFaction(faction_id, faction_name, faction_commands, faction_role) {
             // Update editFactionLabel to show the faction name
             let editFactionLabel = document.getElementById('editFactionLabel');
             editFactionLabel.innerText = `Editing ${faction_name}`;
@@ -353,6 +361,8 @@
             factionName.value = faction_name;
             let factionCommands = document.getElementById('edit_faction_commands');
             factionCommands.value = faction_commands;
+            let factionRole = document.getElementById('edit_faction_role');
+            factionRole.value = faction_role;
 
             // Show modal
             $('#editFaction').modal('show');

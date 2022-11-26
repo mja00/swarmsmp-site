@@ -477,14 +477,16 @@ class Faction(db.Model):
     classes = db.relationship('Class', backref='faction', lazy=True)
     races = db.relationship('Race', backref='faction', lazy=True)
     commands = db.Column(db.Text(), nullable=True, default=None)
+    discord_role = db.Column(db.String(255), nullable=True, default=None)
 
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
 
-    def __init__(self, name, commands):
+    def __init__(self, name, commands, role):
         self.name = name
         self.commands = commands
+        self.discord_role = role
 
     def __repr__(self):
         return f'<Faction {self.id}>'
