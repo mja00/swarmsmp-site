@@ -29,7 +29,11 @@
                                     {% endif %}
                                 {% endif %}
                                 {% if user.is_staff %}
-                                    <span class="badge bg-warning">Staff</span>
+                                    {% if user.staff_title %}
+                                        <span class="badge bg-warning">{{ user.staff_title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Staff</span>
+                                    {% endif %}
                                 {% endif %}
                                 {% if user.is_banned %}
                                     <span class="badge bg-danger">Banned</span>
