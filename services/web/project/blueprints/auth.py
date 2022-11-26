@@ -211,15 +211,30 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     else:
-        return render_template('auth_pages/register.html')
+        if request.args.get("invite_code") == os.environ.get('INVITE_CODE'):
+            can_register = True
+        else:
+            can_register = False
+        return render_template('auth_pages/register.html', can_register=can_register)
 
 
 @auth_bp.route('/register', methods=['POST'])
 def register_post():
     global CF_SECRET
     if not get_site_settings()['registration_settings']['can_register']:
-        flash("Registration is currently disabled", "danger")
-        return redirect(url_for('index'))
+        # Check if there's an invite_code in the form
+        invite_code = request.form.get('invite_code', None)
+        if not invite_code:
+            # Check if there's an invite_code in the query string
+            invite_code = request.args.get('invite_code', None)
+            if not invite_code:
+                flash("Registration is currently disabled", "danger")
+                return redirect(url_for('index'))
+        # Check if the invite code is valid
+        if invite_code == os.environ.get('INVITE_CODE'):
+            return redirect(url_for('auth.register', invite_code=invite_code))
+        else:
+            return redirect(url_for('auth.register'))
 
     # Cloudflare Turnstile check
     # Get the cf-turnstile-response input
