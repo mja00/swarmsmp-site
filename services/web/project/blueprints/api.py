@@ -7,7 +7,6 @@ from flask import Blueprint, jsonify, request, flash, redirect, url_for, copy_cu
 from flask_login import login_required, current_user
 from sqlalchemy.exc import SQLAlchemyError
 
-from .socket import broadcast_server_status, broadcast_notification_to_user
 from ..decorators import staff_required, admin_required, auth_key_required
 from ..extensions import cache
 from ..helpers import get_username_from_uuid, MojangAPIError
@@ -254,8 +253,6 @@ def ticket_reply(ticket_id):
     if (current_user.is_elevated() and ticket.owner_id != current_user.id) and ticket.status != 'answered':
         ticket.status = 'answered'
         ticket.last_replied_at = dt.utcnow()
-        broadcast_notification_to_user(ticket.owner.id, 'A new reply has been posted to your ticket', 'info',
-                                       'New Ticket Reply')
     else:
         ticket.status = 'replied'
         ticket.last_replied_at = dt.utcnow()
@@ -558,7 +555,6 @@ def delete_command(user_id, command_id):
 def update_server_status():
     # Get the JSON body from the request
     data = request.get_json()
-    broadcast_server_status(data)
     status_obj = ServerStatus(data)
     db.session.add(status_obj)
     db.session.commit()

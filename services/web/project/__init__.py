@@ -20,7 +20,7 @@ from .blueprints.auth import auth_bp as auth_blueprint
 from .blueprints.ticket import ticket_bp as ticket_blueprint
 from .blueprints.user import user_bp as user_blueprint
 from .decorators import fully_authenticated
-from .extensions import cache, socketio, app
+from .extensions import cache, app
 from .models import db, User, Faction, Application, Class, Race
 from .settings_helper import get_site_settings
 from .webhooks import new_application
@@ -103,10 +103,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 toolbar = DebugToolbarExtension(app)
 cache.init_app(app)
-socketio.init_app(app)
 
-# Import our socketio file
-from .blueprints import socket
 
 # Blueprints
 app.register_blueprint(auth_blueprint, url_prefix="/auth")
@@ -199,13 +196,6 @@ if development_env:
     def sentry_debug():
         _divide_by_zero = 1 / 0
         return "You should never see this"
-
-
-    @app.route('/notification_test/<string:user_id>')
-    def notification_test(user_id):
-        socket.broadcast_notification_to_user(user_id, "I hope you stub your toe you fucking loser",
-                                              notif_title='lol u suck ass', notif_type='success')
-        return "Notification sent"
 
 
 @cache.cached(timeout=3600)

@@ -178,13 +178,6 @@
                     </div>
                 </div>
             </div>
-            <!--
-            <footer class="bottom">
-                <div class="text-center">
-                    <p>Crafted by <a href="https://github.com/mja00" target="_blank">mja00</a> | <a
-                            href="https://twitter.com/officialmja00" target="_blank">Twitter</a></p>
-                </div>
-            </footer> -->
 
 
             {% block scripts %}
@@ -208,12 +201,6 @@
                 <!-- DataTables -->
                 <script type="text/javascript"
                         src="https://cdn.datatables.net/v/bs5/dt-1.11.5/date-1.1.2/rr-1.2.8/datatables.min.js"></script>
-
-                <!-- Socket.io -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"
-                        integrity="sha512-/xb5+PNOA079FJkngKI2jvID5lyiqdHXaUUcfmzE0X0BdpkgzIWHC59LOG90a2jDcOyRsd1luOr24UCCAG8NNw=="
-                        crossorigin="anonymous"
-                        referrerpolicy="no-referrer"></script>
                 <script>
                     $(document).ready(function () {
                         $('[data-bs-toggle="tooltip"]').tooltip();
@@ -229,66 +216,6 @@
 
 
                     });
-                </script>
-                <!-- Socket IO -->
-                <script>
-                    // SocketIO notification system
-                    let socket = io();
-                    socket.on('after connect', function (data) {
-                        {% if current_user.is_authenticated %}
-                            socket.emit('notifications join', {}, (response) => {
-                                console.log("Listening for new notifications");
-                            });
-
-                            socket.on('new notification', function (data) {
-                                // Create a new toast
-                                let clonedToast = $('#cloneToast').clone();
-                                // Remove the ID
-                                clonedToast.removeAttr('id');
-                                // Set all the info
-                                clonedToast.find('.me-auto').text(data.title);
-                                clonedToast.find('.toast-body').text(data.message);
-                                clonedToast.attr("data-bs-autohide", "false");
-                                // Add a bg class
-                                clonedToast.addClass(`bg-${data.type}`);
-                                // Replace the text in the small element with a timeago element
-                                let now = new Date();
-                                clonedToast.find('small').html(
-                                    `<time class="timeago" datetime="${now.toISOString()}">${now.toISOString()}</time>`
-                                );
-                                // Add it to the toast container
-                                $('#toastContainer').append(clonedToast);
-                                $("time.timeago").timeago();
-                                // Show the toast
-                                let toast = new bootstrap.Toast(clonedToast);
-                                toast.show();
-                                sendDesktopNotification(data.title, data.message);
-                            });
-                        {% endif %}
-                        socket.on('disconnect', function () {
-                            console.log("Disconnected from socket");
-                            socket.off('new notification');
-                        });
-                    });
-
-                    function sendDesktopNotification(title, body) {
-                        if (Notification.permission === "granted") {
-                            let notification = new Notification(title, {
-                                body: body,
-                                icon: '{{ url_for('static', filename='android-chrome-192x192.png') }}'
-                            });
-
-                            setTimeout(notification.close.bind(notification), 5000);
-                        }
-                        else if (Notification.permission !== 'denied') {
-                            Notification.requestPermission().then(permission => {
-                                if (permission === "granted") {
-                                    let notification = new Notification(title, {body: body});
-                                    setTimeout(notification.close.bind(notification), 5000);
-                                }
-                            });
-                        }
-                    }
                 </script>
             {%- endblock scripts %}
             {% block userscripts -%}

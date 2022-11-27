@@ -232,7 +232,9 @@ def register_post():
                 return redirect(url_for('index'))
         # Check if the invite code is valid
         if invite_code == os.environ.get('INVITE_CODE'):
-            return redirect(url_for('auth.register', invite_code=invite_code))
+            # Gotta check to see if they've sent a post with the actual registration info
+            if request.form.get("username", None) is None:
+                return redirect(url_for('auth.register', invite_code=invite_code))
         else:
             return redirect(url_for('auth.register'))
 
