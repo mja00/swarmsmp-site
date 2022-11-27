@@ -356,4 +356,3 @@ def download():
             "darwin-arm64": find_asset_for_system(assets, "arm64.dmg"),
         }
         return render_template("download.html", downloadable_assets=downloadable_assets, latest_version=downloadable_assets['windows']['name'].split('-')[3].split('.exe')[0])
-
