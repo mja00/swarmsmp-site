@@ -357,7 +357,3 @@ def download():
         }
         return render_template("download.html", downloadable_assets=downloadable_assets, latest_version=downloadable_assets['windows']['name'].split('-')[3].split('.exe')[0])
 
-
-if __name__ == "__main__":
-    # skipcq: BAN-B104
-    socketio.run(app, host="0.0.0.0", port=5000)
